@@ -6,6 +6,7 @@ A DIY home monitoring system consisted of the Arduino and the Raspberry Pi (that
 
 
 **Prerequisites**
+
 *Software*
 
  - https://bitbucket.org/fmalpartida/new-liquidcrystal/downloads for LCD Display
