@@ -14,7 +14,7 @@ A DIY home monitoring system consisted of the Arduino and the Raspberry Pi (that
 
 *Hardware*
 
- - Arduino
+ - Arduino + 20x4 LCD (using a backpack)
  - Raspberry Pi / computer
  - Door magnetic sensor
 
