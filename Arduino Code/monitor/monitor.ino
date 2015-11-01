@@ -69,8 +69,8 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
   {
     // when characters arrive over the serial port...
     if (Serial.available()) {
-          serialIn += Serial.readString();
-      Serial.println(serialIn);
+      serialIn = Serial.readStringUntil('.'); // Will stop when sees period and leave rest as next input
+      // Serial.println(serialIn);
       if (serialIn.equals("UNLOCK")){
         doorLockState = 0;
       }else if (serialIn.equals("LOCKED")){
