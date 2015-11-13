@@ -2,6 +2,7 @@ import serial
 import threading
 from time import sleep, time
 import modules.weather.weather as weather
+import modules.sound.sound as sound
 
 # Set your Arduino device here. To find the
 # address, enter ls /dev/tty* into the terminal
@@ -21,6 +22,9 @@ except:
         addr = raw_input("Address: ")
         ser = serial.Serial('/dev/' + addr, 9600)
 
+# Write the constants here.
+dingSound = "/home/pi/Arduino-Pi-Home-Monitoring/Server/sounds/ding.wav"
+
 # Functions
 def clearMessages():
     # Clears the middle two lines used for messages on the Arduino
@@ -32,7 +36,11 @@ def updateTemp():
     try:
         ser.write("TEMP " + weather.getTemp() + ".")
         try:
-            ser.write("LINE1 " + weather.getCondition() + ".")
+            cond = weather.getCondition()
+            if (len(cond) > 21):
+                cond = cond[0:20]
+            print(cond)
+            ser.write("LINE1 " + cond + ".")
         except:
             pass
     except:
@@ -51,9 +59,18 @@ def updateClock():
     ser.write("SETTIME " + str(int(time()-18000)) + ".") # The (-) is to offset to EST
     print("Updating Arduino Clock")
 
+def processInput(input):
+    if (input.startswith("DC")):
+        print("door reported closed")
+    elif (input.startswith("DO")):
+        print("door reported opened")
+        sound.play(dingSound)
+
+# Setup Code
 print("Waiting for Arduino to reset...")
 sleep(5)
 updateArduino()
 
+# Loop
 while True:
-    pass
+    processInput(ser.readline())
