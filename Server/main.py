@@ -1,7 +1,7 @@
 import serial
 import threading
 import datetime
-from time import sleep, time
+import time
 import modules.weather.weather as weather
 import modules.sound.sound as sound
 #import modules.network.scan as scan   FOR THE FUTURE
@@ -20,7 +20,7 @@ except:
     try:
         ser = serial.Serial('/dev/ttyACM1', 9600)
     except:
-		st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+	st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         print(st + ",Cannot find Arduino. Please manually enter the address EX: ttyACM0")
         addr = raw_input("Address: ")
         ser = serial.Serial('/dev/' + addr, 9600)
@@ -44,13 +44,12 @@ def updateTemp():
             cond = weather.getCondition()
             if (len(cond) > 21):
                 cond = cond[0:20]
-            print(cond)
             ser.write("LINE1 " + cond + ".")
         except:
             pass
     except:
-		st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-		print(st + ",INTERNET LOST")
+	st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+	print(st + ",INTERNET LOST")
         ser.write("LINE1 cannot fetch weather.")
         ser.write("TEMP N/A.")
 
@@ -64,39 +63,40 @@ def updateArduino():
 # Updates the internal clock on the Arduino since it does not have a RTC
 def updateClock():
     # Updates the clock on the Arduino
-    ser.write("SETTIME " + str(int(time()-18000)) + ".") # The (-) is to offset to EST
+    ser.write("SETTIME " + str(int(time.time()-18000)) + ".") # The (-) is to offset to EST
 
 # Process any serial messages coming from the Arduino
 def processInput(input):
     if (input.startswith("DC")):
-        st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-		print(st + ",door closed")
+        st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        print(st + ",door closed")
     elif (input.startswith("DO")):
-        st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-		print(st + ",door opened")
-		stat = searchDevice()
-		if (stat != "none"):
-			pass
+        st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        print(st + ",door opened")
+        stat = searchDevice()
+        if (stat != "none"):
+            pass
 
 # Find any new devices on the network
 def searchDevice():
-	#latest_network = scan.listDevices()
-	latest_network = [] #temporary
-	if (latest_network != last_network):
-		for t in latest_network:
+    #latest_network = scan.listDevices()
+    latest_network = [] #temporary
+    global last_network
+    if (latest_network != last_network):
+        for t in latest_network:
             if t not in last_network:
-				last_network = latest_network
                 return t
-	return "none"
+    last_network = latest_network
+    return "none"
 	
 # Variables
-global last_network = []
+global last_network
+last_network = []
 
 # Setup Code
-st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 print(st + ",SYSTEM STARTING")
-print("Waiting for Arduino to reset...")
-sleep(5)
+time.sleep(5)
 updateArduino()
 
 # Loop
