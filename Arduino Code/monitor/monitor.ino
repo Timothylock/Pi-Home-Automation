@@ -32,6 +32,11 @@ String currentTime = "N/A";
 String currentDate = "N/A";
 String temp = "N/A";
 String oldTemp = "0C";
+String F1 = "";
+String F2 = "";
+String F3 = "";
+String F4 = "";
+String screen = "default";
 
 
 /*-----( Communication Protocol )-----*/
@@ -63,31 +68,8 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
 
 }/*--(end setup )---*/
 
-
-void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
-{
-  {
-    // when characters arrive over the serial port...
-    if (Serial.available()) {
-      serialIn = Serial.readStringUntil('.'); // Will stop when sees period and leave rest as next input
-      // Serial.println(serialIn);
-      if (serialIn.equals("UNLOCK")){
-        doorLockState = 0;
-      }else if (serialIn.equals("LOCKED")){
-        doorLockState = 1;
-      }else if (serialIn.substring(0,4).equals("TEMP")){
-        temp = serialIn.substring(5);
-      }else if (serialIn.substring(0,7).equals("SETTIME")){
-        setTime(serialIn.substring(8).toInt());
-      }else if (serialIn.substring(0,5).equals("LINE1")){
-        line1 = serialIn.substring(6);
-      }else if (serialIn.substring(0,5).equals("LINE2")){
-        line2 = serialIn.substring(6);
-      }
-      serialIn = "";
-    }
-
-    // Print top line
+void defaultScreen(){
+  // Print top line
     if (!(String(monthShortStr(month())) + " " + String(day())).equals(currentDate)){
       lcd.setCursor(0,0);
       currentDate = (String(monthShortStr(month())) + " " + String(day()));
@@ -128,34 +110,18 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
       if (doorLastState != 0){
         lcd.setCursor(0,3);
         lcd.print("Door: CLOSED");
+        Serial.println("DC");
         doorLastState = 0;
       }
     }else{
       // Avoids refreshing the screen for no reason
       if (doorLastState != 1){
         lcd.setCursor(0,3);
-        lcd.print("Door: OPENED  UNLOCK");
-        Serial.println("DOU"); // Send serial out to computer
+        lcd.print("Door: OPENED");
+        Serial.println("DO"); 
         doorLastState = 1;
       }
     }
-
-    // Door lock state
-    if (!(lastDoorLockState == doorLockState)){
-      lcd.setCursor(14,3);
-        if (doorLockState == -1){
-          lcd.print(" ERROR");
-          Serial.println("DCE"); // Send serial out to computer
-        }else if (doorLockState == 1){
-          lcd.print("LOCKED");
-          Serial.println("DCL"); // Send serial out to computer
-        }else if (doorLockState == 0){
-          lcd.print("UNLOCK");
-          Serial.println("DCU"); // Send serial out to computer
-        }
-        lastDoorLockState = doorLockState;
-    }
-    
 
     // Print any system messages
     if (!(line1.equals(oldLine1))){
@@ -168,6 +134,75 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
       lcd.print(line2);
       oldLine2 = line2;
     }
+}
+
+void flashScreen(){
+  lcd.setCursor(0,0);
+  lcd.print(F1);
+  lcd.setCursor(0,1);
+  lcd.print(F2);
+  lcd.setCursor(0,2);
+  lcd.print(F3);
+  lcd.setCursor(0,3);
+  lcd.print(F4);
+}
+
+void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
+{
+  {
+    // when characters arrive over the serial port...
+    if (Serial.available()) {
+      serialIn = Serial.readStringUntil('.'); // Will stop when sees period and leave rest as next input
+      // Serial.println(serialIn);
+      if (serialIn.equals("UNLOCK")){
+        doorLockState = 0;
+      }else if (serialIn.equals("LOCKED")){
+        doorLockState = 1;
+      }else if (serialIn.substring(0,4).equals("TEMP")){
+        temp = serialIn.substring(5);
+      }else if (serialIn.substring(0,7).equals("SETTIME")){
+        setTime(serialIn.substring(8).toInt());
+      }else if (serialIn.substring(0,5).equals("LINE1")){
+        line1 = serialIn.substring(6);
+      }else if (serialIn.substring(0,5).equals("LINE2")){
+        line2 = serialIn.substring(6);
+      }else if (serialIn.substring(0,6).equals("FLINE1")){
+        F1 = serialIn.substring(7);
+      }else if (serialIn.substring(0,6).equals("FLINE2")){
+        F2 = serialIn.substring(7);
+      }else if (serialIn.substring(0,6).equals("FLINE3")){
+        F3 = serialIn.substring(7);
+      }else if (serialIn.substring(0,6).equals("FLINE4")){
+        F4 = serialIn.substring(7);
+      }else if (serialIn.substring(0,7).equals("DEFAULT")){
+        oldLine1 = "";
+        oldLine2 = "";
+        oldTemp = "";
+        lcd.setCursor(0,0);
+        lcd.print(currentDate);
+        // Check door status
+        val = analogRead(doorPin);
+        if (val > 500){
+          lcd.setCursor(0,3);
+          lcd.print("Door: CLOSED");
+        }else{
+          lcd.setCursor(0,3);
+          lcd.print("Door: OPENED");
+        }
+        screen = "default";
+      }else if (serialIn.substring(0,5).equals("FLASH")){
+        lcd.clear();
+        screen = "flash";
+      }
+      serialIn = "";
+    }
+
+    if (screen.equals("default")){
+      defaultScreen();
+    }else if (screen.equals("flash")){
+      flashScreen();
+    }
+        
   }
 
 }/* --(end main loop )-- */
