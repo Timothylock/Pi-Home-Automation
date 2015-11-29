@@ -97,7 +97,13 @@ last_network = []
 st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 print(st + ",SYSTEM STARTING")
 time.sleep(5)
+ser.write("FLASH.")
+ser.write("DEFAULT.")
 updateArduino()
+#mydata = raw_input('Prompt :')
+#print (mydata)
+#ser.write("LINE1 " + mydata + ".")
+
 
 # Loop
 while True:
