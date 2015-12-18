@@ -178,6 +178,7 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
         oldLine1 = "";
         oldLine2 = "";
         oldTemp = "";
+        lcd.clear();
         lcd.setCursor(0,0);
         lcd.print(currentDate);
         // Check door status
@@ -190,7 +191,6 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
           lcd.print("Door: OPENED");
         }
         screen = "default";
-        lcd.clear();
       }else if (serialIn.substring(0,5).equals("FLASH")){
         lcd.clear();
         screen = "flash";
