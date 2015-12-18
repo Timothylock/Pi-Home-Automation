@@ -11,7 +11,8 @@ A DIY home monitoring system consisted of the Arduino and the Raspberry Pi (that
 
  - Python 2.7 (For Python 3, read note at bottom)
  - https://bitbucket.org/fmalpartida/new-liquidcrystal/downloads for LCD Display
- - MPlayer to play audio
+ - Pygame - Install by "pip install pygame"
+   - For RPi, you might want to add "disable_audio_dither=1" to "/boot/config.txt" if there is static noise
 
 *Hardware*
 
