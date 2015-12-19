@@ -13,6 +13,7 @@ A DIY home monitoring system consisted of the Arduino and the Raspberry Pi (that
  - https://bitbucket.org/fmalpartida/new-liquidcrystal/downloads for LCD Display
  - Pygame - Install by "pip install pygame"
    - For RPi, you might want to add "disable_audio_dither=1" to "/boot/config.txt" if there is static noise
+ - pip install twilio
 
 *Hardware*
 
