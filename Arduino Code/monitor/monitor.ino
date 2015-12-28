@@ -22,6 +22,7 @@ int doorLastState = -1;
 int lastDoorLockState = -10;
 int doorLockState = -1;
 String serialIn = "";
+String arm = "DISARMED";
 String line1 = "      WARNING";
 String line2 = "  No conn to host";
 String oldLine1 = "";
@@ -109,7 +110,7 @@ void defaultScreen(){
       // Avoids refreshing the screen for no reason
       if (doorLastState != 0){
         lcd.setCursor(0,3);
-        lcd.print("Door: CLOSED");
+        lcd.print("CLOSED");
         Serial.println("DC");
         doorLastState = 0;
       }
@@ -117,11 +118,15 @@ void defaultScreen(){
       // Avoids refreshing the screen for no reason
       if (doorLastState != 1){
         lcd.setCursor(0,3);
-        lcd.print("Door: OPENED");
+        lcd.print("OPENED");
         Serial.println("DO"); 
         doorLastState = 1;
       }
     }
+
+    // Print arm status
+    lcd.setCursor(12,3);
+    lcd.print(arm);
 
     // Print any system messages
     if (!(line1.equals(oldLine1))){
@@ -174,6 +179,10 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
         F3 = serialIn.substring(7);
       }else if (serialIn.substring(0,6).equals("FLINE4")){
         F4 = serialIn.substring(7);
+      }else if (serialIn.substring(0,5).equals("ARMED")){
+        arm = "   ARMED";
+      }else if (serialIn.substring(0,8).equals("DISARMED")){
+        arm = "DISARMED";
       }else if (serialIn.substring(0,7).equals("DEFAULT")){
         oldLine1 = "";
         oldLine2 = "";
@@ -185,10 +194,10 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
         val = analogRead(doorPin);
         if (val > 500){
           lcd.setCursor(0,3);
-          lcd.print("Door: CLOSED");
+          lcd.print("CLOSED");
         }else{
           lcd.setCursor(0,3);
-          lcd.print("Door: OPENED");
+          lcd.print("OPENED");
         }
         screen = "default";
       }else if (serialIn.substring(0,5).equals("FLASH")){
