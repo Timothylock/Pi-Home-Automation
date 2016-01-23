@@ -5,7 +5,7 @@ import threading
 import datetime
 import pygame
 import time
-import modules.weather.weather as weather
+import data_update
 import modules.sound.sound as sound
 import modules.network.network as network
 import modules.twilio.sendTwillio as twilio
@@ -35,7 +35,7 @@ except:
     try:
         ser = serial.Serial('/dev/ttyACM1', 9600)
     except:
-	st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
         print(st + ",Cannot find Arduino. Please manually enter the address EX: ttyACM0")
         addr = raw_input("Address: ")
         ser = serial.Serial('/dev/' + addr, 9600)
@@ -43,7 +43,7 @@ except:
 # Sound Files
 pygame.mixer.init()
 pygame.mixer.music.set_volume(1.0)
-	
+    
 # Variables
 global last_network
 last_network = []
@@ -61,25 +61,6 @@ def clearMessages():
     ser.write("FLINE3                     .")
     ser.write("FLINE4                     .")
 
-
-# Update the temperature on the Arduino
-def updateTemp():
-    # Sends the current temperature to the Arduino
-    try:
-        ser.write("TEMP " + weather.getTemp() + ".")
-        try:
-            cond = weather.getCondition()
-            if (len(cond) > 21):
-                cond = cond[0:20]
-            ser.write("LINE1 " + cond + ".")
-        except:
-            pass
-    except:
-        st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-        printlog(st + ",INTERNET LOST")
-        ser.write("LINE1 cannot fetch weather.")
-        ser.write("TEMP N/A.")
-
 # Appends to the log
 def printlog(msg):
     fh = open(logname, 'a')
@@ -89,22 +70,10 @@ def printlog(msg):
         twilio.sendSMS(num, msg, twilio_SID, twilio_AUTH)
     print(msg)
 
-# Updates the Arduino with the latest information
-def updateArduino():
-    threading.Timer(300, updateArduino).start()
-    clearMessages()
-    updateTemp()
-    updateClock()
-
 # Set warn
 def changeWarn():
     global warn
     warn = 0
-
-# Updates the internal clock on the Arduino since it does not have a RTC
-def updateClock():
-    # Updates the clock on the Arduino
-    ser.write("SETTIME " + str(int(time.time()-18000)) + ".") # The (-) is to offset to EST
 
 # Process any serial messages coming from the Arduino
 def processInput(input):
@@ -163,7 +132,7 @@ def searchDevice():
 
 
 
-	
+    
 # Setup Code
 pygame.mixer.music.load("/home/pi/Arduino-Pi-Home-Monitoring/Server/sounds/startup.mp3")
 pygame.mixer.music.set_volume(0.2)
@@ -173,7 +142,7 @@ printlog(st + ",SYSTEM STARTING")
 time.sleep(5)
 ser.write("FLASH.")
 ser.write("DEFAULT.")
-updateArduino()
+data_update.updateArduino()
 #mydata = raw_input('Prompt :')
 #print (mydata)
 #ser.write("LINE1 " + mydata + ".")
