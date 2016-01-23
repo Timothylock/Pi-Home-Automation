@@ -15,7 +15,7 @@ import modules.twilio.sendTwillio as twilio
 #################
 range = "192.168.0.0/24" # IP range to be scanned
 approved = ["F8:A9:D0:4E:5A:BD", "44:D8:84:1F:53:D1"] # Enter the MAC addresses of accepted devices"
-keys = ["123"] # Enter the unlock codes of the barcode/card
+keys = ["0004414520"] # Enter the unlock codes of the barcode/card
 logname = "\home\pi\log.csv" # Name of the log file
 twilio_SID = "AC67ce6ea275a28268eac662c172e7a07d"  # SID for twilio
 twilio_AUTH = "dd4f1f140406942c8faa551cbfdcadb4"  # auth for twilio
@@ -133,31 +133,31 @@ def searchDevice():
         pygame.mixer.music.set_volume(0.6)
         pygame.mixer.music.play()
     else:
-        #warn = 1
-        #ser.write("FLINE1       WARNING.FLINE2.FLINE3 Please authenticate.FLINE4     immediately!.")
-        #ser.write("FLASH.")
-        #threading.Timer(20, changeWarn).start()
+        warn = 1
+        ser.write("FLINE1       WARNING.FLINE2.FLINE3 Please authenticate.FLINE4     immediately!.")
+        ser.write("FLASH.")
+        threading.Timer(20, changeWarn).start()
         st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
         printlog(st + ",STATUS: no registered device found")
         # Play beeping sound and get input (key)
-        #pygame.mixer.music.load("/home/pi/Arduino-Pi-Home-Monitoring/Server/sounds/warn.wav")
-        #pygame.mixer.music.set_volume(0.1)
-        #pygame.mixer.music.play()
-        #while ((unlocked == False) and (warn == 1)):
-        #    i = raw_input("key enter please")
-        #    if i in keys:
-        #        unlocked = True
-        #        pygame.mixer.music.stop()
-        #        pygame.mixer.music.load("/home/pi/Arduino-Pi-Home-Monitoring/Server/sounds/ding.wav")
-        #        pygame.mixer.music.set_volume(0.6)
-        #        pygame.mixer.music.play()
-        #if unlocked == False:
-        #    st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-        #    printlog(st + ",WARNING: User did not authenticate")
-        #    ser.write("FLINE1       WARNING.FLINE2.FLINE3   Authorities have  .FLINE4    been notified    .")
-        #else:
-        #    printlog(st + ",Authentication success")
-        #    ser.write("DEFAULT.")
+        pygame.mixer.music.load("/home/pi/Arduino-Pi-Home-Monitoring/Server/sounds/warn.wav")
+        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.play()
+        while ((unlocked == False) and (warn == 1)):
+            i = raw_input("key enter please")
+            if i in keys:
+                unlocked = True
+                pygame.mixer.music.stop()
+                pygame.mixer.music.load("/home/pi/Arduino-Pi-Home-Monitoring/Server/sounds/ding.wav")
+                pygame.mixer.music.set_volume(0.6)
+                pygame.mixer.music.play()
+        if unlocked == False:
+            st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            printlog(st + ",WARNING: User did not authenticate")
+            ser.write("FLINE1       WARNING.FLINE2.FLINE3   Authorities have  .FLINE4    been notified    .")
+        else:
+            printlog(st + ",Authentication success")
+            ser.write("DEFAULT.")
 
 
 
