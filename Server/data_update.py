@@ -11,14 +11,14 @@ import threading
 import serial
 
 # Updates the Arduino with the latest information
-def updateArduino():
+def updateArduino(ser):
     threading.Timer(300, updateArduino).start()
-    clearMessages()
-    updateTemp()
-    updateClock()
+    clearMessages(ser)
+    updateTemp(ser)
+    updateClock(ser)
 
 # Update the temperature on the Arduino
-def updateTemp():
+def updateTemp(ser):
     # Sends the current temperature to the Arduino
     try:
         ser.write("TEMP " + weather.getTemp() + ".")
@@ -36,6 +36,17 @@ def updateTemp():
         ser.write("TEMP N/A.")
 
 # Updates the internal clock on the Arduino since it does not have a RTC
-def updateClock():
+def updateClock(ser):
     # Updates the clock on the Arduino
     ser.write("SETTIME " + str(int(time.time()-18000)) + ".") # The (-) is to offset to EST
+
+# Clear any messages on the Arduino
+def clearMessages(ser):
+    # Clears the middle two lines used for messages on the Arduino
+    ser.write("LINE1                     .")
+    ser.write("LINE2                     .")
+    ser.write("FLINE1                     .")
+    ser.write("FLINE2                     .")
+    ser.write("FLINE3                     .")
+    ser.write("FLINE4                     .")
+

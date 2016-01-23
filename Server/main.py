@@ -50,16 +50,9 @@ last_network = []
 global warn
 warn = 0
 
-# Functions
-# Clear any messages on the Arduino
-def clearMessages():
-    # Clears the middle two lines used for messages on the Arduino
-    ser.write("LINE1                     .")
-    ser.write("LINE2                     .")
-    ser.write("FLINE1                     .")
-    ser.write("FLINE2                     .")
-    ser.write("FLINE3                     .")
-    ser.write("FLINE4                     .")
+#############
+# Functions #
+#############
 
 # Appends to the log
 def printlog(msg):
@@ -127,12 +120,7 @@ def searchDevice():
         else:
             printlog(st + ",Authentication success")
             ser.write("DEFAULT.")
-
-
-
-
-
-    
+  
 # Setup Code
 pygame.mixer.music.load("/home/pi/Arduino-Pi-Home-Monitoring/Server/sounds/startup.mp3")
 pygame.mixer.music.set_volume(0.2)
@@ -142,7 +130,7 @@ printlog(st + ",SYSTEM STARTING")
 time.sleep(5)
 ser.write("FLASH.")
 ser.write("DEFAULT.")
-data_update.updateArduino()
+data_update.updateArduino(ser)
 #mydata = raw_input('Prompt :')
 #print (mydata)
 #ser.write("LINE1 " + mydata + ".")
