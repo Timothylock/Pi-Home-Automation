@@ -6,6 +6,9 @@
 // Move any other LCD libraries to another folder or delete them
 // See Library "Docs" folder for possible commands etc.
 #include <LiquidCrystal_I2C.h>
+// Uses Custom IR library. Check readme.
+#include <IRremote.h>
+#include <IRremoteInt.h>
 
 /*-----( Declare Constants )-----*/
 int doorPin = A1;   // choose the input pin (for a pushbutton)
@@ -17,6 +20,11 @@ LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 
 
 /*-----( Declare Variables )-----*/
+#define echoPin 13 // Echo Pin
+#define trigPin 12 // Trigger Pin
+int RECV_PIN = 2; // IR Sensor
+int PIRPin = 3;                 // choose the input pin (for PIR sensor)
+int pirState = LOW;             // we start, assuming no motion detected
 int val = 0; 
 int doorLastState = -1;
 int lastDoorLockState = -10;
@@ -38,6 +46,8 @@ String F2 = "";
 String F3 = "";
 String F4 = "";
 String screen = "default";
+IRrecv irrecv(RECV_PIN);
+decode_results results;
 
 
 /*-----( Communication Protocol )-----*/
@@ -48,6 +58,10 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
 {
   Serial.begin(9600);  // Used to type in characters
   Serial.setTimeout(500); // Set the timeout shorter for faster communication
+  // Ultrasonic Sensor
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  irrecv.enableIRIn(); // Start the receiver
   lcd.begin(20,4);         // initialize the lcd for 20 chars 4 lines, turn on backlight
 
 // ------- Quick 3 blinks of backlight  -------------
@@ -68,6 +82,20 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
 
 
 }/*--(end setup )---*/
+
+int getDistance(){
+   digitalWrite(trigPin, LOW); 
+   delayMicroseconds(2); 
+  
+   digitalWrite(trigPin, HIGH);
+   delayMicroseconds(10); 
+   
+   digitalWrite(trigPin, LOW);
+   int duration = pulseIn(echoPin, HIGH);
+   int distance = duration/58.2;
+  
+   return distance;
+}
 
 void defaultScreen(){
   // Print top line
@@ -103,10 +131,28 @@ void defaultScreen(){
       lcd.print(temp);
       oldTemp = temp;
     }
+
+    // Check PIR Sensor status
+    val = digitalRead(PIRPin);  // read input value
+    if (val == HIGH) {            // check if the input is HIGH
+      if (pirState == LOW) {
+        // we have just turned on
+        Serial.println("MOON");
+        // We only want to print on the output change, not state
+        pirState = HIGH;
+      }
+    } else {
+      if (pirState == HIGH){
+        // we have just turned of
+        Serial.println("MOOFF");
+        // We only want to print on the output change, not state
+        pirState = LOW;
+      }
+    }
     
     // Check door status
-    val = analogRead(doorPin);
-    if (val > 500){
+    val = getDistance();
+    if (val > 30){
       // Avoids refreshing the screen for no reason
       if (doorLastState != 0){
         lcd.setCursor(0,3);
@@ -212,7 +258,12 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
     }else if (screen.equals("flash")){
       flashScreen();
     }
-        
+
+    // Forward incomming IR signals to the computer
+    if (irrecv.decode(&results)) {
+      Serial.println(results.value, HEX);
+      irrecv.resume(); // Receive the next value
+    }
   }
 
 }/* --(end main loop )-- */
