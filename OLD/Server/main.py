@@ -76,7 +76,7 @@ def processInput(input):
     elif (input.startswith("DO")):
         st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
         printlog(st + ",door opened")
-        searchDevice()
+        #searchDevice()
         
 # Find any new devices on the network
 def searchDevice():
@@ -116,7 +116,8 @@ def searchDevice():
         if unlocked == False:
             st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
             printlog(st + ",WARNING: User did not authenticate")
-            ser.write("FLINE1       WARNING.FLINE2.FLINE3   Authorities have  .FLINE4    been notified    .")
+            #ser.write("FLINE1       WARNING.FLINE2.FLINE3   Authorities have  .FLINE4    been notified    .")
+            ser.write("DEFAULT.") #temp code
         else:
             printlog(st + ",Authentication success")
             ser.write("DEFAULT.")
