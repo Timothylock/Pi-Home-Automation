@@ -1,5 +1,5 @@
-# Arduino-Pi-Home-Monitoring
-A DIY home monitoring system consisted of the Arduino and the Raspberry Pi (that can be substituted with a computer)
+# Tim-Pi-Home-Monitoring
+A DIY home monitoring system
 
 
 ----------
@@ -13,6 +13,7 @@ A DIY home monitoring system consisted of the Arduino and the Raspberry Pi (that
  - sudo apt-get install python-smbus
  - sudo apt-get install i2c-tools
  - Enable I2C support from raspi-config
+ - OMX Player (should be installed with OS) (apt-get it otherwise)
 
 *Hardware*
 
