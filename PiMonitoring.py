@@ -43,6 +43,7 @@ if (WeatherEn == 'true'):
 	displayLoading("weather enabled...")
 if (SoundEn == 'true'):
 	import pygame
+	pygame.mixer.init()
 	pygame.mixer.music.load(os.getcwd() + "/sounds/startup.mp3")
 	pygame.mixer.music.set_volume(0.2)
 	pygame.mixer.music.play()
