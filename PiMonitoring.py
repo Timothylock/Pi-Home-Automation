@@ -42,6 +42,7 @@ if (WeatherEn == 'true'):
 	displayLoading("weather enabled...")
 if (SoundEn == 'true'):
 	from modules.sound import sound
+	sound.play("sounds/startup.mp3")
 	displayLoading("sound is ready...")
 
 
