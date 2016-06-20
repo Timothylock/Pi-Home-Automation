@@ -3,6 +3,8 @@ import xml.etree.ElementTree as ET
 # Variables
 ###########
 LCDText = [" Program Starting..", "", "","reading config..."]
+temperature = 'N/A'
+condition = 'N/A'
 
 # Parse the config file
 # Modules Enable
@@ -14,6 +16,10 @@ WeatherEn = (conf.findall(".//module[@name='Weather']"))[0].get("enable")
 
 # Modules Data
 SMSNumbers = conf.findall(".//number[@name='num']")
+WeatherWoeid = (conf.findall(".//weather/woeid"))[0].get("loc")
+WeatherUnit = (conf.findall(".//weather/unit"))[0].get("value")
+
+print("configuration file read")
 
 # Functions
 ###########
@@ -31,6 +37,9 @@ def displayLoading(newline):
 if (LCDEn == 'true'):
 	from modules.disp import disp
 	displayLoading("LCD initialized...")
+if (WeatherEn == 'true'):
+	from modules.weather import weather
+	displayLoading("weather enabled...")
 
 
 

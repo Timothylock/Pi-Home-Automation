@@ -17,5 +17,10 @@ The options should be self explanatory. Just edit the values associated with the
 			<number num="+15555555555"/>
 			<number num="+15555551234"/>
 		</SMS>
+		<weather>
+			<!-- Google for your woeid -->
+			<woeid loc="4118"/>
+			<unit value="C"/>
+		</weather>
 	</modulesSettings>
 </config>
