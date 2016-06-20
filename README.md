@@ -13,7 +13,8 @@ A DIY home monitoring system
  - sudo apt-get install python-smbus
  - sudo apt-get install i2c-tools
  - Enable I2C support from raspi-config
- - OMX Player (should be installed with OS) (apt-get it otherwise)
+ - Pygame - Install by "pip install pygame"
+  - For RPi, you might want to add "disable_audio_dither=1" to "/boot/config.txt" if there is static noise
 
 *Hardware*
 
