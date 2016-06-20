@@ -22,7 +22,7 @@ def display(line1,line2,line3,line4):
     lcd.lcd_display_string(line4, 4)
 
 # Replaces line with message
-def display(line, linenumber):
+def displayLine(line, linenumber):
     lcd.lcd_display_string(line, linenumber)
 
 '''
