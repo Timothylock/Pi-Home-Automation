@@ -40,6 +40,9 @@ if (LCDEn == 'true'):
 if (WeatherEn == 'true'):
 	from modules.weather import weather
 	displayLoading("weather enabled...")
+if (SoundEn == 'true'):
+	from modules.sound import sound
+	displayLoading("sound is ready...")
 
 
 
