@@ -41,8 +41,10 @@ if (WeatherEn == 'true'):
 	from modules.weather import weather
 	displayLoading("weather enabled...")
 if (SoundEn == 'true'):
-	from modules.sound import sound
-	sound.play("sounds/startup.mp3")
+	import pygame
+	pygame.mixer.music.load("/home/pi/Arduino-Pi-Home-Monitoring/Server/sounds/startup.mp3")
+	pygame.mixer.music.set_volume(0.2)
+	pygame.mixer.music.play()
 	displayLoading("sound is ready...")
 
 
