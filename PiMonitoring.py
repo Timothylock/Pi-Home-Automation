@@ -51,8 +51,7 @@ def displayFSM(formatLines):
 		disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
 
 def updateWeather():
-	global WeatherWoeid
-	global WeatherUnit
+	global temperature
 	temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
 	print("Temperature updated: " + temperature)
 	# set a timer to update in 15 minutes
@@ -89,4 +88,4 @@ LCDText = ["", "", "", ""]
 # Main Loop
 ###########
 while True:
-	displayFSM('true')
+	displayFSM('true') 
