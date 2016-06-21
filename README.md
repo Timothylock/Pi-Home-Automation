@@ -24,4 +24,14 @@ A DIY home monitoring system
  - Door magnetic sensor
 
 **Notes**
+*Startup With Pi*
+To start up with Pi, type 
+```
+sudo nano /etc/rc.local
+```
+and add 
+```
+python /home/pi/Tim-Pi-Home-Monitoring/PiMonitoring.py &
+```
+replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup.
 
