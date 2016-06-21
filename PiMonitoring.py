@@ -24,6 +24,10 @@ SMSNumbers = conf.findall(".//number[@name='num']")
 WeatherWoeid = (conf.findall(".//weather/woeid"))[0].get("loc")
 WeatherUnit = (conf.findall(".//weather/unit"))[0].get("value")
 
+# Pins
+PIRpin = (conf.findall(".//pins/PIR"))[0].get("pin")
+doorMagpin = (conf.findall(".//pins/doorMagnetic"))[0].get("pin")
+
 print("configuration file read")
 
 # Functions
@@ -55,7 +59,7 @@ def updateWeather():
 	temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
 	print("Temperature updated: " + temperature)
 	# set a timer to update in 15 minutes
-	Timer(5, updateWeather, ()).start()
+	Timer(900, updateWeather, ()).start()
 
 
 # Setup
