@@ -2,7 +2,8 @@ import xml.etree.ElementTree as ET
 import os
 import sys
 import datetime
-import sched, time
+import time
+from threading import Timer
 
 # Variables
 ###########
@@ -11,7 +12,6 @@ temperature = 'N/A'
 condition = 'N/A'
 
 # Parse the config file
-os.chdir(os.path.dirname(sys.argv[0]))
 # Modules Enable
 conf = ET.parse("configuration.xml").getroot()
 LCDEn = (conf.findall(".//module[@name='20x4LCD']"))[0].get("enable")
@@ -55,15 +55,11 @@ def updateWeather():
 	global WeatherUnit
 	temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
 	# set a timer to update in 15 minutes
-	sc.enter(5, 1, updateWeather)
+	Timer(5, updateWeather, ()).start()
 
 
 # Setup
 #######
-# Start scheduler
-s = sched.scheduler(time.time, time.sleep)
-s.run()
-
 # Initiate modules
 if (LCDEn == 'true'):
 	from modules.disp import disp
