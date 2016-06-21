@@ -4,6 +4,8 @@ import sys
 import datetime
 import time
 from threading import Timer
+import RPi.GPIO as io
+io.setmode(io.BCM)
 
 # Variables
 ###########
@@ -25,8 +27,8 @@ WeatherWoeid = (conf.findall(".//weather/woeid"))[0].get("loc")
 WeatherUnit = (conf.findall(".//weather/unit"))[0].get("value")
 
 # Pins
-PIRpin = (conf.findall(".//pins/PIR"))[0].get("pin")
-doorMagpin = (conf.findall(".//pins/doorMagnetic"))[0].get("pin")
+PIRpin = int((conf.findall(".//pins/PIR"))[0].get("pin"))
+doorMagpin = int((conf.findall(".//pins/doorMagnetic"))[0].get("pin"))
 
 print("configuration file read")
 
@@ -38,7 +40,11 @@ def displayLoading(newline):
 		LCDText[1] = LCDText[2]
 		LCDText[2] = LCDText[3]
 		LCDText[3] = newline
-		disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
+		try:
+			disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
+		except:
+			print("LCD Disconnected. Restarting program")
+			os.execl(sys.executable, sys.executable, *sys.argv)
 
 # Manages the 20x4LCD during the normal operation of the program
 def displayFSM(formatLines):
@@ -52,7 +58,12 @@ def displayFSM(formatLines):
 			if (len(temperature) == 1):
 				temperature = " " + temperature
 			LCDText[0] = date + "   " + time + "    " + temperature
-		disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
+			try:
+				disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
+			except:
+				print("LCD Disconnected. Restarting program")
+				os.execl(sys.executable, sys.executable, *sys.argv)
+
 
 def updateWeather():
 	global temperature
@@ -66,8 +77,13 @@ def updateWeather():
 #######
 # Initiate modules
 if (LCDEn == 'true'):
-	from modules.disp import disp
-	displayLoading("LCD initialized...")
+	# If the LCD cannot be detected. Keep restarting the program
+	try:
+		from modules.disp import disp
+		displayLoading("LCD initialized...")
+	except:
+		print("LCD Disconnected. Restarting program")
+		os.execl(sys.executable, sys.executable, *sys.argv)
 if (WeatherEn == 'true'):
 	from modules.weather import weather
 	try:
@@ -84,6 +100,11 @@ if (SoundEn == 'true'):
 	pygame.mixer.music.play()
 	displayLoading("sound is ready...")
 
+# Set pins
+io.setup(PIRpin, io.IN)
+io.setup(doorMagpin, io.IN, pull_up_down=io.PUD_UP)
+
+# Prep display (clear)
 disp.clear()
 LCDText = ["", "", "", ""]
 # TODO: SMS
@@ -92,4 +113,16 @@ LCDText = ["", "", "", ""]
 # Main Loop
 ###########
 while True:
-	displayFSM('true') 
+	print(io.input(PIRpin))
+	# Temp Test Code
+	if io.input(PIRpin):
+		LCDText[2] = "PIR Detected"
+	else:
+		LCDText[2] = ""
+
+	if io.input(doorMagpin):
+		LCDText[3] = "Door Opened"
+	else:
+		LCDText[3] = ""
+	displayFSM('true')
+	
