@@ -24,7 +24,9 @@ A DIY home monitoring system
  - Door magnetic sensor
 
 **Notes**
+
 *Startup With Pi*
+
 To start up with Pi, type 
 ```
 sudo nano /etc/rc.local
