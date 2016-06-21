@@ -26,7 +26,7 @@ The options should be self explanatory. Just edit the values associated with the
 	</modulesSettings>
 	<!-- Allows you to edit data for each module -->
 	<pins>
-		<doorMagnetic pin="29">
-		<PIR pin="27">
+		<doorMagnetic pin="29"/>
+		<PIR pin="27"/>
 	</pins>
 </config>
