@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import os
+import sys
 import datetime
 
 # Variables
@@ -9,6 +10,7 @@ temperature = 'N/A'
 condition = 'N/A'
 
 # Parse the config file
+os.chdir(os.path.dirname(sys.argv[0]))
 # Modules Enable
 conf = ET.parse("configuration.xml").getroot()
 LCDEn = (conf.findall(".//module[@name='20x4LCD']"))[0].get("enable")
