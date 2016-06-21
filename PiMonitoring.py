@@ -68,6 +68,7 @@ if (LCDEn == 'true'):
 if (WeatherEn == 'true'):
 	from modules.weather import weather
 	try:
+		updateWeather()
 		displayLoading("weather obtained...")
 	except:
 		displayLoading("Cannot fetch weather")
