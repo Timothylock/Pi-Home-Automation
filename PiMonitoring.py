@@ -54,6 +54,7 @@ def updateWeather():
 	global WeatherWoeid
 	global WeatherUnit
 	temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
+	print("Temperature updated: " + temperature)
 	# set a timer to update in 15 minutes
 	Timer(5, updateWeather, ()).start()
 
@@ -67,7 +68,6 @@ if (LCDEn == 'true'):
 if (WeatherEn == 'true'):
 	from modules.weather import weather
 	try:
-		print(temperature)
 		displayLoading("weather obtained...")
 	except:
 		displayLoading("Cannot fetch weather")
