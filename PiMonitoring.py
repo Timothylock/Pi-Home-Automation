@@ -51,26 +51,36 @@ def displayFSM(formatLines):
 	global temperature
 	global LCDText
 	if (LCDEn == 'true'):
-		if (formatLines == 'true'):
+		if (formatLines):
 			# line 1 code
 			date = datetime.datetime.now().strftime("%h%d")
 			time = datetime.datetime.now().strftime("%H:%M")
 			if (len(temperature) == 1):
 				temperature = " " + temperature
 			LCDText[0] = date + "   " + time + "    " + temperature
-			try:
-				disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
-			except:
-				print("LCD Disconnected. Restarting program")
-				os.execl(sys.executable, sys.executable, *sys.argv)
+		try:
+			disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
+		except:
+			print("LCD Disconnected. Restarting program")
+			os.execl(sys.executable, sys.executable, *sys.argv)
 
-
+# Updates the weather every 15 minutes
 def updateWeather():
 	global temperature
 	temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
 	print("Temperature updated: " + temperature)
 	# set a timer to update in 15 minutes
 	Timer(900, updateWeather, ()).start()
+
+# Updates the weather every 15 minutes
+def alarm():
+	global LCDText
+	LCDText = ["******WARNING*******", "   You are being    ", "      recorded      ", "**DISARM SYSTEM NOW*"]
+	disp.clear()
+	displayFSM(False)
+	time.sleep(5)
+	disp.clear()
+	LCDText = ["", "", "", ""]
 
 
 # Setup
@@ -92,6 +102,7 @@ if (WeatherEn == 'true'):
 	except:
 		displayLoading("Cannot fetch weather")
 		print("ERROR - Cannot fetch weather")
+		time.sleep(5)
 if (SoundEn == 'true'):
 	import pygame
 	pygame.mixer.init()
@@ -105,7 +116,8 @@ io.setup(PIRpin, io.IN)
 io.setup(doorMagpin, io.IN, pull_up_down=io.PUD_UP)
 
 # Prep display (clear)
-disp.clear()
+if (LCDEn == 'true'):
+	disp.clear()
 LCDText = ["", "", "", ""]
 # TODO: SMS
 
@@ -113,16 +125,19 @@ LCDText = ["", "", "", ""]
 # Main Loop
 ###########
 while True:
-	print(io.input(PIRpin))
 	# Temp Test Code
 	if io.input(PIRpin):
-		LCDText[2] = "PIR Detected"
+		LCDText[2] = "PIR Detected        "   # Debug
 	else:
-		LCDText[2] = ""
+		LCDText[2] = "                    "
 
 	if io.input(doorMagpin):
-		LCDText[3] = "Door Opened"
+		# If movement not detected 
+		if io.input(PIRpin) is not 1:
+			LCDText[2] = "Alarm mode         "   # Debug
+			alarm()
+		LCDText[3] = "Door Opened         "   # Debug
 	else:
-		LCDText[3] = ""
-	displayFSM('true')
+		LCDText[3] = "                    "
+	displayFSM(True)
 	
