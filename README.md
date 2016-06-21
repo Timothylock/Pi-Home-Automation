@@ -25,6 +25,10 @@ A DIY home monitoring system
 
 **Notes**
 
+*Python 3*
+
+Several features do not work in Python 3. I'm not even sure if it will run. Create an issue if there are problems!
+
 *Startup With Pi*
 
 To start up with Pi, type 
@@ -33,7 +37,8 @@ sudo nano /etc/rc.local
 ```
 and add 
 ```
-python /home/pi/Tim-Pi-Home-Monitoring/PiMonitoring.py &
+cd /home/pi/Tim-Pi-Home-Monitoring
+python PiMonitoring.py &
 ```
 replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup.
 
