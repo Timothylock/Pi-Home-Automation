@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import os
 import sys
 import datetime
+import sched, time
 
 # Variables
 ###########
@@ -49,19 +50,32 @@ def displayFSM(formatLines):
 			LCDText[0] = date + "   " + time + "    " + temperature
 		disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
 
+def updateWeather():
+	global WeatherWoeid
+	global WeatherUnit
+	temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
+	# set a timer to update in 15 minutes
+	sc.enter(900, 1, updateWeather)
+
+
 # Setup
 #######
+# Start scheduler
+s = sched.scheduler(time.time, time.sleep)
+s.run()
+
+# Initiate modules
 if (LCDEn == 'true'):
 	from modules.disp import disp
 	displayLoading("LCD initialized...")
 if (WeatherEn == 'true'):
 	from modules.weather import weather
 	try:
-		temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
+		
 		print(temperature)
 		displayLoading("weather obtained...")
 	except:
-		displayLoading("Cannot fetch weather!")
+		displayLoading("Cannot fetch weather")
 		print("ERROR - Cannot fetch weather")
 if (SoundEn == 'true'):
 	import pygame
