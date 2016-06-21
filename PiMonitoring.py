@@ -55,7 +55,7 @@ def updateWeather():
 	global WeatherUnit
 	temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
 	# set a timer to update in 15 minutes
-	sc.enter(900, 1, updateWeather)
+	sc.enter(5, 1, updateWeather)
 
 
 # Setup
@@ -71,7 +71,6 @@ if (LCDEn == 'true'):
 if (WeatherEn == 'true'):
 	from modules.weather import weather
 	try:
-		
 		print(temperature)
 		displayLoading("weather obtained...")
 	except:
