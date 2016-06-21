@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import os
+import datetime
 
 # Variables
 ###########
@@ -24,7 +25,7 @@ print("configuration file read")
 
 # Functions
 ###########
-# Manages the 20x4LCD during loadingof the program
+# Manages the 20x4LCD during loading of the program
 def displayLoading(newline):
 	if (LCDEn == 'true'):
 		LCDText[1] = LCDText[2]
@@ -32,6 +33,17 @@ def displayLoading(newline):
 		LCDText[3] = newline
 		disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
 
+# Manages the 20x4LCD during the normal operation of the program
+def displayFSM(formatLines):
+	if (LCDEn == 'true'):
+		if (formatLines == 'true'):
+			# line 1 code
+			date = datetime.datetime.now().strftime("%h%d")
+			time = datetime.datetime.now().strftime("%H:%M")
+			if (len(temp) = 1):
+				temperature = " " + temperature
+			LCDText[0] = date + "   " + time + "    " temperature + WeatherUnit
+		disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
 
 # Setup
 #######
@@ -40,7 +52,12 @@ if (LCDEn == 'true'):
 	displayLoading("LCD initialized...")
 if (WeatherEn == 'true'):
 	from modules.weather import weather
-	displayLoading("weather enabled...")
+	try:
+		temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
+		displayLoading("weather obtained...")
+	except:
+		displayLoading("Cannot fetch weather!")
+		print("ERROR - Cannot fetch weather")
 if (SoundEn == 'true'):
 	import pygame
 	pygame.mixer.init()
@@ -48,6 +65,8 @@ if (SoundEn == 'true'):
 	pygame.mixer.music.set_volume(0.2)
 	pygame.mixer.music.play()
 	displayLoading("sound is ready...")
+# TODO: SMS
 
 
-
+# Main Loop
+###########
