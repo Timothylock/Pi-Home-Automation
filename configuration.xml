@@ -15,7 +15,7 @@ The options should be self explanatory. Just edit the values associated with the
 		<SMS>
 			<notifyOnDoorOpen enable="true"/>
 			<!-- Add as many number rows as you need -->
-			<number num="+15555555555"/>
+			<number num="+16476962711"/>
 			<number num="+15555551234"/>
 		</SMS>
 		<weather>
