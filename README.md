@@ -15,6 +15,7 @@ A DIY home monitoring system
  - Enable I2C support from raspi-config
  - Pygame - Install by "pip install pygame"
   - For RPi, you might want to add "disable_audio_dither=1" to "/boot/config.txt" if there is static noise
+ - Flask - pip install flask
 
 *Hardware*
 
