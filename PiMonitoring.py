@@ -12,6 +12,8 @@ io.setmode(io.BCM)
 LCDText = [" Program Starting..", "", "","reading config..."]
 temperature = 'N/A'
 condition = 'N/A'
+alarmCondition = False
+remoteDisarm = False
 
 # Parse the config file
 # Modules Enable
@@ -71,13 +73,34 @@ def updateWeather():
 	# set a timer to update in 15 minutes
 	Timer(900, updateWeather, ()).start()
 
+# Sets remoteDisarm to false
+def falseRemoteDisarm():
+	remoteDisarm = False
+
+# Checks if SMS disarm
+def isDisarmed():
+	return os.path.isfile("DISARM")
+
 # Function handles when the alarm is set off
 def alarm():
 	global LCDText
+	global alarmCondition
+
+	alarmCondition = True
+
+	# Display Message
 	LCDText = ["******WARNING*******", "   You are being    ", "      recorded      ", "**DISARM SYSTEM NOW*"]
 	disp.clear()
 	displayFSM(False)
-	time.sleep(5)
+
+	# Keep checking for disarm
+	while (alarmCondition == True):
+		# Disarm command given
+		if isDisarmed() == True:
+			os.remove("DISARM")
+			alarmCondition = False
+
+	# Reset display
 	disp.clear()
 	LCDText = ["", "", "", ""]
 
@@ -115,13 +138,13 @@ if (SoundEn == 'true'):
 	pygame.mixer.music.play()
 	displayLoading("sound is ready...")
 
-# SMS (start Flask server and listen for Twilio messages)
-if (SMSEn == 'true'):
-	pass
+# SMS (check for unlock file and delete if exist)
+if (SMSEn == 'true' and os.path.isfile("DISARM")):
+	os.remove("DISARM")
 
 # Set pins
 io.setup(PIRpin, io.IN)
-io.setup(doorMagpin, io.IN, pull_up_down=io.PUD_UP)
+io.setup(doorMagpin, io.IN, pull_up_down = io.PUD_UP)
 
 # Prep display (clear)
 if (LCDEn == 'true'):
@@ -139,13 +162,28 @@ while True:
 	else:
 		LCDText[2] = "                    "
 
+	if remoteDisarm:
+		LCDText[1] = "Remotely disarmed   "   # Debug
+	else:
+		LCDText[1] = "                    "
+
 	if io.input(doorMagpin):
 		# If movement not detected 
-		if io.input(PIRpin) is not 1:
-			LCDText[2] = "Alarm mode         "   # Debug
-			alarm()
-		LCDText[3] = "Door Opened         "   # Debug
+		if (io.input(PIRpin) is not 1):
+			if (remoteDisarm == False):
+				LCDText[2] = "Alarm mode         "   # Debug
+				alarm()
+			else:
+				# Rearm the system as they already entered
+				remoteDisarm = False
 	else:
 		LCDText[3] = "                    "
+
+	# Sets a timer to rearm the system after 10 minutes
+	if (os.path.isfile("DISARM")):
+		remoteDisarm = True;
+		os.remove("DISARM")
+		Timer(600, falseRemoteDisarm, ()).start()
+
 	displayFSM(True)
 	

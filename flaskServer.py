@@ -19,27 +19,31 @@ def incomingSMS():
 	# Parse the config file and see if approved number
 	conf = ET.parse("configuration.xml").getroot()
 	for number in conf.findall(".//number"):
-		print(from_number)
-		print(number.get("num"))
 		if from_number in number.get("num"):
-			message = "System disarmed for 10 minutes"
-			resp.message(message)
+			resp.message("System disarmed for 10 minutes or until the door is opened")
+			print("disarmed")
+			file = open("DISARM", "w")
+			file.close()
 
 	return str(resp)
 
 # Incoming Call
 @app.route("/call/", methods=['GET', 'POST'])
 def incomingCall():
-	"""Respond and greet the caller by name."""
-
 	from_number = request.values.get('From', None)
-	if from_number in callers:
-		message = callers[from_number] + ", thanks for the message!"
-	else:
-		message = "Monkey, thanks for the message! through CALL"
 
+	# Create response
 	resp = twilio.twiml.Response()
-	resp.say("System has been disarmed for 10 minutes. Goodbye")
+
+	# Parse the config file and see if approved number
+	conf = ET.parse("configuration.xml").getroot()
+	for number in conf.findall(".//number"):
+		if from_number in number.get("num"):
+			resp.say("System has been disarmed for 10 minutes or until the door is opened. Goodbye")
+			resp.say("Goodbye")
+			print("disarmed")
+			file = open("DISARM", "w")
+			file.close()
 
 	return str(resp)
 
