@@ -181,6 +181,7 @@ while True:
 	else:
 		LCDText[3] = "                    "
 
+	# Foor opened
 	if io.input(doorMagpin):
 		# If movement not detected 
 		if (io.input(PIRpin) is not 1):
@@ -192,8 +193,6 @@ while True:
 				waitForDoor() # Wait for door to close
 		else:
 			waitForDoor() # Wait for door to close
-	else:
-		LCDText[3] = "                    "
 
 	# Sets a timer to rearm the system after 10 minutes
 	if (os.path.isfile("DISARM")):
