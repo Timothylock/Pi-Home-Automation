@@ -22,7 +22,6 @@ SoundEn = (conf.findall(".//module[@name='Sound']"))[0].get("enable")
 WeatherEn = (conf.findall(".//module[@name='Weather']"))[0].get("enable")
 
 # Modules Data
-SMSNumbers = conf.findall(".//number[@name='num']")
 WeatherWoeid = (conf.findall(".//weather/woeid"))[0].get("loc")
 WeatherUnit = (conf.findall(".//weather/unit"))[0].get("value")
 
@@ -72,7 +71,7 @@ def updateWeather():
 	# set a timer to update in 15 minutes
 	Timer(900, updateWeather, ()).start()
 
-# Updates the weather every 15 minutes
+# Function handles when the alarm is set off
 def alarm():
 	global LCDText
 	LCDText = ["******WARNING*******", "   You are being    ", "      recorded      ", "**DISARM SYSTEM NOW*"]
@@ -86,6 +85,7 @@ def alarm():
 # Setup
 #######
 # Initiate modules
+# LCD
 if (LCDEn == 'true'):
 	# If the LCD cannot be detected. Keep restarting the program
 	try:
@@ -94,6 +94,8 @@ if (LCDEn == 'true'):
 	except:
 		print("LCD Disconnected. Restarting program")
 		os.execl(sys.executable, sys.executable, *sys.argv)
+
+# Weather
 if (WeatherEn == 'true'):
 	from modules.weather import weather
 	try:
@@ -103,6 +105,8 @@ if (WeatherEn == 'true'):
 		displayLoading("Cannot fetch weather")
 		print("ERROR - Cannot fetch weather")
 		time.sleep(5)
+
+# Sound (via PyGame)
 if (SoundEn == 'true'):
 	import pygame
 	pygame.mixer.init()
@@ -110,6 +114,10 @@ if (SoundEn == 'true'):
 	pygame.mixer.music.set_volume(0.2)
 	pygame.mixer.music.play()
 	displayLoading("sound is ready...")
+
+# SMS (start Flask server and listen for Twilio messages)
+if (SMSEn == 'true'):
+	pass
 
 # Set pins
 io.setup(PIRpin, io.IN)
