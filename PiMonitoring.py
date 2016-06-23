@@ -75,6 +75,7 @@ def updateWeather():
 
 # Sets remoteDisarm to false
 def falseRemoteDisarm():
+	global remoteDisarm
 	remoteDisarm = False
 
 # Checks if SMS disarm
@@ -102,8 +103,11 @@ def alarm():
 
 	# Reset display
 	disp.clear()
-	LCDText = ["", "", "", ""]
+	LCDText = ["", "  Waiting for door  ", "     to close     ", ""]
 
+	# Once disarmed, wait for door to close
+	while io.input(doorMagpin):
+		pass # Waiting for door to close
 
 # Setup
 #######
