@@ -16,6 +16,7 @@ A DIY home monitoring system
  - Pygame - Install by "pip install pygame"
   - For RPi, you might want to add "disable_audio_dither=1" to "/boot/config.txt" if there is static noise
  - Flask - pip install flask
+ - (OPTIONAL) Twilio-python library - pip install twilio
 
 *Hardware*
 
