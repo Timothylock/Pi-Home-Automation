@@ -82,6 +82,22 @@ def falseRemoteDisarm():
 def isDisarmed():
 	return os.path.isfile("DISARM")
 
+# Waits for door to close
+def waitForDoor():
+	global LCDText
+	# Reset display
+	disp.clear()
+	LCDText = ["      Disarmed", "", "  Waiting for door", "      to close"]
+	displayFSM(False)
+
+	# wait for door to close
+	while io.input(doorMagpin):
+		pass # Waiting for door to close
+
+	# Clear screen
+	disp.clear()
+	LCDText = ["", "", "", ""]
+
 # Function handles when the alarm is set off
 def alarm():
 	global LCDText
@@ -101,13 +117,7 @@ def alarm():
 			os.remove("DISARM")
 			alarmCondition = False
 
-	# Reset display
-	disp.clear()
-	LCDText = ["", "  Waiting for door  ", "     to close     ", ""]
-
-	# Once disarmed, wait for door to close
-	while io.input(doorMagpin):
-		pass # Waiting for door to close
+	waitForDoor() # Wait for door to close
 
 # Setup
 #######
@@ -175,11 +185,13 @@ while True:
 		# If movement not detected 
 		if (io.input(PIRpin) is not 1):
 			if (remoteDisarm == False):
-				LCDText[2] = "Alarm mode         "   # Debug
 				alarm()
 			else:
 				# Rearm the system as they already entered
 				remoteDisarm = False
+				waitForDoor() # Wait for door to close
+		else:
+			waitForDoor() # Wait for door to close
 	else:
 		LCDText[3] = "                    "
 
@@ -189,5 +201,6 @@ while True:
 		os.remove("DISARM")
 		Timer(600, falseRemoteDisarm, ()).start()
 
+	LCDText[3] = str(remoteDisarm)
 	displayFSM(True)
 	
