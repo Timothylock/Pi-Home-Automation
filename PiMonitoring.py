@@ -177,9 +177,9 @@ while True:
 		LCDText[2] = "                    "
 
 	if remoteDisarm:
-		LCDText[1] = "Remotely disarmed   "   # Debug
+		LCDText[3] = "Remotely disarmed   "   # Debug
 	else:
-		LCDText[1] = "                    "
+		LCDText[3] = "                    "
 
 	if io.input(doorMagpin):
 		# If movement not detected 
@@ -201,6 +201,5 @@ while True:
 		os.remove("DISARM")
 		Timer(600, falseRemoteDisarm, ()).start()
 
-	LCDText[3] = str(remoteDisarm)
 	displayFSM(True)
 	
