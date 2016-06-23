@@ -39,8 +39,10 @@ sudo nano /etc/rc.local
 ```
 and add 
 ```
-cd /home/pi/Tim-Pi-Home-Monitoring
+sleep(10)
+cd /home/pi/Tim-Pi-Home-Monitoring/
+python flaskServer.py &
 python PiMonitoring.py &
 ```
-replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup.
+replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup. I used sleep as my Pi takes a bit more time to establish a network connection.
 
