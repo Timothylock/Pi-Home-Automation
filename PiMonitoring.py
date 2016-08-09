@@ -35,14 +35,16 @@ def displayLoading(newline):
 
 # Manages the 20x4LCD during the normal operation of the program
 def displayFSM(formatLines):
+	global temperature
+	global LCDText
 	if (LCDEn == 'true'):
 		if (formatLines == 'true'):
 			# line 1 code
 			date = datetime.datetime.now().strftime("%h%d")
 			time = datetime.datetime.now().strftime("%H:%M")
-			if (len(temp) = 1):
+			if (len(temperature) == 1):
 				temperature = " " + temperature
-			LCDText[0] = date + "   " + time + "    " temperature + WeatherUnit
+			LCDText[0] = date + "   " + time + "    " + temperature
 		disp.display(LCDText[0], LCDText[1], LCDText[2], LCDText[3])
 
 # Setup
@@ -54,6 +56,7 @@ if (WeatherEn == 'true'):
 	from modules.weather import weather
 	try:
 		temperature = weather.getTemp(WeatherWoeid, WeatherUnit)
+		print(temperature)
 		displayLoading("weather obtained...")
 	except:
 		displayLoading("Cannot fetch weather!")
@@ -65,8 +68,13 @@ if (SoundEn == 'true'):
 	pygame.mixer.music.set_volume(0.2)
 	pygame.mixer.music.play()
 	displayLoading("sound is ready...")
+
+disp.clear()
+LCDText = ["", "", "", ""]
 # TODO: SMS
 
 
 # Main Loop
 ###########
+while True:
+	displayFSM('true')
