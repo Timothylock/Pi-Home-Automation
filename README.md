@@ -9,7 +9,6 @@ A DIY home monitoring system
 
 *Hardware*
 
- - 20x4 LCD (using a YWRobot backpack)
  - PID sensor
  - Raspberry Pi / computer
  - Door magnetic sensor
@@ -20,11 +19,7 @@ A DIY home monitoring system
  2. sudo apt-get install python-smbus
  3. sudo apt-get install i2c-tools
  4. Enable I2C support from raspi-config
- 5. Pygame - Install by "pip install pygame"
-  - For RPi, you might want to add "disable_audio_dither=1" to "/boot/config.txt" if there is static noise
  6. Flask - pip install flask
- 7. (OPTIONAL) Twilio-python library - pip install twilio
- 8. Go to your Twilio and have the number URL point to your public server
 
 
 ***Notes***
