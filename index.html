@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<!-- You are entering dangerous territory of complete messiness.
+Here Be dragons! 
+You've been warned
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta content='width=device-width, initial-scale=0.65, maximum-scale=0.65, user-scalable=0' name='viewport' />
+<title>Home Assistant</title>
+
+<script src="assets/jquery.js"></script>
+<script src="assets/js/weather/jquery.simpleWeather.min.js"></script>
+<script src="assets/js/weather/toastr.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="assets/css/weather.css">
+<!-- #4d0000 RED darkgreen GREEN -->
+<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+<link rel="stylesheet" type="text/css" href="assets/css/toastr.css" />
+</head>
+
+<!-- Main Body -->
+<body onload="updateClock(); updateStatus();">
+<ul class="topbar" id="mytopbar">
+	<li class="right"><img  id="server" src="assets/img/server.png"></li>
+	<li class="right"><img id="ftp" src="assets/img/internet.png"></li>
+	<li class="center" id="statusOverview"><a>System Normal</a></li></center>
+</ul>
+
+<div id=mainBody>
+	<div id=mainLeft>
+		<!--<div id="weather"></div>-->
+		<ul class="status">
+			<li id="time" style="margin-top: 25%;"><a>time</a></li>
+			<li id="date"><a>date</a></li>
+			<li id="weather"><a>weather</a></li>
+		</ul>
+	</div><div id=mainRight>
+		<ul class="status">
+		  <li class="left"><img id="door" src="assets/img/doorsensor.png"><a>Door</a></li>
+		  <li class="left"><img id="lights" src="assets/img/light.png" onclick="togglelight()"><a>Lights</a></li>
+		  <li class="left"><img id="logs" src="assets/img/history.png"><a>History</a></li>
+		  <li class="left"><img id="motion" src="assets/img/motion.png"><a>Motion</a></li>
+		  <li class="left"><img id="settings" src="assets/img/settings.png"><a>Settings</a></li>
+		</ul>
+		<br>
+		<a>sdsd</a>
+	</div>
+</div>
+
+<div id=bottom>
+<!-- Future -->
+</div>
+
+<!-- Remaining Scripts -->
+<script>
+	function updateClock() {
+		var now = new Date(), // current date
+		months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+		var hours = now.getHours();
+		var minutes = now.getMinutes();
+		var ampm = hours >= 12 ? 'PM' : 'AM';
+		hours = hours % 12;
+		hours = hours ? hours : 12; // the hour '0' should be '12'
+		minutes = minutes < 10 ? '0'+minutes : minutes;
+		var strTime = hours + ':' + minutes + ampm;
+		
+		// a cleaner way than string concatenation
+		date = [months[now.getMonth()], now.getDate()].join(' ');
+
+		// Update date and time elements
+		document.getElementById('date').innerHTML = "<a style='font-size: 40px; text-align: left; line-height: 10%; padding: 8px 16px; color: #f3f3f3; text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);'>" + date + "</a>";
+		document.getElementById('time').innerHTML = "<a style='font-size: 60px; text-align: left; color: #f3f3f3; padding: 8px 16px; text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);'>" + strTime + "</a>";
+
+		// Check top bar colour and adjust font colour
+		//console.log(document.getElementById("door").style);
+		
+		// call this function again in 1000ms
+		setTimeout(updateClock, 1000);
+	}
+
+	function updateStatus() {
+		// 0 - no problem
+		// 1 - problem
+		var door = 0;
+		var motion = 0;
+		var power = 0;
+		var server = 0;
+		var ftp = 0;
+
+		var request = new XMLHttpRequest();  
+		request.open('GET', '/data.json', true);
+		request.onreadystatechange = function(){
+		    if (request.readyState === 4){
+		        if ((request.status >= 400 && request.status <= 499) || request.status === 0) {  
+            		document.getElementById("statusOverview").style.color = 'red';
+					document.getElementById("statusOverview").innerHTML = "<a>Warning - No Connection</a>";
+					document.getElementById("mainLeft").style.background = "linear-gradient(#ff4b4b, #ff1c1c)";
+					if (document.getElementById("server").style.backgroundColor == 'orange'){
+						document.getElementById("server").style.backgroundColor = 'red';
+						document.getElementById("ftp").style.backgroundColor = 'red';
+						document.getElementById("motion").style.backgroundColor = 'red';
+						document.getElementById("door").style.backgroundColor = 'red';
+					}else{
+						document.getElementById("server").style.backgroundColor = 'orange';
+						document.getElementById("ftp").style.backgroundColor = 'orange';
+						document.getElementById("motion").style.backgroundColor = 'orange';
+						document.getElementById("door").style.backgroundColor = 'orange';
+					}
+		        }else{
+		        	// Get JSON data
+					$.getJSON('http://192.168.1.142/data.json', function(data) {
+						door = data["door"];
+						motion = data["motion"];
+						power = data["power"];
+						ftp = data["ftp"];
+
+						// Status bar should start with green and change if any error
+						document.getElementById("statusOverview").style.color = 'green';
+						document.getElementById("statusOverview").innerHTML = "<a>System Normal</a>";
+						document.getElementById("mainLeft").style.background = "linear-gradient(#0981ba, #0d5586)";
+
+						// Color the labels accordingly
+						if (door == 0){
+							document.getElementById("door").style.backgroundColor = 'ForestGreen';
+						}else{
+							document.getElementById("door").style.backgroundColor = 'orange';
+						}
+
+						if (motion == 0){
+							document.getElementById("motion").style.backgroundColor = 'ForestGreen';
+						}else{
+							document.getElementById("motion").style.backgroundColor = 'orange';
+						}
+
+						/*
+						if (power == 0){
+							document.getElementById("power").style.backgroundColor = 'transparent';
+						}else{
+							document.getElementById("statusOverview").style.color = 'red';
+							document.getElementById("statusOverview").innerHTML = "<a>Warning - Check Status</a>";
+							document.getElementById("mainLeft").style.background = "linear-gradient(#ff4b4b, #ff1c1c)";
+							if (document.getElementById("power").style.backgroundColor == 'orange'){
+								document.getElementById("power").style.backgroundColor = 'red';
+							}else{
+								document.getElementById("power").style.backgroundColor = 'orange';
+							}
+						}*/
+
+						if (server == 0){
+							document.getElementById("server").style.backgroundColor = 'green';
+						}else{
+							document.getElementById("statusOverview").style.color = 'red';
+							document.getElementById("statusOverview").innerHTML = "<a>Warning - Check Status</a>";
+							document.getElementById("mainLeft").style.background = "linear-gradient(#ff4b4b, #ff1c1c)";
+							if (document.getElementById("server").style.backgroundColor == 'orange'){
+								document.getElementById("server").style.backgroundColor = 'red';
+							}else{
+								document.getElementById("server").style.backgroundColor = 'orange';
+							}
+						}
+
+						if (ftp == 0){
+							document.getElementById("ftp").style.backgroundColor = 'green';
+						}else{
+							document.getElementById("ftp").style.backgroundColor = 'orange';
+							document.getElementById("statusOverview").style.color = 'red';
+							document.getElementById("statusOverview").innerHTML = "<a>Warning - Check Status</a>";
+							document.getElementById("mainLeft").style.background = "linear-gradient(#ff4b4b, #ff1c1c)";
+						}
+					});
+		        }
+		    }
+		};
+		request.send();
+
+		// call this function again in 1000ms
+		setTimeout(updateStatus, 750);
+	}
+
+	function togglelight(){
+		toastr["success"]("Request Sent");
+	}
+</script>
+<script src="assets/js/weather/weatherupdate.js"></script>
+</body>
