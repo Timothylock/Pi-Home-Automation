@@ -15,6 +15,7 @@ You've been warned
 <script src="assets/js/toaster.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="assets/css/weather.css">
+<link rel="stylesheet" type="text/css" href="assets/css/modal.css">
 <!-- #4d0000 RED darkgreen GREEN -->
 <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 <link rel="stylesheet" type="text/css" href="assets/css/toastr.css" />
@@ -51,6 +52,22 @@ You've been warned
 
 <div id=bottom>
 <!-- Future -->
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Modal Header</h2>
+    </div>
+    <div class="modal-body">
+      <p od="modalContent">Some text in the Modal Body</p>
+    </div>
+  </div>
+
 </div>
 
 <!-- Remaining Scripts -->
@@ -150,8 +167,20 @@ You've been warned
 	}
 
 	function togglelight(){
+		$("#myModal").show();
 		toastr["success"]("Request Sent");
 	}
+
+	// When the user clicks on the X, close it
+	$(document).on('click','.close',function(){
+		$("#myModal").hide();
+	});
+
+	// When the user clicks anywhere outside of the modal, close it
+	$(document).on('click','.modal',function(){
+	    $("#myModal").hide();
+	});
+
 </script>
 <script src="assets/js/weather/weatherupdate.js"></script>
 </body>
