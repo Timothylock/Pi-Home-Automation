@@ -10,9 +10,9 @@ You've been warned
 <meta content='width=device-width, initial-scale=0.65, maximum-scale=0.65, user-scalable=0' name='viewport' />
 <title>Home Assistant</title>
 
-<script src="assets/jquery.js"></script>
+<script src="assets/js/jquery.js"></script>
 <script src="assets/js/weather/jquery.simpleWeather.min.js"></script>
-<script src="assets/js/weather/toastr.min.js"></script>
+<script src="assets/js/toaster.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="assets/css/weather.css">
 <!-- #4d0000 RED darkgreen GREEN -->
@@ -70,11 +70,8 @@ You've been warned
 		date = [months[now.getMonth()], now.getDate()].join(' ');
 
 		// Update date and time elements
-		document.getElementById('date').innerHTML = "<a style='font-size: 40px; text-align: left; line-height: 10%; padding: 8px 16px; color: #f3f3f3; text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);'>" + date + "</a>";
-		document.getElementById('time').innerHTML = "<a style='font-size: 60px; text-align: left; color: #f3f3f3; padding: 8px 16px; text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);'>" + strTime + "</a>";
-
-		// Check top bar colour and adjust font colour
-		//console.log(document.getElementById("door").style);
+		$('#date').html("<a style='font-size: 40px; text-align: left; line-height: 10%; padding: 8px 16px; color: #f3f3f3; text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);'>" + date + "</a>");
+		$('#time').html("<a style='font-size: 60px; text-align: left; color: #f3f3f3; padding: 8px 16px; text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);'>" + strTime + "</a>");
 		
 		// call this function again in 1000ms
 		setTimeout(updateClock, 1000);
@@ -89,91 +86,64 @@ You've been warned
 		var server = 0;
 		var ftp = 0;
 
-		var request = new XMLHttpRequest();  
-		request.open('GET', '/data.json', true);
-		request.onreadystatechange = function(){
-		    if (request.readyState === 4){
-		        if ((request.status >= 400 && request.status <= 499) || request.status === 0) {  
-            		document.getElementById("statusOverview").style.color = 'red';
-					document.getElementById("statusOverview").innerHTML = "<a>Warning - No Connection</a>";
-					document.getElementById("mainLeft").style.background = "linear-gradient(#ff4b4b, #ff1c1c)";
-					if (document.getElementById("server").style.backgroundColor == 'orange'){
-						document.getElementById("server").style.backgroundColor = 'red';
-						document.getElementById("ftp").style.backgroundColor = 'red';
-						document.getElementById("motion").style.backgroundColor = 'red';
-						document.getElementById("door").style.backgroundColor = 'red';
-					}else{
-						document.getElementById("server").style.backgroundColor = 'orange';
-						document.getElementById("ftp").style.backgroundColor = 'orange';
-						document.getElementById("motion").style.backgroundColor = 'orange';
-						document.getElementById("door").style.backgroundColor = 'orange';
-					}
-		        }else{
-		        	// Get JSON data
-					$.getJSON('http://192.168.1.142/data.json', function(data) {
-						door = data["door"];
-						motion = data["motion"];
-						power = data["power"];
-						ftp = data["ftp"];
+		$.ajax({
+			url: '/status',
+			type: 'GET',
+			success: function(response) {
+				console.log(response);
+				door = response["door"];
+				motion = response["motion"];
+				power = response["power"];
+				ftp = response["ftp"];
 
-						// Status bar should start with green and change if any error
-						document.getElementById("statusOverview").style.color = 'green';
-						document.getElementById("statusOverview").innerHTML = "<a>System Normal</a>";
-						document.getElementById("mainLeft").style.background = "linear-gradient(#0981ba, #0d5586)";
+				// Status bar should start with green and change if any error
+				$("#statusOverview").css("color", 'green');
+				$("#statusOverview").html("<a>System Normal</a>");
+				$("#mainLeft").css("background", "linear-gradient(#0981ba, #0d5586)");
 
-						// Color the labels accordingly
-						if (door == 0){
-							document.getElementById("door").style.backgroundColor = 'ForestGreen';
-						}else{
-							document.getElementById("door").style.backgroundColor = 'orange';
-						}
+				// Color the labels accordingly
+				if (door == 0){
+					$("#door").css("background-color", 'ForestGreen');
+				}else{
+					$("#door").css("background-color", 'orange');
+				}
 
-						if (motion == 0){
-							document.getElementById("motion").style.backgroundColor = 'ForestGreen';
-						}else{
-							document.getElementById("motion").style.backgroundColor = 'orange';
-						}
+				if (motion == 0){
+					$("#motion").css("background-color", 'ForestGreen');
+				}else{
+					$("#motion").css("background-color", 'orange');
+				}
 
-						/*
-						if (power == 0){
-							document.getElementById("power").style.backgroundColor = 'transparent';
-						}else{
-							document.getElementById("statusOverview").style.color = 'red';
-							document.getElementById("statusOverview").innerHTML = "<a>Warning - Check Status</a>";
-							document.getElementById("mainLeft").style.background = "linear-gradient(#ff4b4b, #ff1c1c)";
-							if (document.getElementById("power").style.backgroundColor == 'orange'){
-								document.getElementById("power").style.backgroundColor = 'red';
-							}else{
-								document.getElementById("power").style.backgroundColor = 'orange';
-							}
-						}*/
+				if (server == 0){
+					$("#server").css("background-color", 'green');
+				}else{
+					$("#statusOverview").css("color", 'red');
+					$("#statusOverview").html("<a>Warning - Check Status</a>");
+					$("#mainLeft").css("background", "linear-gradient(#ff4b4b, #ff1c1c)");
+					$("#server").css("background-color", 'red');
+				}
 
-						if (server == 0){
-							document.getElementById("server").style.backgroundColor = 'green';
-						}else{
-							document.getElementById("statusOverview").style.color = 'red';
-							document.getElementById("statusOverview").innerHTML = "<a>Warning - Check Status</a>";
-							document.getElementById("mainLeft").style.background = "linear-gradient(#ff4b4b, #ff1c1c)";
-							if (document.getElementById("server").style.backgroundColor == 'orange'){
-								document.getElementById("server").style.backgroundColor = 'red';
-							}else{
-								document.getElementById("server").style.backgroundColor = 'orange';
-							}
-						}
+				if (ftp == 0){
+					$("#ftp").css("background-color", 'green');
+				}else{
+					$("#ftp").css("background-color", 'orange');
+					$("#statusOverview").css("color", 'red');
+					$("#statusOverview").html("<a>Warning - Check Status</a>");
+					$("#mainLeft").css("background", "linear-gradient(#ff4b4b, #ff1c1c)");
+				}
+			},
+			error: function(response) {
+				$("#statusOverview").css("color", 'red');
+				$("#statusOverview").html("<a>Warning - No Connection</a>");
+				$("#mainLeft").css("background", "linear-gradient(#ff4b4b, #ff1c1c)");
 
-						if (ftp == 0){
-							document.getElementById("ftp").style.backgroundColor = 'green';
-						}else{
-							document.getElementById("ftp").style.backgroundColor = 'orange';
-							document.getElementById("statusOverview").style.color = 'red';
-							document.getElementById("statusOverview").innerHTML = "<a>Warning - Check Status</a>";
-							document.getElementById("mainLeft").style.background = "linear-gradient(#ff4b4b, #ff1c1c)";
-						}
-					});
-		        }
-		    }
-		};
-		request.send();
+				$("#server").css("background-color", 'red');
+				$("#ftp").css("background-color", 'red');
+				$("#motion").css("background-color", 'red');
+				$("#door").css("background-color", 'red');
+			}
+		});
+
 
 		// call this function again in 1000ms
 		setTimeout(updateStatus, 750);

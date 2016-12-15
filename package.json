@@ -1,0 +1,25 @@
+{
+  "name": "TimHomeAssistant",
+  "version": "1.0.0",
+  "description": "A DIY home monitoring and automation system",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Timothylock/Tim-Pi-Home-Monitoring.git"
+  },
+  "author": "Timothy Lock",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Timothylock/Tim-Pi-Home-Monitoring/issues"
+  },
+  "homepage": "https://github.com/Timothylock/Tim-Pi-Home-Monitoring#readme"
+}
