@@ -10,10 +10,10 @@ function getWeather() {
     success: function(weather) {
       
       //html = '<img src="'+weather.image+'">';
-      html = '<h2 style="font-size: 50px; text-align: left; margin-left: 20px; margin-top: 100px;">'+weather.temp+'&deg;'+weather.units.temp+'</h2>';
-      html += '<h2 style="font-size: 20px; text-align: left; margin-left: 20px; line-height: 35%">'+weather.currently+'</h2>';
+      html = '<h2 style="font-size: 4vw; text-align: left; margin-left: 20px; margin-top: 100px;">'+weather.temp+'&deg;'+weather.units.temp+'</h2>';
+      html += '<h2 style="font-size: 2vw; text-align: left; margin-left: 20px; line-height: 35%">'+weather.currently+'</h2>';
       console.log(weather.low);
-      html += '<h2 style="font-size: 20px; text-align: left; margin-left: 20px; line-height: 160%"> Low: '+weather.low+' High: '+weather.high+'</h2>';
+      html += '<h2 style="font-size: 2vw; text-align: left; margin-left: 20px; line-height: 160%"> Low: '+weather.low+' High: '+weather.high+'</h2>';
       $("#weather").html(html);
     },
     error: function(error) {
