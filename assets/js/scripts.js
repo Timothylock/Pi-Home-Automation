@@ -33,7 +33,6 @@ function updateStatus() {
 		url: '/status',
 		type: 'GET',
 		success: function(response) {
-			console.log(response);
 			door = response["door"];
 			motion = response["motion"];
 			power = response["power"];
@@ -88,21 +87,66 @@ function updateStatus() {
 	});
 
 
-	// call this function again in 1000ms
-	setTimeout(updateStatus, 750);
+	// call this function again after a period of time
+	setTimeout(updateStatus, 300);
 }
 
-function togglelight(){
-	$("#myModal").show();
-	toastr["success"]("Request Sent");
+// Modifies the modal for light control and shows it
+function togglelightview(){
+	// Get lights / statuses and update modal
+	$.ajax({
+		url: '/lights',
+		type: 'GET',
+		success: function(response) {
+
+			var insert = "<ul style='width:90%; list-style-type:none;'>";
+			for(let i = 0; i < response["lights"].length; i++){
+				if (response["lights"][i]["status"] == "on"){
+					insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"off\")'>" + response["lights"][i]["name"] + "</li>";
+				}else{
+					insert += "<li style='padding:20px; background-color:#e74c3c;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"on\")'>" + response["lights"][i]["name"] + "</li>";
+				}
+				
+			}
+			insert += "</ul>";
+
+			$("#modalTitle").text("Light Control");
+			$("#modalContent").html(insert);
+
+			// Show the modal
+			$("#myModal").show();
+		},
+		error: function(response) {
+			toastr["error"]("Could not recieve light data from server");
+		}
+	});
+}
+
+// Sends a POST request to toggle lights
+function toggleLight(id, to){
+	console.log("TOGGLE LIGHT");
+	$.ajax({
+		url: '/lights?id=' + id + '&onoff=' + to,
+		type: 'POST',
+		success: function(response) {
+			toastr["success"]("Success");
+			togglelightview();
+		},
+		error: function(response) {
+			toastr["error"]("Could not toggle light. Server error");
+			togglelightview();
+		}
+	});
 }
 
 // When the user clicks on the X, close it
 $(document).on('click','.close',function(){
 	$("#myModal").hide();
+	console.log("cl");
 });
-
+/*
 // When the user clicks anywhere outside of the modal, close it
 $(document).on('click','.modal',function(){
     $("#myModal").hide();
-});
+    console.log("cls");
+});*/
