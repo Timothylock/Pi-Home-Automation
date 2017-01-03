@@ -2,6 +2,7 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
+var fs = require('fs');
 //var Gpio = require('onoff').Gpio;
 
 var Gpio = require('pigpio').Gpio,
@@ -21,6 +22,12 @@ var app = express();
 
 app.use(express.static(__dirname + '/'));
 
+// Shell Functions
+var sys = require('sys')
+var exec = require('child_process').exec;
+function puts(error, stdout, stderr) { sys.puts(stdout) }
+
+
 // Variables
 var door = 0;
 var motion = 0;
@@ -30,8 +37,19 @@ var lights = [{"name": "Bedroom", "id": "27", "status":"off"}, {"name": "Entranc
 // Handle any interrupts on the sensors
 doorSensor.on('interrupt', function (level) {
   door = level;
+
   // Also trigger hallway lights 
   hf.digitalWrite(Math.abs(level-1));
+
+  if (level == 1){
+  	// Take picture if the door is open
+	  var timestamp = (new Date).getTime();
+	  exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	  var timestamp = (new Date).getTime();
+	  exec("fswebcam -r 1280x960 " + timestamp + ".jpg", puts);
+	  var timestamp = (new Date).getTime();
+	  exec("fswebcam -r 1280x960 " + timestamp + ".jpg", puts);
+  }
 });
 
 pirSensor.on('interrupt', function (level) {
@@ -46,16 +64,26 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 }));
 
 // Handle incoming requests
-function getStatus(req, res){
+function getStatus(req, res){ // Get the current status of the system
 	let statusObj = {"door": door, "motion": motion, "power": 0, "ftp": 0};
 	res.send(statusObj);
 }
 
-function getLights(req, res){
+function getLights(req, res){ // Get the current status of the lights
 	let statusObj = {"lights":lights};
 	res.send(statusObj);
 }
 
+function getHistory(req, res){ // Get the last 10 pictures
+	var files = fs.readdirSync("./logs/");
+	files.sort(function(a, b) {
+	               return fs.statSync("./logs/" + a).mtime.getTime() - 
+	                      fs.statSync("./logs/" + b).mtime.getTime();
+	           });
+	res.send(files.slice(Math.max(files.length - 10, 0)));
+}
+
+// Helper Functions
 function toggleLights(req, res){
 	if (req.query.onoff == "on"){
 		console.log("Turning light on");
@@ -91,7 +119,11 @@ function toggleLights(req, res){
 app.get('/status', getStatus); 
 app.get('/lights', getLights);  
 app.post('/lights', toggleLights);  
+app.get('/log', getHistory);  
 
 // Express start listening
 app.listen(process.env.PORT || 80);
 console.log('Listening on port 80');
+
+
+

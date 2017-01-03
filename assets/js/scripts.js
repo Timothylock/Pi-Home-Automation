@@ -122,6 +122,34 @@ function togglelightview(){
 	});
 }
 
+// Modifies the modal for seeing logs
+function togglehistoryview(){
+	// Get lights / statuses and update modal
+	$.ajax({
+		url: '/log',
+		type: 'GET',
+		success: function(response) {
+
+			var insert = "<ul style='width:90%; list-style-type:none;'>";
+			for(let i = response.length - 1; i >= 0; i--){
+				var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+				d.setUTCSeconds(response[i].substring(0,response[i].length - 4)/1000);
+				insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='window.location=\"logs/" + response[i] + "\"'>" + d + "</li>";
+			}
+			insert += "</ul>";
+
+			$("#modalTitle").text("Last 10 History");
+			$("#modalContent").html(insert);
+
+			// Show the modal
+			$("#myModal").show();
+		},
+		error: function(response) {
+			toastr["error"]("Could not recieve logs from server");
+		}
+	});
+}
+
 // Sends a POST request to toggle lights
 function toggleLight(id, to){
 	console.log("TOGGLE LIGHT");
