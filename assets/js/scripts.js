@@ -1,3 +1,15 @@
+// Running onLoad, will check if the page is to be loaded with any specific modal, etc.
+function checkArguments() {
+	if(window.location.hash) {
+		var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
+    	if (hash == "history"){
+    		togglehistoryview();
+		}else if (hash == "lights"){
+    		togglelightview();
+		}
+	}
+}
+
 function updateClock() {
 	var now = new Date(), // current date
 	months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
