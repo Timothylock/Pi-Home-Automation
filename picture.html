@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta content='width=device-width, initial-scale=0.65, maximum-scale=0.65, user-scalable=0' name='viewport' />
+<title>Home Assistant - Picture</title>
+
+<script src="assets/js/jquery.js"></script>
+
+<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+</head>
+
+<!-- Main Body -->
+<body>
+	<ul class="topbar" id="mytopbar">
+		<li class="left" onclick="window.location=document.referrer + '#history'"><img src="assets/img/back.png"></li>
+		<li class="right" id="fname"></li></center>
+	</ul>
+
+	<div id="picture"/>
+
+	<script>
+		function getURLParameter(name) {
+		  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+		}
+
+		// Get Update current page with image
+		var pName =getURLParameter('picture');
+		$("#fname").html("<a>" + pName + "</a>");
+		$("#picture").html("<img style=\"width: 100%\" src=\"logs/" + pName + "\">");
+	</script>
+</body>
