@@ -102,9 +102,9 @@ function togglelightview(){
 			var insert = "<ul style='width:90%; list-style-type:none;'>";
 			for(let i = 0; i < response["lights"].length; i++){
 				if (response["lights"][i]["status"] == "on"){
-					insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"off\")'>" + response["lights"][i]["name"] + "</li>";
+					insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"off\", true)'>" + response["lights"][i]["name"] + "</li>";
 				}else{
-					insert += "<li style='padding:20px; background-color:#e74c3c;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"on\")'>" + response["lights"][i]["name"] + "</li>";
+					insert += "<li style='padding:20px; background-color:#e74c3c;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"on\", true)'>" + response["lights"][i]["name"] + "</li>";
 				}
 				
 			}
