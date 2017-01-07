@@ -151,18 +151,22 @@ function togglehistoryview(){
 }
 
 // Sends a POST request to toggle lights
-function toggleLight(id, to){
+function toggleLight(id, to, refreshView){
 	console.log("TOGGLE LIGHT");
 	$.ajax({
 		url: '/lights?id=' + id + '&onoff=' + to,
 		type: 'POST',
 		success: function(response) {
 			toastr["success"]("Success");
-			togglelightview();
+			if(refreshView){
+				togglelightview();
+			}
 		},
 		error: function(response) {
 			toastr["error"]("Could not toggle light. Server error");
-			togglelightview();
+			if(refreshView){
+				togglelightview();
+			}
 		}
 	});
 }
@@ -170,7 +174,6 @@ function toggleLight(id, to){
 // When the user clicks on the X, close it
 $(document).on('click','.close',function(){
 	$("#myModal").hide();
-	console.log("cl");
 });
 /*
 // When the user clicks anywhere outside of the modal, close it
