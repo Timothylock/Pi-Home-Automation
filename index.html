@@ -14,6 +14,8 @@ You've been warned
 <script src="assets/js/weather/jquery.simpleWeather.min.js"></script>
 <script src="assets/js/toaster.min.js"></script>
 <script src="assets/js/scripts.js"></script>
+<script src="assets/js/speech.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.0/annyang.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="assets/css/weather.css">
 <link rel="stylesheet" type="text/css" href="assets/css/modal.css">
@@ -44,7 +46,7 @@ You've been warned
 		  <li class="left"><img id="lights" src="assets/img/light.png" onclick="togglelightview()"><a>Lights</a></li>
 		  <li class="left"><img id="logs" src="assets/img/history.png" onclick="togglehistoryview()"><a>History</a></li>
 		  <li class="left"><img id="motion" src="assets/img/motion.png"><a>Motion</a></li>
-		  <li class="left"><img id="settings" src="assets/img/settings.png"><a>Settings</a></li>
+		  <li class="left"><img id="settings" src="assets/img/settings.png" onclick="listen()"><a>Settings</a></li>
 		</ul>
 		<br>
 		<a>sdsd</a>
@@ -67,8 +69,33 @@ You've been warned
       <div id="modalContent">Some text in the Modal Body</div>
     </div>
   </div>
-
 </div>
+
+<script>
+if (annyang) {
+  // Let's define our first command. First the text we expect, and then the function it should call
+  var commands = {
+    'turn on bedroom light': function() {
+		toggleLight(27, "on", false);
+    },
+    'turn off bedroom light': function() {
+		toggleLight(27, "off", false);
+    },
+    'turn on entrance floor light': function() {
+		toggleLight(18, "on", false);
+    },
+    'turn off entrance floor light': function() {
+		toggleLight(18, "off", false);
+    }
+  };
+
+  // Add our commands to annyang
+  annyang.addCommands(commands);
+
+  // Start listening. You can call this here, or attach this call to an event, button, etc.
+  
+}
+</script>
 
 <!-- Remaining Scripts -->
 <script src="assets/js/weather/weatherupdate.js"></script>
