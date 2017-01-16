@@ -16,7 +16,9 @@ var Gpio = require('pigpio').Gpio,
 	edge: Gpio.EITHER_EDGE
   }),
   br = new Gpio(27, {mode: Gpio.OUTPUT}),
-  hf = new Gpio(18, {mode: Gpio.OUTPUT});
+  hf = new Gpio(18, {mode: Gpio.OUTPUT}),
+  lrOne = new Gpio(17, {mode: Gpio.OUTPUT}),
+  lrTwo = new Gpio(22, {mode: Gpio.OUTPUT});
 
 var app = express();
 
@@ -31,7 +33,7 @@ function puts(error, stdout, stderr) { sys.puts(stdout) }
 // Variables
 var door = 0;
 var motion = 0;
-var lights = [{"name": "Bedroom", "id": "27", "status":"off"}, {"name": "Entrance Floor Light", "id": "18", "status":"off"}];
+var lights = [{"name": "Bedroom", "id": "27", "status":"off"}, {"name": "Entrance Floor Light", "id": "18", "status":"off"}, {"name": "Living Room One Light", "id": "17", "status":"off"}, {"name": "Living Room Two Light", "id": "22", "status":"off"}];
 
 
 // Handle any interrupts on the sensors
@@ -46,9 +48,9 @@ doorSensor.on('interrupt', function (level) {
 	  var timestamp = (new Date).getTime();
 	  exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
 	  var timestamp = (new Date).getTime();
-	  exec("fswebcam -r 1280x960 " + timestamp + ".jpg", puts);
+	  exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
 	  var timestamp = (new Date).getTime();
-	  exec("fswebcam -r 1280x960 " + timestamp + ".jpg", puts);
+	  exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
   }
 });
 
@@ -91,6 +93,10 @@ function toggleLights(req, res){
 			br.digitalWrite(0);
 		}else if(req.query.id == "18"){
 			hf.digitalWrite(0);
+		}else if(req.query.id == "17"){
+			lrOne.digitalWrite(0);
+		}else if(req.query.id == "22"){
+			lrTwo.digitalWrite(0);
 		}
 		for(let i = 0; i < lights.length; i++){
 			if(lights[i]["id"] == req.query.id){
@@ -103,6 +109,10 @@ function toggleLights(req, res){
 			br.digitalWrite(1);
 		}else if(req.query.id == "18"){
 			hf.digitalWrite(1);
+		}else if(req.query.id == "17"){
+			lrOne.digitalWrite(1);
+		}else if(req.query.id == "22"){
+			lrTwo.digitalWrite(1);
 		}
 		console.log("Turning light off");
 		for(let i = 0; i < lights.length; i++){
