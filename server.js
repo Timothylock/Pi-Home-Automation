@@ -1,9 +1,21 @@
 "use strict";
 
 var express = require('express');
+var basicAuth = require('express-basic-auth');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 //var Gpio = require('onoff').Gpio;
+
+
+
+var app = express();
+
+app.use(express.static(__dirname + '/'));
+
+// User Authentication
+app.use(basicAuth({
+    users: { 'admin': 'supersecret' }
+}));
 
 var Gpio = require('pigpio').Gpio,
   doorSensor = new Gpio(20, {
@@ -20,9 +32,6 @@ var Gpio = require('pigpio').Gpio,
   lrOne = new Gpio(17, {mode: Gpio.OUTPUT}),
   lrTwo = new Gpio(22, {mode: Gpio.OUTPUT});
 
-var app = express();
-
-app.use(express.static(__dirname + '/'));
 
 // Shell Functions
 var sys = require('sys')
@@ -39,10 +48,14 @@ var lights = [{"name": "Bedroom", "id": "27", "status":"off"}, {"name": "Entranc
 // Handle any interrupts on the sensors
 doorSensor.on('interrupt', function (level) {
   door = level;
-
   // Also trigger hallway lights 
   hf.digitalWrite(Math.abs(level-1));
-
+  if(Math.abs(level-1) == 1){
+  	lights[1]["status"] = "on";
+  }else{
+  	lights[1]["status"] = "1";
+  }
+  
   if (level == 1){
   	// Take picture if the door is open
 	  var timestamp = (new Date).getTime();

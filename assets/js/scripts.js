@@ -41,9 +41,14 @@ function updateStatus() {
 	var server = 0;
 	var ftp = 0;
 
+	console.log("Basic " + Cookies.get('username') + ":" + Cookies.get('password'));
+
 	$.ajax({
 		url: '/status',
 		type: 'GET',
+		beforeSend: function (xhr) {
+		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+		},
 		success: function(response) {
 			door = response["door"];
 			motion = response["motion"];
@@ -95,6 +100,10 @@ function updateStatus() {
 			$("#ftp").css("background-color", 'red');
 			$("#motion").css("background-color", 'red');
 			$("#door").css("background-color", 'red');
+
+			if(response.status==401){
+				togglelogin();
+			}
 		}
 	});
 
@@ -109,8 +118,10 @@ function togglelightview(){
 	$.ajax({
 		url: '/lights',
 		type: 'GET',
+		beforeSend: function (xhr) {
+		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+		},
 		success: function(response) {
-
 			var insert = "<ul style='width:90%; list-style-type:none;'>";
 			for(let i = 0; i < response["lights"].length; i++){
 				if (response["lights"][i]["status"] == "on"){
@@ -140,8 +151,10 @@ function togglehistoryview(){
 	$.ajax({
 		url: '/log',
 		type: 'GET',
+		beforeSend: function (xhr) {
+		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+		},
 		success: function(response) {
-
 			var insert = "<ul style='width:90%; list-style-type:none;'>";
 			for(let i = response.length - 1; i >= 0; i--){
 				var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
@@ -168,6 +181,9 @@ function toggleLight(id, to, refreshView){
 	$.ajax({
 		url: '/lights?id=' + id + '&onoff=' + to,
 		type: 'POST',
+		beforeSend: function (xhr) {
+		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+		},
 		success: function(response) {
 			toastr["success"]("Success");
 			if(refreshView){
@@ -181,6 +197,27 @@ function toggleLight(id, to, refreshView){
 			}
 		}
 	});
+}
+
+// Modifies the modal for login
+function togglelogin(){
+	// Only show if not open already
+	if (!($("#myModal").is(":visible"))){
+		let insert = 'The server reports that this device is unauthorized. Please login.';
+		insert += '<br><br><b>Username</b><input type="text" placeholder="Enter Username" id="uname" required><br><b>Password</b><input type="password" placeholder="Enter Password" id="psw" required><br><button onclick="storeLogin();">Login</button>';
+		$("#modalTitle").text("Not Authorized");
+		$("#modalContent").html(insert);
+
+		$("#myModal").show();
+	}
+}
+
+// Stores the user into cookies
+function storeLogin(){
+	Cookies.set('username', $("#uname").val());
+	Cookies.set('password', $("#psw").val());
+
+	$("#myModal").hide();
 }
 
 // When the user clicks on the X, close it
