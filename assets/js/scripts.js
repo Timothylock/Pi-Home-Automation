@@ -41,8 +41,6 @@ function updateStatus() {
 	var server = 0;
 	var ftp = 0;
 
-	console.log("Basic " + Cookies.get('username') + ":" + Cookies.get('password'));
-
 	$.ajax({
 		url: '/status',
 		type: 'GET',

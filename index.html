@@ -77,21 +77,27 @@ if (annyang) {
   var commands = {
     'turn on bedroom light': function() {
 		toggleLight(27, "on", false);
+		speak('Bedroom light on');
     },
     'turn off bedroom light': function() {
 		toggleLight(27, "off", false);
+		speak('Bedroom light off');
     },
     'turn on entrance floor light': function() {
 		toggleLight(18, "on", false);
+		speak('Entrance floor light turned on');
     },
     'turn off entrance floor light': function() {
 		toggleLight(18, "off", false);
+		speak('Entrance floor light turned off');
     },
     'turn on living room light': function() {
 		toggleLight(17, "on", false);
+		speak('Living room light turned on');
     },
     'turn off living room light': function() {
 		toggleLight(17, "off", false);
+		speak('Living room light turned off');
     }
   };
 
