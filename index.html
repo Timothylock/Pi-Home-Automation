@@ -12,21 +12,20 @@ You've been warned
 
 <script src="assets/js/jquery.js"></script>
 <script src="assets/js/weather/jquery.simpleWeather.min.js"></script>
+<script src="assets/js/weather/weatherupdate.js"></script>
 <script src="assets/js/toaster.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 <script src="assets/js/speech.js"></script>
 <script src="assets/js/cookies.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.0/annyang.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="assets/css/weather.css">
 <link rel="stylesheet" type="text/css" href="assets/css/modal.css">
-<!-- #4d0000 RED darkgreen GREEN -->
 <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 <link rel="stylesheet" type="text/css" href="assets/css/toastr.css" />
 </head>
 
 <!-- Main Body -->
-<body onload="checkArguments(); updateClock(); updateStatus();">
+<body onload="checkArguments(); updateClock(); updateStatus(); getWeather();">
 <ul class="topbar" id="mytopbar">
 	<li class="right"><img  id="server" src="assets/img/server.png"></li>
 	<li class="right"><img id="ftp" src="assets/img/internet.png"></li>
@@ -54,7 +53,7 @@ You've been warned
 </div>
 
 <div id=bottom>
-<!-- Future -->
+<!-- for future use -->
 </div>
 
 <!-- Modal -->
@@ -63,52 +62,11 @@ You've been warned
   <div class="modal-content">
     <div class="modal-header">
       <span class="close">&times;</span>
-      <h2 id="modalTitle">Modal Header</h2>
+      <h2 id="modalTitle"></h2>
     </div>
     <div class="modal-body">
-      <div id="modalContent">Some text in the Modal Body</div>
+      <div id="modalContent"></div>
     </div>
   </div>
 </div>
-
-<script>
-if (annyang) {
-  // Let's define our first command. First the text we expect, and then the function it should call
-  var commands = {
-    'turn on bedroom light': function() {
-		toggleLight(27, "on", false);
-		speak('Bedroom light on');
-    },
-    'turn off bedroom light': function() {
-		toggleLight(27, "off", false);
-		speak('Bedroom light off');
-    },
-    'turn on entrance floor light': function() {
-		toggleLight(18, "on", false);
-		speak('Entrance floor light turned on');
-    },
-    'turn off entrance floor light': function() {
-		toggleLight(18, "off", false);
-		speak('Entrance floor light turned off');
-    },
-    'turn on living room light': function() {
-		toggleLight(17, "on", false);
-		speak('Living room light turned on');
-    },
-    'turn off living room light': function() {
-		toggleLight(17, "off", false);
-		speak('Living room light turned off');
-    }
-  };
-
-  // Add our commands to annyang
-  annyang.addCommands(commands);
-
-  // Start listening. You can call this here, or attach this call to an event, button, etc.
-  
-}
-</script>
-
-<!-- Remaining Scripts -->
-<script src="assets/js/weather/weatherupdate.js"></script>
 </body>
