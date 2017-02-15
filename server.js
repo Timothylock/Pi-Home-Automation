@@ -30,7 +30,17 @@ var Gpio = require('pigpio').Gpio,
   br = new Gpio(27, {mode: Gpio.OUTPUT}),
   hf = new Gpio(18, {mode: Gpio.OUTPUT}),
   lrOne = new Gpio(17, {mode: Gpio.OUTPUT}),
-  lrTwo = new Gpio(22, {mode: Gpio.OUTPUT});
+  lrTwo = new Gpio(22, {mode: Gpio.OUTPUT}),
+  blOpen =  new Gpio(19, {mode: Gpio.OUTPUT}),
+  blClose =  new Gpio(26, {mode: Gpio.OUTPUT});
+
+// Turn everything off
+hf.digitalWrite(1);
+br.digitalWrite(1);
+lrOne.digitalWrite(1);
+lrTwo.digitalWrite(1);
+blOpen.digitalWrite(1);
+blClose.digitalWrite(1);
 
 
 // Shell Functions
@@ -40,6 +50,8 @@ function puts(error, stdout, stderr) { sys.puts(stdout) }
 
 
 // Variables
+var blindsMotion = 0;
+var blindsStatus = 0; // 0 = closed 1 = open
 var door = 0;
 var motion = 0;
 var lights = [{"name": "Bedroom", "id": "27", "status":"off"}, {"name": "Entrance Floor Light", "id": "18", "status":"off"}, {"name": "Living Room One Light", "id": "17", "status":"off"}, {"name": "Living Room Two Light", "id": "22", "status":"off"}];
@@ -80,7 +92,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 
 // Handle incoming requests
 function getStatus(req, res){ // Get the current status of the system
-	let statusObj = {"door": door, "motion": motion, "power": 0, "ftp": 0};
+	let statusObj = {"door": door, "motion": motion, "power": 0, "ftp": 0, "blinds": blindsStatus};
 	res.send(statusObj);
 }
 
@@ -138,10 +150,50 @@ function toggleLights(req, res){
 	res.send("Success\n");
 }
 
+// Blinds function
+function toggleBlinds(req, res){
+	// Only change if blinds not currently in motion
+	if (blindsMotion == 0){
+		if (req.query.set == "1"){
+			if (blindsStatus == 1){
+				res.send("Blinds already closed!\n");
+			}else{
+				console.log("Opening curtains");
+				blOpen.digitalWrite(0);
+				blindsStatus = 1;
+				blindsMotion = 1;
+				setTimeout(stopBlinds, 9200);
+				res.send("Success\n");
+			}	
+		}else{
+			if (blindsStatus == 0){
+				res.send("Blinds already closed!\n");
+			}else{
+				console.log("Closing curtains");
+				blClose.digitalWrite(0);
+				blindsStatus = 0;
+				blindsMotion = 1;
+				setTimeout(stopBlinds, 9200);
+				res.send("Success\n");
+			}	
+		}
+	}else{
+		res.send("Blinds already in motion!\n");
+	}
+}
+
+// Blinds Helper function to stop blinds
+function stopBlinds(){
+	blClose.digitalWrite(1);
+	blOpen.digitalWrite(1);
+	blindsMotion = 0;
+}
+
 // REST
 app.get('/status', getStatus); 
-app.get('/lights', getLights);  
-app.post('/lights', toggleLights);  
+app.get('/lights', getLights); 
+app.post('/lights', toggleLights); 
+app.post('/blinds', toggleBlinds);  
 app.get('/log', getHistory);  
 
 // Express start listening

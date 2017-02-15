@@ -28,8 +28,6 @@ function updateClock() {
 	$('#date').html("<a style='font-size: 4vw; text-align: left; line-height: 10%; padding: 8px 16px; color: #f3f3f3; text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);'>" + date + "</a>");
 	$('#time').html("<a style='font-size: 6vw; text-align: left; color: #f3f3f3; padding: 8px 16px; text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);'>" + strTime + "</a>");
 	
-	// call this function again in 1000ms
-	setTimeout(updateClock, 1000);
 }
 
 function updateStatus() {
@@ -40,6 +38,7 @@ function updateStatus() {
 	var power = 0;
 	var server = 0;
 	var ftp = 0;
+	var blinds = 0;
 
 	$.ajax({
 		url: '/status',
@@ -52,6 +51,7 @@ function updateStatus() {
 			motion = response["motion"];
 			power = response["power"];
 			ftp = response["ftp"];
+			blinds = response["blinds"];
 
 			// Status bar should start with green and change if any error
 			$("#statusOverview").css("color", 'green');
@@ -88,6 +88,12 @@ function updateStatus() {
 				$("#statusOverview").html("<a>Warning - Check Status</a>");
 				$("#mainLeft").css("background", "linear-gradient(#ff4b4b, #ff1c1c)");
 			}
+
+			if (blinds == 0){
+				$("#blinds").attr('onclick', 'toggleBlinds(1)');
+			}else{
+				$("#blinds").attr('onclick', 'toggleBlinds(0)');
+			}
 		},
 		error: function(response) {
 			$("#statusOverview").css("color", 'red');
@@ -104,10 +110,6 @@ function updateStatus() {
 			}
 		}
 	});
-
-
-	// call this function again after a period of time
-	setTimeout(updateStatus, 300);
 }
 
 // Modifies the modal for light control and shows it
@@ -197,6 +199,24 @@ function toggleLight(id, to, refreshView){
 	});
 }
 
+// Sends a POST request to toggle blinds
+function toggleBlinds(to){
+	console.log("TOGGLE BLINDS");
+	$.ajax({
+		url: '/blinds?set=' + to,
+		type: 'POST',
+		beforeSend: function (xhr) {
+		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+		},
+		success: function(response) {
+			toastr["success"](response);
+		},
+		error: function(response) {
+			toastr["error"]("Could not toggle blinds. Server error");
+		}
+	});
+}
+
 // Modifies the modal for login
 function togglelogin(){
 	// Only show if not open already
@@ -222,6 +242,10 @@ function storeLogin(){
 $(document).on('click','.close',function(){
 	$("#myModal").hide();
 });
+
+
+setInterval(updateClock, 2000);
+setInterval(updateStatus, 750);
 /*
 // When the user clicks anywhere outside of the modal, close it
 $(document).on('click','.modal',function(){

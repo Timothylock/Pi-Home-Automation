@@ -39,6 +39,26 @@ if (annyang) {
     'turn off living room light': function() {
 		toggleLight(17, "off", false);
 		speak('Living room light turned off');
+    },
+    'open the blinds': function() {
+		toggleBlinds(1);
+		speak('The blinds are now opening');
+    },
+    'close the blinds': function() {
+		toggleBlinds(0);
+		speak('The blinds are now closing');
+    },
+    'i\'m home': function() {
+		toggleLight(17, "on", false);
+		toggleLight(27, "on", false);
+		toggleBlinds(1);
+		speak('Welcome home, Timothy');
+    },
+    'i\'m leaving': function() {
+		toggleLight(17, "off", false);
+		toggleLight(27, "off", false);
+		toggleBlinds(0);
+		speak('See you later!');
     }
   };
 
