@@ -90,8 +90,10 @@ function updateStatus() {
 			}
 
 			if (blinds == 0){
+				$("#blinds").css("background-color", 'red');
 				$("#blinds").attr('onclick', 'toggleBlinds(1)');
 			}else{
+				$("#blinds").css("background-color", 'ForestGreen');
 				$("#blinds").attr('onclick', 'toggleBlinds(0)');
 			}
 		},
@@ -104,6 +106,7 @@ function updateStatus() {
 			$("#ftp").css("background-color", 'red');
 			$("#motion").css("background-color", 'red');
 			$("#door").css("background-color", 'red');
+			$("#blinds").css("background-color", 'red');
 
 			if(response.status==401){
 				togglelogin();
