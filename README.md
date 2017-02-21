@@ -12,6 +12,8 @@ A DIY home monitoring system
  - PID sensor
  - Raspberry Pi
  - Door magnetic sensor
+ - USB Webcam
+ - Relays modules
 
 *Software*
 
@@ -40,6 +42,8 @@ cd /home/pi/Tim-Pi-Home-Monitoring/
 node server.js &
 ```
 replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup. 
+
+Note: The current software starts assuming that the blinds are closed
 
 You may also want to have the pi wait for network (via raspi-config)
 
