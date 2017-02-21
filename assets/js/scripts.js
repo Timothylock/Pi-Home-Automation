@@ -63,6 +63,9 @@ function updateStatus() {
 				$("#door").css("background-color", 'ForestGreen');
 			}else{
 				$("#door").css("background-color", 'orange');
+				$("#statusOverview").css("color", 'orange');
+				$("#statusOverview").html("<a>Door is open</a>");
+				$("#mainLeft").css("background", "linear-gradient(#ffa500, #d88c00)");
 			}
 
 			if (motion == 0){
@@ -162,7 +165,7 @@ function togglehistoryview(){
 			for(let i = response.length - 1; i >= 0; i--){
 				var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
 				d.setUTCSeconds(response[i].substring(0,response[i].length - 4)/1000);
-				insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='window.location=\"picture.html?picture=" + response[i] + "\"'>" + d + "</li>";
+				insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='showPic(\"" + response[i] + "\")'>" + d + "</li>";
 			}
 			insert += "</ul>";
 
@@ -176,6 +179,13 @@ function togglehistoryview(){
 			toastr["error"]("Could not recieve logs from server");
 		}
 	});
+}
+
+// Shows the picture
+function showPic(name){
+	$("#fname").html("<a>" + name + "</a>");
+	$("#picture").html("<img style=\"width: 100%\" src=\"logs/" + name + "\">");
+	$("#pic").show();
 }
 
 // Sends a POST request to toggle lights
@@ -247,7 +257,7 @@ $(document).on('click','.close',function(){
 });
 
 
-setInterval(updateClock, 2000);
+setInterval(updateClock, 1000);
 setInterval(updateStatus, 750);
 /*
 // When the user clicks anywhere outside of the modal, close it
