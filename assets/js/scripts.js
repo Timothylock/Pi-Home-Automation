@@ -120,6 +120,8 @@ function updateStatus() {
 
 // Modifies the modal for light control and shows it
 function togglelightview(){
+	loadingModal();
+
 	// Get lights / statuses and update modal
 	$.ajax({
 		url: '/lights',
@@ -141,9 +143,6 @@ function togglelightview(){
 
 			$("#modalTitle").text("Light Control");
 			$("#modalContent").html(insert);
-
-			// Show the modal
-			$("#myModal").show();
 		},
 		error: function(response) {
 			toastr["error"]("Could not recieve light data from server");
@@ -153,6 +152,8 @@ function togglelightview(){
 
 // Modifies the modal for seeing logs
 function togglehistoryview(){
+	loadingModal();
+
 	// Get lights / statuses and update modal
 	$.ajax({
 		url: '/log',
@@ -171,9 +172,6 @@ function togglehistoryview(){
 
 			$("#modalTitle").text("Last 10 History");
 			$("#modalContent").html(insert);
-
-			// Show the modal
-			$("#myModal").show();
 		},
 		error: function(response) {
 			toastr["error"]("Could not recieve logs from server");
@@ -232,14 +230,14 @@ function toggleBlinds(to){
 
 // Modifies the modal for login
 function togglelogin(){
+	loadingModal();
+
 	// Only show if not open already
 	if (!($("#myModal").is(":visible"))){
 		let insert = 'The server reports that this device is unauthorized. Please login.';
 		insert += '<br><br><b>Username</b><input type="text" placeholder="Enter Username" id="uname" required><br><b>Password</b><input type="password" placeholder="Enter Password" id="psw" required><br><button onclick="storeLogin();">Login</button>';
 		$("#modalTitle").text("Not Authorized");
 		$("#modalContent").html(insert);
-
-		$("#myModal").show();
 	}
 }
 
@@ -256,6 +254,13 @@ $(document).on('click','.close',function(){
 	$("#myModal").hide();
 });
 
+// Show a modal screen saying loading
+function loadingModal(){
+	$("#modalTitle").text("Please Wait");
+	$("#modalContent").html("Loading...");
+
+	$("#myModal").show();
+}
 
 setInterval(updateClock, 1000);
 setInterval(updateStatus, 750);
