@@ -113,13 +113,13 @@ function getLights(req, res){ // Get the current status of the lights
 }
 
 function getHistory(req, res){ // Get the last 10 pictures
-	addLog("history view", "", {'req':req});
 	var files = fs.readdirSync("./logs/");
 	files.sort(function(a, b) {
 	               return fs.statSync("./logs/" + a).mtime.getTime() - 
 	                      fs.statSync("./logs/" + b).mtime.getTime();
 	           });
 	res.send(files.slice(Math.max(files.length - 10, 0)));
+	addLog("history view", "", {'req':req});
 }
 
 // Helper Functions
@@ -176,23 +176,23 @@ function toggleBlinds(req, res){
 			if (blindsStatus == 1){
 				res.send("Blinds already closed!\n");
 			}else{
-				addLog("opening curtains", "", {'req':req});
 				blOpen.digitalWrite(0);
 				blindsStatus = 1;
 				blindsMotion = 1;
 				setTimeout(stopBlinds, 9200);
 				res.send("Success\n");
+				addLog("opening curtains", "", {'req':req});
 			}	
 		}else{
 			if (blindsStatus == 0){
 				res.send("Blinds already closed!\n");
 			}else{
-				addLog("closing curtains", "", {'req':req});
 				blClose.digitalWrite(0);
 				blindsStatus = 0;
 				blindsMotion = 1;
 				setTimeout(stopBlinds, 9200);
 				res.send("Success\n");
+				addLog("closing curtains", "", {'req':req});
 			}	
 		}
 	}else{
@@ -210,11 +210,8 @@ function stopBlinds(){
 // Add a specific data to the log (for remote connections)
 function addLog(action, details, opt){
 	if ('req' in opt){
-		console.log(opt['req'])
 		var ip = opt['req'].headers['x-forwarded-for'] || opt['req'].connection.remoteAddress;
 		var ua = opt['req'].headers['user-agent'];
-		console.log("IP" + ip)
-		console.log("UA" + ua)
 	}else{
 		var ip = "::ffff:127.0.0.1";
 		var ua = "localhost";

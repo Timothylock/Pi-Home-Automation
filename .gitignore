@@ -38,4 +38,5 @@ jspm_packages
 
 # Pictures/Logs directory
 logs
+data
 PIGPIO
