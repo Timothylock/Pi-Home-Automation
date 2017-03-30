@@ -69,13 +69,17 @@ doorSensor.on('interrupt', function (level) {
   }
   
   if (level == 1){
+  	var timestamp = (new Date).getTime();
+  	addLog("door opened", "logs/" + timestamp + ".jpg", {});
+  	
   	// Take picture if the door is open
-	  var timestamp = (new Date).getTime();
-	  exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
-	  var timestamp = (new Date).getTime();
-	  exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
-	  var timestamp = (new Date).getTime();
-	  exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	var timestamp = (new Date).getTime();
+	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	var timestamp = (new Date).getTime();
+	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+  }else{
+  	addLog("door closed", "", {});
   }
 });
 
@@ -102,6 +106,7 @@ function getLights(req, res){ // Get the current status of the lights
 }
 
 function getHistory(req, res){ // Get the last 10 pictures
+	addLog("history view", "")
 	var files = fs.readdirSync("./logs/");
 	files.sort(function(a, b) {
 	               return fs.statSync("./logs/" + a).mtime.getTime() - 
@@ -113,15 +118,18 @@ function getHistory(req, res){ // Get the last 10 pictures
 // Helper Functions
 function toggleLights(req, res){
 	if (req.query.onoff == "on"){
-		console.log("Turning light on");
 		if(req.query.id == "27"){
 			br.digitalWrite(0);
+			addLog("light on", "bedroom light", {'req':req});
 		}else if(req.query.id == "18"){
 			hf.digitalWrite(0);
+			addLog("light on", "hallway floor", {'req':req});
 		}else if(req.query.id == "17"){
 			lrOne.digitalWrite(0);
+			addLog("light on", "Living Room Lights", {'req':req});
 		}else if(req.query.id == "22"){
 			lrTwo.digitalWrite(0);
+			addLog("light on", "Living Room Plugs", {'req':req});
 		}
 		for(let i = 0; i < lights.length; i++){
 			if(lights[i]["id"] == req.query.id){
@@ -132,14 +140,17 @@ function toggleLights(req, res){
 	}else{
 		if(req.query.id == "27"){
 			br.digitalWrite(1);
+			addLog("light off", "bedroom light", {'req':req});
 		}else if(req.query.id == "18"){
 			hf.digitalWrite(1);
+			addLog("light off", "hallway floor", {'req':req});
 		}else if(req.query.id == "17"){
 			lrOne.digitalWrite(1);
+			addLog("light off", "Living Room Lights", {'req':req});
 		}else if(req.query.id == "22"){
 			lrTwo.digitalWrite(1);
+			addLog("light off", "Living Room Plugs", {'req':req});
 		}
-		console.log("Turning light off");
 		for(let i = 0; i < lights.length; i++){
 			if(lights[i]["id"] == req.query.id){
 				lights[i]["status"] = "off";
@@ -158,7 +169,7 @@ function toggleBlinds(req, res){
 			if (blindsStatus == 1){
 				res.send("Blinds already closed!\n");
 			}else{
-				console.log("Opening curtains");
+				addLog("opening curtains", "", {'req':req});
 				blOpen.digitalWrite(0);
 				blindsStatus = 1;
 				blindsMotion = 1;
@@ -169,7 +180,7 @@ function toggleBlinds(req, res){
 			if (blindsStatus == 0){
 				res.send("Blinds already closed!\n");
 			}else{
-				console.log("Closing curtains");
+				addLog("closing curtains", "", {'req':req});
 				blClose.digitalWrite(0);
 				blindsStatus = 0;
 				blindsMotion = 1;
@@ -187,6 +198,23 @@ function stopBlinds(){
 	blClose.digitalWrite(1);
 	blOpen.digitalWrite(1);
 	blindsMotion = 0;
+}
+
+// Add a specific data to the log (for remote connections)
+function addLog(action, details, opt){
+	if ('req' in opt){
+		console.log(opt['req'])
+		var ip = opt['req'].headers['x-forwarded-for'] || opt['req'].connection.remoteAddress;
+		var ua = opt['req'].headers['user-agent'];
+		console.log("IP" + ip)
+		console.log("UA" + ua)
+	}else{
+		var ip = "127.0.0.1";
+		var ua = "localhost";
+	}
+	fs.appendFile('logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n", function (err) {
+	  if (err) throw err;
+	});
 }
 
 // REST
