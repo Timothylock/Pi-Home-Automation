@@ -230,14 +230,14 @@ function toggleBlinds(to){
 
 // Modifies the modal for login
 function togglelogin(){
-	loadingModal();
-
 	// Only show if not open already
 	if (!($("#myModal").is(":visible"))){
 		let insert = 'The server reports that this device is unauthorized. Please login.';
 		insert += '<br><br><b>Username</b><input type="text" placeholder="Enter Username" id="uname" required><br><b>Password</b><input type="password" placeholder="Enter Password" id="psw" required><br><button onclick="storeLogin();">Login</button>';
 		$("#modalTitle").text("Not Authorized");
 		$("#modalContent").html(insert);
+
+		$("#myModal").show();
 	}
 }
 
