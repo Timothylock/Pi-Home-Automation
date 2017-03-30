@@ -1,6 +1,9 @@
 # Tim-Pi-Home-Monitoring
 A DIY home monitoring system
 
+![alt text](screenshot.jpg "Screenshot of main screen")
+
+
 
 ----------
 
