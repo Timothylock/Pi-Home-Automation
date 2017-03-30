@@ -56,6 +56,9 @@ var door = 0;
 var motion = 0;
 var lights = [{"name": "Bedroom", "id": "27", "status":"off"}, {"name": "Entrance Floor Light", "id": "18", "status":"off"}, {"name": "Living Room One Light", "id": "17", "status":"off"}, {"name": "Living Room Two Light", "id": "22", "status":"off"}];
 
+//////////////////////
+// Sensor interrupts
+//////////////////////
 
 // Handle any interrupts on the sensors
 doorSensor.on('interrupt', function (level) {
@@ -87,6 +90,10 @@ pirSensor.on('interrupt', function (level) {
   motion = level;
 });
 
+//////////////////////
+// Handle Requests
+//////////////////////
+
 // The request body is received on GET or POST.
 // A middleware that just simplifies things a bit.
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -106,7 +113,7 @@ function getLights(req, res){ // Get the current status of the lights
 }
 
 function getHistory(req, res){ // Get the last 10 pictures
-	addLog("history view", "")
+	addLog("history view", "", {'req':req});
 	var files = fs.readdirSync("./logs/");
 	files.sort(function(a, b) {
 	               return fs.statSync("./logs/" + a).mtime.getTime() - 
@@ -209,13 +216,22 @@ function addLog(action, details, opt){
 		console.log("IP" + ip)
 		console.log("UA" + ua)
 	}else{
-		var ip = "127.0.0.1";
+		var ip = "::ffff:127.0.0.1";
 		var ua = "localhost";
 	}
 	fs.appendFile('logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n", function (err) {
 	  if (err) throw err;
 	});
 }
+
+// Keep log of when the server was last online
+function updateLastOnline(){
+	fs.writeFile('data/lastonline.json', JSON.stringify(new Date()), 'utf8', function (err, data){});
+}
+
+//////////////////////
+// Express Server
+//////////////////////
 
 // REST
 app.get('/status', getStatus); 
@@ -228,5 +244,18 @@ app.get('/log', getHistory);
 app.listen(process.env.PORT || 80);
 console.log('Listening on port 80');
 
+// Add Logs
+fs.readFile('data/lastonline.json', function read(err, data) {
+    if (err) {
+        console.log("No previous online log file found. Ignoring")
+    }else{
+    	addLog("Server Unexpected Shutdown Detected", data, {});
+    }
+});
+addLog("Server Starting", "", {});
+
+// Start Aux functions
+updateLastOnline();
+setInterval(updateLastOnline, 60000*5);
 
 
