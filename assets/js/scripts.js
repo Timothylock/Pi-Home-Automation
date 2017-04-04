@@ -243,8 +243,8 @@ function togglelogin(){
 
 // Stores the user into cookies
 function storeLogin(){
-	Cookies.set('username', $("#uname").val());
-	Cookies.set('password', $("#psw").val());
+	Cookies.set('username', $("#uname").val(), { expires: 365 });
+	Cookies.set('password', $("#psw").val(), { expires: 365 });
 
 	$("#myModal").hide();
 }
