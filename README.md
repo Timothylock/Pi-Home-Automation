@@ -51,3 +51,15 @@ and add
     node server.js &
 
 replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup.
+
+
+Not-so-frequent FAQ
+-------------
+
+## Why node? Why not ____?
+
+The server used to be in Python (Flask), but I remade the server in Node since I was taking a web development course at my university and really love the idea of asynchronousity for the server. 
+
+## How many clients can it support at a time?
+
+Right now the JS makes a GET reqquest every 50ms. I have tested this with 5 devices on a Pi 1 model B and it had no trouble processing all of the requests. If needed, you can go into the JS to increase the polling interval. 
