@@ -3,7 +3,7 @@ Tim Pi Home Monitoring
 
 A DIY home monitoring system made of the Raspberry Pi. It currently has the ability to control lights, outlets, and blinds. 
 
-![alt text](screenshot.jpg "Screenshot of main screen")
+![alt text](assets/img/screenshot.jpg "Screenshot of main screen")
 
 ----------
 
@@ -18,6 +18,8 @@ Setup
  3. Door magnetic sensor
  4. Relay modules
  5. PID Sensor
+
+ ![alt text](assets/img/general_layout.jpg "My Setup")
 
 **Software Setup**
 
