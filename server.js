@@ -21,7 +21,7 @@ var Gpio = require('pigpio').Gpio;
 console.log("Reading settings and initializing IO objects");
 
 // Import the port numbers and create the associated objects for them
-var ioPorts = {"doorSensors" : {"Main Door" : 20}, "pirSensors" : {"Hallway" : 16}, "blinds" : {"open" : 19, "close" : 26}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 28, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
+var ioPorts = {"doorSensor" : 20, "pirSensor" : 16, "blinds" : {"open" : 19, "close" : 26}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 18, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
 var ioObjects = {};
 
 // Create the outlet / lights objects. Lights array kept to retain compatibility
@@ -39,13 +39,14 @@ ioObjects["blinds"] = {};
 ioObjects["blinds"]["open"] = new Gpio(ioPorts["blinds"]["open"], {mode: Gpio.OUTPUT});
 ioObjects["blinds"]["close"] = new Gpio(ioPorts["blinds"]["close"], {mode: Gpio.OUTPUT});
 
-var  doorSensor = new Gpio(20, {
+// Create the sensor objects
+ioObjects["doorSensor"] = new Gpio(ioPorts["doorSensor"], {
 	mode: Gpio.INPUT,
 	pullUpDown: Gpio.PUD_UP,
 	edge: Gpio.EITHER_EDGE
   });
 
-var  pirSensor = new Gpio(16, {
+ioObjects["pirSensor"] = new Gpio(ioPorts["pirSensor"], {
 	mode: Gpio.INPUT,
 	edge: Gpio.EITHER_EDGE
   });
@@ -60,7 +61,6 @@ var sys = require('sys')
 var exec = require('child_process').exec;
 function puts(error, stdout, stderr) { sys.puts(stdout) }
 
-
 // Variables
 var blindsMotion = 0;
 var blindsStatus = 0; // 0 = closed 1 = open
@@ -73,10 +73,11 @@ var motion = 0;
 console.log("Loading server functions");
 
 // Handle any interrupts on the sensors
-doorSensor.on('interrupt', function (level) {
+ioObjects["doorSensor"].on('interrupt', function (level) {
   door = level;
   // Also trigger hallway lights 
-  hf.digitalWrite(Math.abs(level-1));
+  ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
+
   if(Math.abs(level-1) == 1){
   	lights[1]["status"] = "on";
   }else{
@@ -98,7 +99,7 @@ doorSensor.on('interrupt', function (level) {
   }
 });
 
-pirSensor.on('interrupt', function (level) {
+ioObjects["pirSensor"].on('interrupt', function (level) {
   motion = level;
 });
 
