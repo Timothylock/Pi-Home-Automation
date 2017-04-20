@@ -1,15 +1,11 @@
 "use strict";
+console.log("Loading server");
 
 var express = require('express');
 var basicAuth = require('express-basic-auth');
 var bodyParser = require('body-parser');
 var fs = require('fs');
-//var Gpio = require('onoff').Gpio;
-
-
-
 var app = express();
-
 app.use(express.static(__dirname + '/'));
 
 // User Authentication
@@ -22,9 +18,10 @@ var Gpio = require('pigpio').Gpio;
 //////////////////////
 // GPIO Setup
 //////////////////////
+console.log("Reading settings and initializing IO objects");
 
 // Import the port numbers and create the associated objects for them
-var ioPorts = {"doorSensors" : {"Main Door" : 20}, "pirSensors" : {"Hallway" : 16}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 28, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
+var ioPorts = {"doorSensors" : {"Main Door" : 20}, "pirSensors" : {"Hallway" : 16}, "blinds" : {"open" : 19, "close" : 26}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 28, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
 var ioObjects = {};
 
 // Create the outlet / lights objects. Lights array kept to retain compatibility
@@ -37,30 +34,25 @@ for (let key in ioPorts["outletlights"]){
 	lights.push({"name": key, "id": pin, "status":"off"});
 }
 
+// Create the blinds object
+ioObjects["blinds"] = {};
+ioObjects["blinds"]["open"] = new Gpio(ioPorts["blinds"]["open"], {mode: Gpio.OUTPUT});
+ioObjects["blinds"]["close"] = new Gpio(ioPorts["blinds"]["close"], {mode: Gpio.OUTPUT});
 
 var  doorSensor = new Gpio(20, {
 	mode: Gpio.INPUT,
 	pullUpDown: Gpio.PUD_UP,
 	edge: Gpio.EITHER_EDGE
-  }),
-  pirSensor = new Gpio(16, {
+  });
+
+var  pirSensor = new Gpio(16, {
 	mode: Gpio.INPUT,
 	edge: Gpio.EITHER_EDGE
-  }),
-  br = new Gpio(27, {mode: Gpio.OUTPUT}),
-  hf = new Gpio(18, {mode: Gpio.OUTPUT}),
-  lrOne = new Gpio(17, {mode: Gpio.OUTPUT}),
-  lrTwo = new Gpio(22, {mode: Gpio.OUTPUT}),
-  blOpen =  new Gpio(19, {mode: Gpio.OUTPUT}),
-  blClose =  new Gpio(26, {mode: Gpio.OUTPUT});
+  });
 
 // Turn everything off
-hf.digitalWrite(1);
-br.digitalWrite(1);
-lrOne.digitalWrite(1);
-lrTwo.digitalWrite(1);
-blOpen.digitalWrite(1);
-blClose.digitalWrite(1);
+ioObjects["blinds"]["open"].digitalWrite(1);
+ioObjects["blinds"]["close"].digitalWrite(1);
 
 
 // Shell Functions
@@ -78,6 +70,7 @@ var motion = 0;
 //////////////////////
 // Sensor interrupts
 //////////////////////
+console.log("Loading server functions");
 
 // Handle any interrupts on the sensors
 doorSensor.on('interrupt', function (level) {
@@ -177,7 +170,7 @@ function toggleBlinds(req, res){
 			if (blindsStatus == 1){
 				res.send("Blinds already closed!\n");
 			}else{
-				blOpen.digitalWrite(0);
+				ioObjects["blinds"]["open"].digitalWrite(0);
 				blindsStatus = 1;
 				blindsMotion = 1;
 				setTimeout(stopBlinds, 9200);
@@ -188,7 +181,7 @@ function toggleBlinds(req, res){
 			if (blindsStatus == 0){
 				res.send("Blinds already closed!\n");
 			}else{
-				blClose.digitalWrite(0);
+				ioObjects["blinds"]["close"].digitalWrite(0);
 				blindsStatus = 0;
 				blindsMotion = 1;
 				setTimeout(stopBlinds, 9200);
@@ -203,8 +196,8 @@ function toggleBlinds(req, res){
 
 // Blinds Helper function to stop blinds
 function stopBlinds(){
-	blClose.digitalWrite(1);
-	blOpen.digitalWrite(1);
+	ioObjects["blinds"]["close"].digitalWrite(1);
+	ioObjects["blinds"]["open"].digitalWrite(1);
 	blindsMotion = 0;
 }
 
@@ -230,6 +223,7 @@ function updateLastOnline(){
 //////////////////////
 // Express Server
 //////////////////////
+console.log("Starting the server");
 
 // REST
 app.get('/status', getStatus); 
