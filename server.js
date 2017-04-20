@@ -24,7 +24,18 @@ var Gpio = require('pigpio').Gpio;
 console.log("Reading settings and initializing IO objects");
 
 // Import the port numbers and create the associated objects for them
-var ioPorts = {"doorSensor" : 20, "pirSensor" : 16, "blinds" : {"open" : 19, "close" : 26}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 18, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
+var ioPorts = {};
+try {
+  ioPorts = JSON.parse(fs.readFileSync('data/configuration.json'));
+} catch (err) {
+	console.log("\n\n\n\n===========================\n=          ERROR          =\n===========================\n\n");
+	console.log("Configuration file was NOT found. This must be generated before this server starts.");
+	console.log("Please run \"python configure.py\" to generate the file first!");
+	process.exit(-1);
+}
+
+console.log(ioPorts);
+//var ioPorts = {"doorSensor" : 20, "pirSensor" : 16, "blinds" : {"open" : 19, "close" : 26}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 18, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
 var ioObjects = {};
 
 // Create the outlet / lights objects. Lights array kept to retain compatibility
@@ -218,10 +229,18 @@ function updateLastOnline(){
 	fs.writeFile('data/lastonline.json', JSON.stringify(new Date()), 'utf8', function (err, data){});
 }
 
+
+// Shell Functions
+var sys = require('sys')
+var exec = require('child_process').exec;
+function puts(error, stdout, stderr) { sys.puts(stdout) }
+
 //////////////////////
 // Express Server
 //////////////////////
 console.log("Starting the server");
+
+fs.writeFile('data/configuration.json', JSON.stringify(ioPorts));
 
 // REST
 app.get('/status', getStatus); 
