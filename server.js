@@ -18,6 +18,7 @@ app.use(basicAuth({
 
 var Gpio = require('pigpio').Gpio;
 
+
 //////////////////////
 // GPIO Setup
 //////////////////////
@@ -25,6 +26,8 @@ console.log("Reading settings and initializing IO objects");
 
 // Import the port numbers and create the associated objects for them
 var ioPorts = {};
+var ioObjects = {};
+
 try {
   ioPorts = JSON.parse(fs.readFileSync('data/configuration.json'));
 } catch (err) {
@@ -33,10 +36,6 @@ try {
 	console.log("Please run \"python configure.py\" to generate the file first!");
 	process.exit(-1);
 }
-
-console.log(ioPorts);
-//var ioPorts = {"doorSensor" : 20, "pirSensor" : 16, "blinds" : {"open" : 19, "close" : 26}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 18, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
-var ioObjects = {};
 
 // Create the outlet / lights objects. Lights array kept to retain compatibility
 var lights = [];
@@ -255,7 +254,7 @@ console.log('Listening on port 80');
 
 // Add Logs
 try {
-	ioPorts = JSON.parse(fs.readFileSync('data/lastonline.json'));
+	let data = JSON.parse(fs.readFileSync('data/lastonline.json'));
 	addLog("Server Unexpected Shutdown Detected", data, {});
 } catch (err) {
 	console.log("No previous online log file found. Ignoring")
