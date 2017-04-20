@@ -13,11 +13,11 @@ Setup
 
 **Hardware**
 
- 1. Raspberry Pi
- 2. USB Webcam
- 3. Door magnetic sensor
- 4. Relay modules
- 5. PID Sensor
+ - Raspberry Pi
+ - USB Webcam
+ - Door magnetic sensor
+ - Relay modules
+ - PID Sensor
 
  ![alt text](assets/img/general_layout.jpg "My Setup")
 
@@ -32,11 +32,14 @@ Setup
  
 
  9. Follow the guide [here](https://github.com/fivdi/pigpio) to install pigpio module for node
- 10. You can now run the server
+ 10. Run the configurator to tell the server which pins what sensors/relays are plugged into
+ ` python configure.py `
+
+ 11. You can now run the server
  ` node server.js `
  
 
- 11. You can connect to the server by entering your Pi's IP address into any web browser
+ 12. You can connect to the server by entering your Pi's IP address into any web browser
 
 **Starting with the Pi**
 You can set the server to start up along with the Pi. This is not a watchdog so if the server crashes, it will not be automatically restarted. Please check how to set up a watch dog on the internet. 
