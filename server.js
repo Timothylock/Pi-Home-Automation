@@ -1,6 +1,9 @@
 "use strict";
-console.log("Loading server");
+console.log("Loading server / modules");
 
+var sys = require('util')
+var exec = require('child_process').exec;
+function puts(error, stdout, stderr) { sys.puts(stdout) }
 var express = require('express');
 var basicAuth = require('express-basic-auth');
 var bodyParser = require('body-parser');
@@ -54,12 +57,6 @@ ioObjects["pirSensor"] = new Gpio(ioPorts["pirSensor"], {
 // Turn everything off
 ioObjects["blinds"]["open"].digitalWrite(1);
 ioObjects["blinds"]["close"].digitalWrite(1);
-
-
-// Shell Functions
-var sys = require('sys')
-var exec = require('child_process').exec;
-function puts(error, stdout, stderr) { sys.puts(stdout) }
 
 // Variables
 var blindsMotion = 0;
