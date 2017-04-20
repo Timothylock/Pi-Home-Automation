@@ -25,16 +25,16 @@ var Gpio = require('pigpio').Gpio;
 
 // Import the port numbers and create the associated objects for them
 var ioPorts = {"doorSensors" : {"Main Door" : 20}, "pirSensors" : {"Hallway" : 16}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 28, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
-
 var ioObjects = {};
 
-// Create the outlet / lights objects
+// Create the outlet / lights objects. Lights array kept to retain compatibility
+var lights = [];
 ioObjects["outletlights"] = {};
 
 for (let key in ioPorts["outletlights"]){
 	let pin = ioPorts["outletlights"][key];
 	ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT})
-	console.log("created new lught at pin " + pin);
+	lights.push({"name": key, "id": pin, "status":"off"});
 }
 
 
@@ -74,7 +74,6 @@ var blindsMotion = 0;
 var blindsStatus = 0; // 0 = closed 1 = open
 var door = 0;
 var motion = 0;
-var lights = [{"name": "Bedroom", "id": "27", "status":"off"}, {"name": "Entrance Floor Light", "id": "18", "status":"off"}, {"name": "Living Room One Light", "id": "17", "status":"off"}, {"name": "Living Room Two Light", "id": "22", "status":"off"}];
 
 //////////////////////
 // Sensor interrupts
@@ -147,10 +146,9 @@ function toggleLights(req, res){
 	if (req.query.onoff == "on"){
 		if(req.query.id in ioObjects["outletlights"]){
 			ioObjects["outletlights"][req.query.id].digitalWrite(0);
-			addLog("light on", "testing", {'req':req});
-
 			for(let i = 0; i < lights.length; i++){
 				if(lights[i]["id"] == req.query.id){
+					addLog("light on", lights[i]["name"], {'req':req});
 					lights[i]["status"] = "on";
 					break;
 				}
@@ -159,9 +157,9 @@ function toggleLights(req, res){
 	}else{
 		if(req.query.id in ioObjects["outletlights"]){
 			ioObjects["outletlights"][req.query.id].digitalWrite(1);
-			addLog("light off", "testing", {'req':req});
 			for(let i = 0; i < lights.length; i++){
 				if(lights[i]["id"] == req.query.id){
+					addLog("light off", lights[i]["name"], {'req':req});
 					lights[i]["status"] = "off";
 					break;
 				}
@@ -222,8 +220,6 @@ function addLog(action, details, opt){
 	fs.appendFile('logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n", function (err) {
 	  if (err) throw err;
 	});
-
-	console.log('logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n");
 }
 
 // Keep log of when the server was last online
