@@ -17,8 +17,28 @@ app.use(basicAuth({
     users: { 'admin': 'supersecret' }
 }));
 
-var Gpio = require('pigpio').Gpio,
-  doorSensor = new Gpio(20, {
+var Gpio = require('pigpio').Gpio;
+
+//////////////////////
+// GPIO Setup
+//////////////////////
+
+// Import the port numbers and create the associated objects for them
+var ioPorts = {"doorSensors" : {"Main Door" : 20}, "pirSensors" : {"Hallway" : 16}, "outletlights" : {"Bedroom Lights" : 27, "Hallway Floor Lights" : 28, "Living Room Lights" : 17, "Living Room Outlets" : 22}};
+
+var ioObjects = {};
+
+// Create the outlet / lights objects
+ioObjects["outletlights"] = {};
+
+for (let key in ioPorts["outletlights"]){
+	let pin = ioPorts["outletlights"][key];
+	ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT})
+	console.log("created new lught at pin " + pin);
+}
+
+
+var  doorSensor = new Gpio(20, {
 	mode: Gpio.INPUT,
 	pullUpDown: Gpio.PUD_UP,
 	edge: Gpio.EITHER_EDGE
@@ -125,43 +145,26 @@ function getHistory(req, res){ // Get the last 10 pictures
 // Helper Functions
 function toggleLights(req, res){
 	if (req.query.onoff == "on"){
-		if(req.query.id == "27"){
-			br.digitalWrite(0);
-			addLog("light on", "bedroom light", {'req':req});
-		}else if(req.query.id == "18"){
-			hf.digitalWrite(0);
-			addLog("light on", "hallway floor", {'req':req});
-		}else if(req.query.id == "17"){
-			lrOne.digitalWrite(0);
-			addLog("light on", "Living Room Lights", {'req':req});
-		}else if(req.query.id == "22"){
-			lrTwo.digitalWrite(0);
-			addLog("light on", "Living Room Plugs", {'req':req});
-		}
-		for(let i = 0; i < lights.length; i++){
-			if(lights[i]["id"] == req.query.id){
-				lights[i]["status"] = "on";
-				break;
+		if(req.query.id in ioObjects["outletlights"]){
+			ioObjects["outletlights"][req.query.id].digitalWrite(0);
+			addLog("light on", "testing", {'req':req});
+
+			for(let i = 0; i < lights.length; i++){
+				if(lights[i]["id"] == req.query.id){
+					lights[i]["status"] = "on";
+					break;
+				}
 			}
 		}
 	}else{
-		if(req.query.id == "27"){
-			br.digitalWrite(1);
-			addLog("light off", "bedroom light", {'req':req});
-		}else if(req.query.id == "18"){
-			hf.digitalWrite(1);
-			addLog("light off", "hallway floor", {'req':req});
-		}else if(req.query.id == "17"){
-			lrOne.digitalWrite(1);
-			addLog("light off", "Living Room Lights", {'req':req});
-		}else if(req.query.id == "22"){
-			lrTwo.digitalWrite(1);
-			addLog("light off", "Living Room Plugs", {'req':req});
-		}
-		for(let i = 0; i < lights.length; i++){
-			if(lights[i]["id"] == req.query.id){
-				lights[i]["status"] = "off";
-				break;
+		if(req.query.id in ioObjects["outletlights"]){
+			ioObjects["outletlights"][req.query.id].digitalWrite(1);
+			addLog("light off", "testing", {'req':req});
+			for(let i = 0; i < lights.length; i++){
+				if(lights[i]["id"] == req.query.id){
+					lights[i]["status"] = "off";
+					break;
+				}
 			}
 		}
 	}
@@ -219,6 +222,8 @@ function addLog(action, details, opt){
 	fs.appendFile('logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n", function (err) {
 	  if (err) throw err;
 	});
+
+	console.log('logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n");
 }
 
 // Keep log of when the server was last online
