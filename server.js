@@ -254,13 +254,12 @@ app.listen(process.env.PORT || 80);
 console.log('Listening on port 80');
 
 // Add Logs
-fs.readFile('data/lastonline.json', function read(err, data) {
-    if (err) {
-        console.log("No previous online log file found. Ignoring")
-    }else{
-    	addLog("Server Unexpected Shutdown Detected", data, {});
-    }
-});
+try {
+	ioPorts = JSON.parse(fs.readFileSync('data/lastonline.json'));
+	addLog("Server Unexpected Shutdown Detected", data, {});
+} catch (err) {
+	console.log("No previous online log file found. Ignoring")
+}
 addLog("Server Starting", "", {});
 
 // Start Aux functions
