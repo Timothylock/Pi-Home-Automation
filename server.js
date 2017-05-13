@@ -261,8 +261,17 @@ try {
 }
 addLog("Server Starting", "", {});
 
+// Read Previous Data
+/*
+try {
+	let data = JSON.parse(fs.readFileSync('data/lastonline.json'));
+	addLog("Server Unexpected Shutdown Detected", data, {});
+} catch (err) {
+	console.log("No previous data file found. Generating new one")
+}
+addLog("Server Starting", "", {});
+*/
+
 // Start Aux functions
 updateLastOnline();
 setInterval(updateLastOnline, 60000*5);
-
-
