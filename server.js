@@ -48,10 +48,12 @@ try {
 
 // Create the outlet / lights objects.
 ioObjects["outletlights"] = {};
+status["lights"] = []; // Clear the old light data
 
 for (let key in ioPorts["outletlights"]){
 	let pin = ioPorts["outletlights"][key];
 	ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT})
+	ioObjects["outletlights"][pin].digitalWrite(1); // Off
 	status["lights"].push({"name": key, "id": pin, "status":"off"});
 }
 
@@ -75,9 +77,6 @@ ioObjects["pirSensor"] = new Gpio(ioPorts["pirSensor"], {
 // Turn everything off
 ioObjects["blinds"]["open"].digitalWrite(1);
 ioObjects["blinds"]["close"].digitalWrite(1);
-
-// Variables
-
 
 //////////////////////
 // Sensor interrupts
