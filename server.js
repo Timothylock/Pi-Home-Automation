@@ -20,7 +20,7 @@ var Gpio = require('pigpio').Gpio;
 
 
 //////////////////////
-// GPIO Setup
+// Read data files
 //////////////////////
 console.log("Reading settings and initializing IO objects");
 
@@ -37,14 +37,42 @@ try {
 	process.exit(-1);
 }
 
-// Create the outlet / lights objects. Lights array kept to retain compatibility
-var lights = [];
+// Read Previous Data
+try {
+	var status = JSON.parse(fs.readFileSync('data/status.json'));
+	status["blindsMotion"] = 0; // Bug when server shutdown when blinds moving
+} catch (err) {
+	console.log("No previous status file found. Generating new one");
+	var status = {"blindsMotion" : 0, "blindsStatus" : 0, "door" : 0, "motion" : 0, "lights" : []};
+}
+
+// Read Previous History Data
+try {
+	var history = JSON.parse(fs.readFileSync('data/latestHistory.json'));
+} catch (err) {
+	console.log("No history file found. Generating new one. This may take a while depending on the number of files in ./logs");
+	var files = fs.readdirSync("./logs/");
+	files.sort(function(a, b) {
+	               return fs.statSync("./logs/" + a).mtime.getTime() - 
+	                      fs.statSync("./logs/" + b).mtime.getTime();
+	           });
+	var history = files.slice(Math.max(files.length - 10, 0));
+	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
+}
+
+//////////////////////
+// GPIO Setup
+//////////////////////
+
+// Create the outlet / lights objects.
 ioObjects["outletlights"] = {};
+status["lights"] = []; // Clear the old light data
 
 for (let key in ioPorts["outletlights"]){
 	let pin = ioPorts["outletlights"][key];
 	ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT})
-	lights.push({"name": key, "id": pin, "status":"off"});
+	ioObjects["outletlights"][pin].digitalWrite(1); // Off
+	status["lights"].push({"name": key, "id": pin, "status":"off"});
 }
 
 // Create the blinds object
@@ -68,12 +96,6 @@ ioObjects["pirSensor"] = new Gpio(ioPorts["pirSensor"], {
 ioObjects["blinds"]["open"].digitalWrite(1);
 ioObjects["blinds"]["close"].digitalWrite(1);
 
-// Variables
-var blindsMotion = 0;
-var blindsStatus = 0; // 0 = closed 1 = open
-var door = 0;
-var motion = 0;
-
 //////////////////////
 // Sensor interrupts
 //////////////////////
@@ -81,14 +103,14 @@ console.log("Loading server functions");
 
 // Handle any interrupts on the sensors
 ioObjects["doorSensor"].on('interrupt', function (level) {
-  door = level;
+  status["door"] = level;
   // Also trigger hallway lights 
   ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
 
   if(Math.abs(level-1) == 1){
-  	lights[1]["status"] = "on";
+  	status["lights"][1]["status"] = "on";
   }else{
-  	lights[1]["status"] = "1";
+  	status["lights"][1]["status"] = "off";
   }
   
   if (level == 1){
@@ -97,17 +119,20 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   	
   	// Take picture if the door is open
 	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	writeHistory(timestamp)
 	var timestamp = (new Date).getTime();
 	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	writeHistory(timestamp)
 	var timestamp = (new Date).getTime();
 	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	writeHistory(timestamp)
   }else{
   	addLog("door closed", "", {});
   }
 });
 
 ioObjects["pirSensor"].on('interrupt', function (level) {
-  motion = level;
+	status["motion"] = level;
 });
 
 //////////////////////
@@ -123,22 +148,17 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 
 // Handle incoming requests
 function getStatus(req, res){ // Get the current status of the system
-	let statusObj = {"door": door, "motion": motion, "power": 0, "ftp": 0, "blinds": blindsStatus};
+	let statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"]};
 	res.send(statusObj);
 }
 
 function getLights(req, res){ // Get the current status of the lights
-	let statusObj = {"lights":lights};
+	let statusObj = {"lights":status["lights"]};
 	res.send(statusObj);
 }
 
 function getHistory(req, res){ // Get the last 10 pictures
-	var files = fs.readdirSync("./logs/");
-	files.sort(function(a, b) {
-	               return fs.statSync("./logs/" + a).mtime.getTime() - 
-	                      fs.statSync("./logs/" + b).mtime.getTime();
-	           });
-	res.send(files.slice(Math.max(files.length - 10, 0)));
+	res.send(history);
 	addLog("history view", "", {'req':req});
 }
 
@@ -147,10 +167,10 @@ function toggleLights(req, res){
 	if (req.query.onoff == "on"){
 		if(req.query.id in ioObjects["outletlights"]){
 			ioObjects["outletlights"][req.query.id].digitalWrite(0);
-			for(let i = 0; i < lights.length; i++){
-				if(lights[i]["id"] == req.query.id){
-					addLog("light on", lights[i]["name"], {'req':req});
-					lights[i]["status"] = "on";
+			for(let i = 0; i < status["lights"].length; i++){
+				if(status["lights"][i]["id"] == req.query.id){
+					addLog("light on", status["lights"][i]["name"], {'req':req});
+					status["lights"][i]["status"] = "on";
 					break;
 				}
 			}
@@ -158,45 +178,47 @@ function toggleLights(req, res){
 	}else{
 		if(req.query.id in ioObjects["outletlights"]){
 			ioObjects["outletlights"][req.query.id].digitalWrite(1);
-			for(let i = 0; i < lights.length; i++){
-				if(lights[i]["id"] == req.query.id){
-					addLog("light off", lights[i]["name"], {'req':req});
-					lights[i]["status"] = "off";
+			for(let i = 0; i < status["lights"].length; i++){
+				if(status["lights"][i]["id"] == req.query.id){
+					addLog("light off", status["lights"][i]["name"], {'req':req});
+					status["lights"][i]["status"] = "off";
 					break;
 				}
 			}
 		}
 	}
+	writeStatus();
 	res.send("Success\n");
 }
 
 // Blinds function
 function toggleBlinds(req, res){
 	// Only change if blinds not currently in motion
-	if (blindsMotion == 0){
+	if (status["blindsMotion"] == 0){
 		if (req.query.set == "1"){
-			if (blindsStatus == 1){
+			if (status["blindsStatus"] == 1){
 				res.send("Blinds already closed!\n");
 			}else{
 				ioObjects["blinds"]["open"].digitalWrite(0);
-				blindsStatus = 1;
-				blindsMotion = 1;
+				status["blindsStatus"] = 1;
+				status["blindsMotion"] = 1;
 				setTimeout(stopBlinds, 9200);
 				res.send("Success\n");
 				addLog("opening curtains", "", {'req':req});
 			}	
 		}else{
-			if (blindsStatus == 0){
+			if (status["blindsStatus"] == 0){
 				res.send("Blinds already closed!\n");
 			}else{
 				ioObjects["blinds"]["close"].digitalWrite(0);
-				blindsStatus = 0;
-				blindsMotion = 1;
+				status["blindsStatus"] = 0;
+				status["blindsMotion"] = 1;
 				setTimeout(stopBlinds, 9200);
 				res.send("Success\n");
 				addLog("closing curtains", "", {'req':req});
 			}	
 		}
+		writeStatus();
 	}else{
 		res.send("Blinds already in motion!\n");
 	}
@@ -206,7 +228,7 @@ function toggleBlinds(req, res){
 function stopBlinds(){
 	ioObjects["blinds"]["close"].digitalWrite(1);
 	ioObjects["blinds"]["open"].digitalWrite(1);
-	blindsMotion = 0;
+	status["blindsMotion"] = 0;
 }
 
 // Add a specific data to the log (for remote connections)
@@ -228,6 +250,19 @@ function updateLastOnline(){
 	fs.writeFile('data/lastonline.json', JSON.stringify(new Date()), 'utf8', function (err, data){});
 }
 
+// Write status to a file
+function writeStatus(){
+	fs.writeFile('data/status.json', JSON.stringify(status), 'utf8', function (err, data){});
+}
+
+// Update the latest history and write it to file
+function writeHistory(name){
+	if (history.length == 10){
+		history.shift()
+	}
+	history.append(name)
+	fs.writeFile('data/latestHistory.json', JSON.stringify(status), 'utf8', function (err, data){});
+}
 
 // Shell Functions
 var sys = require('sys')
@@ -257,20 +292,9 @@ try {
 	let data = JSON.parse(fs.readFileSync('data/lastonline.json'));
 	addLog("Server Unexpected Shutdown Detected", data, {});
 } catch (err) {
-	console.log("No previous online log file found. Ignoring")
+	console.log("No previous online log file found. Ignoring");
 }
 addLog("Server Starting", "", {});
-
-// Read Previous Data
-/*
-try {
-	let data = JSON.parse(fs.readFileSync('data/lastonline.json'));
-	addLog("Server Unexpected Shutdown Detected", data, {});
-} catch (err) {
-	console.log("No previous data file found. Generating new one")
-}
-addLog("Server Starting", "", {});
-*/
 
 // Start Aux functions
 updateLastOnline();
