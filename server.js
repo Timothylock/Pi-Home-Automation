@@ -120,12 +120,6 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   	// Take picture if the door is open
 	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
 	writeHistory(timestamp)
-	var timestamp = (new Date).getTime();
-	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
-	writeHistory(timestamp)
-	var timestamp = (new Date).getTime();
-	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
-	writeHistory(timestamp)
   }else{
   	addLog("door closed", "", {});
   }
@@ -260,8 +254,8 @@ function writeHistory(name){
 	if (history.length == 10){
 		history.shift()
 	}
-	history.append(name)
-	fs.writeFile('data/latestHistory.json', JSON.stringify(status), 'utf8', function (err, data){});
+	history.push(name + ".jpg");
+	fs.writeFile('data/latestHistory.json', JSON.stringify(history), 'utf8', function (err, data){});
 }
 
 // Shell Functions
