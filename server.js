@@ -20,7 +20,7 @@ var Gpio = require('pigpio').Gpio;
 
 
 //////////////////////
-// GPIO Setup
+// Read data files
 //////////////////////
 console.log("Reading settings and initializing IO objects");
 
@@ -45,6 +45,24 @@ try {
 	console.log("No previous status file found. Generating new one");
 	var status = {"blindsMotion" : 0, "blindsStatus" : 0, "door" : 0, "motion" : 0, "lights" : []};
 }
+
+// Read Previous History Data
+try {
+	var history = JSON.parse(fs.readFileSync('data/latestHistory.json'));
+} catch (err) {
+	console.log("No history file found. Generating new one. This may take a while depending on the number of files in ./logs");
+	var files = fs.readdirSync("./logs/");
+	files.sort(function(a, b) {
+	               return fs.statSync("./logs/" + a).mtime.getTime() - 
+	                      fs.statSync("./logs/" + b).mtime.getTime();
+	           });
+	var history = files.slice(Math.max(files.length - 10, 0));
+	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
+}
+
+//////////////////////
+// GPIO Setup
+//////////////////////
 
 // Create the outlet / lights objects.
 ioObjects["outletlights"] = {};
@@ -92,7 +110,7 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   if(Math.abs(level-1) == 1){
   	status["lights"][1]["status"] = "on";
   }else{
-  	status["lights"][1]["status"] = "1";
+  	status["lights"][1]["status"] = "off";
   }
   
   if (level == 1){
@@ -101,10 +119,7 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   	
   	// Take picture if the door is open
 	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
-	var timestamp = (new Date).getTime();
-	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
-	var timestamp = (new Date).getTime();
-	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	writeHistory(timestamp)
   }else{
   	addLog("door closed", "", {});
   }
@@ -137,12 +152,7 @@ function getLights(req, res){ // Get the current status of the lights
 }
 
 function getHistory(req, res){ // Get the last 10 pictures
-	var files = fs.readdirSync("./logs/");
-	files.sort(function(a, b) {
-	               return fs.statSync("./logs/" + a).mtime.getTime() - 
-	                      fs.statSync("./logs/" + b).mtime.getTime();
-	           });
-	res.send(files.slice(Math.max(files.length - 10, 0)));
+	res.send(history);
 	addLog("history view", "", {'req':req});
 }
 
@@ -237,6 +247,15 @@ function updateLastOnline(){
 // Write status to a file
 function writeStatus(){
 	fs.writeFile('data/status.json', JSON.stringify(status), 'utf8', function (err, data){});
+}
+
+// Update the latest history and write it to file
+function writeHistory(name){
+	if (history.length == 10){
+		history.shift()
+	}
+	history.push(name + ".jpg");
+	fs.writeFile('data/latestHistory.json', JSON.stringify(history), 'utf8', function (err, data){});
 }
 
 // Shell Functions
