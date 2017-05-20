@@ -3,10 +3,10 @@ console.log("Loading server / modules");
 
 var sys = require('util')
 var exec = require('child_process').exec;
-function puts(error, stdout, stderr) { sys.puts(stdout) }
 var express = require('express');
 var basicAuth = require('express-basic-auth');
 var bodyParser = require('body-parser');
+var FauxMo = require('fauxmojs');
 var fs = require('fs');
 var app = express();
 app.use(express.static(__dirname + '/'));
@@ -17,6 +17,15 @@ app.use(basicAuth({
 }));
 
 var Gpio = require('pigpio').Gpio;
+
+
+
+
+
+
+
+
+
 
 
 //////////////////////
@@ -60,19 +69,38 @@ try {
 	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
 }
 
+
+
+
+
+
+
+
 //////////////////////
 // GPIO Setup
 //////////////////////
 
 // Create the outlet / lights objects.
+var wemoFakes = [];
+wemoPort = 10100;
 ioObjects["outletlights"] = {};
 status["lights"] = []; // Clear the old light data
 
-for (let key in ioPorts["outletlights"]){
-	let pin = ioPorts["outletlights"][key];
+for (var key in ioPorts["outletlights"]){
+	var pin = ioPorts["outletlights"][key];
 	ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT})
 	ioObjects["outletlights"][pin].digitalWrite(1); // Off
 	status["lights"].push({"name": key, "id": pin, "status":"off"});
+
+	// Create Fake WeMo object
+	wemoFakes.append({
+		name : key,
+		port : wemoPort,
+		handler: (action) => {
+			toggleLights({query : {onoff : action, id : pin}}, nil);
+        }
+	});
+	wemoPort ++;
 }
 
 // Create the blinds object
@@ -96,6 +124,12 @@ ioObjects["pirSensor"] = new Gpio(ioPorts["pirSensor"], {
 ioObjects["blinds"]["open"].digitalWrite(1);
 ioObjects["blinds"]["close"].digitalWrite(1);
 
+
+
+
+
+
+
 //////////////////////
 // Sensor interrupts
 //////////////////////
@@ -107,13 +141,13 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   // Also trigger hallway lights 
   ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
 
-  if(Math.abs(level-1) == 1){
+  if(Math.abs(level-1) === 1){
   	status["lights"][1]["status"] = "on";
   }else{
   	status["lights"][1]["status"] = "off";
   }
   
-  if (level == 1){
+  if (level === 1){
   	var timestamp = (new Date).getTime();
   	addLog("door opened", "logs/" + timestamp + ".jpg", {});
   	
@@ -129,6 +163,15 @@ ioObjects["pirSensor"].on('interrupt', function (level) {
 	status["motion"] = level;
 });
 
+
+
+
+
+
+
+
+
+
 //////////////////////
 // Handle Requests
 //////////////////////
@@ -142,12 +185,12 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 
 // Handle incoming requests
 function getStatus(req, res){ // Get the current status of the system
-	let statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"]};
+	var statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"]};
 	res.send(statusObj);
 }
 
 function getLights(req, res){ // Get the current status of the lights
-	let statusObj = {"lights":status["lights"]};
+	var statusObj = {"lights":status["lights"]};
 	res.send(statusObj);
 }
 
@@ -158,11 +201,12 @@ function getHistory(req, res){ // Get the last 10 pictures
 
 // Helper Functions
 function toggleLights(req, res){
-	if (req.query.onoff == "on"){
+	var i;
+	if (req.query.onoff === "on"){
 		if(req.query.id in ioObjects["outletlights"]){
 			ioObjects["outletlights"][req.query.id].digitalWrite(0);
-			for(let i = 0; i < status["lights"].length; i++){
-				if(status["lights"][i]["id"] == req.query.id){
+			for(i = 0; i < status["lights"].length; i++){
+				if(status["lights"][i]["id"] === req.query.id){
 					addLog("light on", status["lights"][i]["name"], {'req':req});
 					status["lights"][i]["status"] = "on";
 					break;
@@ -172,8 +216,8 @@ function toggleLights(req, res){
 	}else{
 		if(req.query.id in ioObjects["outletlights"]){
 			ioObjects["outletlights"][req.query.id].digitalWrite(1);
-			for(let i = 0; i < status["lights"].length; i++){
-				if(status["lights"][i]["id"] == req.query.id){
+			for(i = 0; i < status["lights"].length; i++){
+				if(status["lights"][i]["id"] === req.query.id){
 					addLog("light off", status["lights"][i]["name"], {'req':req});
 					status["lights"][i]["status"] = "off";
 					break;
@@ -188,9 +232,9 @@ function toggleLights(req, res){
 // Blinds function
 function toggleBlinds(req, res){
 	// Only change if blinds not currently in motion
-	if (status["blindsMotion"] == 0){
-		if (req.query.set == "1"){
-			if (status["blindsStatus"] == 1){
+	if (status["blindsMotion"] === 0){
+		if (req.query.set === "1"){
+			if (status["blindsStatus"] === 1){
 				res.send("Blinds already closed!\n");
 			}else{
 				ioObjects["blinds"]["open"].digitalWrite(0);
@@ -201,7 +245,7 @@ function toggleBlinds(req, res){
 				addLog("opening curtains", "", {'req':req});
 			}	
 		}else{
-			if (status["blindsStatus"] == 0){
+			if (status["blindsStatus"] === 0){
 				res.send("Blinds already closed!\n");
 			}else{
 				ioObjects["blinds"]["close"].digitalWrite(0);
@@ -227,12 +271,13 @@ function stopBlinds(){
 
 // Add a specific data to the log (for remote connections)
 function addLog(action, details, opt){
-	if ('req' in opt){
-		var ip = opt['req'].headers['x-forwarded-for'] || opt['req'].connection.remoteAddress;
-		var ua = opt['req'].headers['user-agent'];
+    var ip, ua;
+    if ('req' in opt){
+		ip = opt['req'].headers['x-forwarded-for'] || opt['req'].connection.remoteAddress;
+		ua = opt['req'].headers['user-agent'];
 	}else{
-		var ip = "::ffff:127.0.0.1";
-		var ua = "localhost";
+		ip = "::ffff:127.0.0.1";
+		ua = "localhost";
 	}
 	fs.appendFile('logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n", function (err) {
 	  if (err) throw err;
@@ -251,7 +296,7 @@ function writeStatus(){
 
 // Update the latest history and write it to file
 function writeHistory(name){
-	if (history.length == 10){
+	if (history.length === 10){
 		history.shift()
 	}
 	history.push(name + ".jpg");
@@ -259,9 +304,13 @@ function writeHistory(name){
 }
 
 // Shell Functions
-var sys = require('sys')
-var exec = require('child_process').exec;
 function puts(error, stdout, stderr) { sys.puts(stdout) }
+
+
+
+
+
+
 
 //////////////////////
 // Express Server
@@ -283,12 +332,19 @@ console.log('Listening on port 80');
 
 // Add Logs
 try {
-	let data = JSON.parse(fs.readFileSync('data/lastonline.json'));
+	var data = JSON.parse(fs.readFileSync('data/lastonline.json'));
 	addLog("Server Unexpected Shutdown Detected", data, {});
 } catch (err) {
 	console.log("No previous online log file found. Ignoring");
 }
 addLog("Server Starting", "", {});
+
+// Fake WeMo emulation
+var fauxMo = new FauxMo(
+    {
+        ipAddress: '192.168.1.230',
+        devices: wemoFakes
+});
 
 // Start Aux functions
 updateLastOnline();
