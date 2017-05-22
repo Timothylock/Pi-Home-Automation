@@ -48,49 +48,15 @@ html, body {
 }
 
 p.big {
-    font-size: 18vh;
+    font-size: 10vmax;
 }
+
+p.medium {
+    font-size: 5vmax;
+}
+
 p.small {
-    font-size: 8vh;
+    font-size: 3vmax;
 }
 
 /* Individual Module CSS */
-
-.module_weather {
-    text-align: left;
-    padding-left: 20px;
-}
-
-
-.module_clock {
-    padding-top: 20%;
-}
-
-.module_clock p.big {
-    font-size: 15vh;
-}
-
-.module_blinds {
-    padding-top: 25%;
-}
-
-.module_blinds p.big {
-    font-size: 11vh;
-}
-
-.module_blinds p.small {
-    font-size: 5vh;
-}
-
-.module_door {
-    padding-top: 25%;
-}
-
-.module_door p.big {
-    font-size: 11vh;
-}
-
-.module_door p.small {
-    font-size: 5vh;
-}
-
