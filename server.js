@@ -95,7 +95,9 @@ for (var key in ioPorts["outletlights"]){
 			name : key,
 			port : wemoPort,
 			handler: (action) => {
-				toggleLights(action, pin);
+				if (toggleLights(action, pin) == "Success") {
+					addLog("light " + action, pin + " triggered from Alexa", {}); // TODO: Hydrate the id with name
+				}
 			}
 		});
   	})(key);
@@ -113,11 +115,13 @@ wemoFakes.push({
 	port : wemoPort,
 	handler: (action) => {
 		if (action == "on"){
-			action = "1";
-		}else{
 			action = "0";
+		}else{
+			action = "1";
 		}
-		toggleBlinds(action)
+		if (toggleBlinds(action) == "Success") {
+			addLog("opening curtains", "triggered from Alexa", {});
+		}
 	}
 });
 
@@ -239,7 +243,8 @@ function toggleLights(onoff, id) {
 			for(i = 0; i < status["lights"].length; i++){
 				if(status["lights"][i]["id"] == id){
 					status["lights"][i]["status"] = "on";
-					break;
+					writeStatus();
+					return ("Success")
 				}
 			}
 		}
@@ -249,12 +254,12 @@ function toggleLights(onoff, id) {
 			for(i = 0; i < status["lights"].length; i++){
 				if(status["lights"][i]["id"] == id){
 					status["lights"][i]["status"] = "off";
-					break;
+					writeStatus();
+					return ("Success")
 				}
 			}
 		}
 	}
-	writeStatus();
 }
 
 function toggleBlinds(openclose) {
