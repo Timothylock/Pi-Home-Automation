@@ -42,7 +42,7 @@ while not ready:
     print(conf["outletlights"])
     print("\n\n\nEnter a name for this pin. Enter \"Done\" when you are finished")
     name = raw_input()
-    if name == "done":
+    if name == "done" or name == "Done":
         break
     conf["outletlights"][name] = getPin("Please enter the pin number")
     ready = False
