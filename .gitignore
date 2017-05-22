@@ -1,5 +1,4 @@
 # Logs
-logs
 *.log
 npm-debug.log*
 
@@ -29,6 +28,7 @@ build/Release
 # Dependency directories
 node_modules
 jspm_packages
+PIGPIO
 
 # Optional npm cache directory
 .npm
@@ -39,4 +39,5 @@ jspm_packages
 # Pictures/Logs directory
 logs
 data
-PIGPIO
+
+.idea

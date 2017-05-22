@@ -5,7 +5,10 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.15.2",
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "express-basic-auth": "^1.0.2",
+    "fauxmojs": "^1.0.1",
+    "pigpio": "^0.5.1"
   },
   "devDependencies": {},
   "scripts": {
