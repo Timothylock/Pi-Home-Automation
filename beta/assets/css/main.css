@@ -1,0 +1,96 @@
+html, body {
+    height: 100%;
+}
+
+.topbar {
+    background-color: #ecf0f1;
+    height: 10%;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    text-decoration: none;
+    font-size: 7vh;
+    text-align: center;
+}
+
+.maincontainer {
+    background-color: #34495e;
+    height: 90%;
+    -webkit-box-shadow: inset -12px 58px 77px -67px rgba(0,0,0,0.75);
+    -moz-box-shadow: inset -12px 58px 77px -67px rgba(0,0,0,0.75);
+    box-shadow: inset -12px 58px 77px -67px rgba(0,0,0,0.75);
+}
+
+.mainrow {
+    height: 50%;
+    padding-left: 10px;
+    padding-bottom: 10px;
+}
+
+.module_outside {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    background-clip:content-box;
+    height: 100%;
+}
+
+.module_inside {
+    height: 100%;
+    padding-top: 15%;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    text-decoration: none;
+    text-shadow: 2px 2px black;
+    text-align: center;
+    line-height: 0.85;
+}
+
+p.big {
+    font-size: 18vh;
+}
+p.small {
+    font-size: 8vh;
+}
+
+/* Individual Module CSS */
+
+.module_weather {
+    text-align: left;
+    padding-left: 20px;
+}
+
+
+.module_clock {
+    padding-top: 20%;
+}
+
+.module_clock p.big {
+    font-size: 15vh;
+}
+
+.module_blinds {
+    padding-top: 25%;
+}
+
+.module_blinds p.big {
+    font-size: 11vh;
+}
+
+.module_blinds p.small {
+    font-size: 5vh;
+}
+
+.module_door {
+    padding-top: 25%;
+}
+
+.module_door p.big {
+    font-size: 11vh;
+}
+
+.module_door p.small {
+    font-size: 5vh;
+}
+

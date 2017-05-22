@@ -27,11 +27,13 @@ Setup
 `git clone https://github.com/Timothylock/Tim-Pi-Home-Monitoring.git`
 
  7. Make sure nodejs is installed onto the pi and everything is updated. You can find a guide of installing nodejs onto your particular model on the internet.
- 8. install the node modules by running
+ 
+ 8. Follow the guide [here](https://github.com/fivdi/pigpio) to install pigpio module for node
+
+ 9. install the node modules by running
  ` npm install `
  
 
- 9. Follow the guide [here](https://github.com/fivdi/pigpio) to install pigpio module for node
  10. Run the configurator to tell the server which pins what sensors/relays are plugged into
  ` python configure.py `
 
