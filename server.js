@@ -25,9 +25,6 @@ var Gpio = require('pigpio').Gpio;
 
 
 
-
-
-
 //////////////////////
 // Read data files
 //////////////////////
@@ -40,9 +37,9 @@ var ioObjects = {};
 try {
   ioPorts = JSON.parse(fs.readFileSync('data/configuration.json'));
 } catch (err) {
-	console.log("\n\n\n\n===========================\n=          ERROR          =\n===========================\n\n");
+	console.log("\n\n\n\n==================\n=          ERROR          =\n==================\n\n");
 	console.log("Configuration file was NOT found. This must be generated before this server starts.");
-	console.log("Please run \"python configure.py\" to generate the file first!");
+	console.log("Please run \"sudo python configure.py\" to generate the file first!");
 	process.exit(-1);
 }
 
@@ -82,24 +79,26 @@ try {
 
 // Create the outlet / lights objects.
 var wemoFakes = [];
-wemoPort = 10100;
+var wemoPort = 10100;
 ioObjects["outletlights"] = {};
 status["lights"] = []; // Clear the old light data
 
 for (var key in ioPorts["outletlights"]){
-	var pin = ioPorts["outletlights"][key];
-	ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT})
-	ioObjects["outletlights"][pin].digitalWrite(1); // Off
-	status["lights"].push({"name": key, "id": pin, "status":"off"});
+	(function (key) {
+		var pin = ioPorts["outletlights"][key];
+		ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT})
+		ioObjects["outletlights"][pin].digitalWrite(1); // Off
+		status["lights"].push({"name": key, "id": pin, "status":"off"});
 
-	// Create Fake WeMo object
-	wemoFakes.append({
-		name : key,
-		port : wemoPort,
-		handler: (action) => {
-			toggleLights({query : {onoff : action, id : pin}}, nil);
-        }
-	});
+		// Create Fake WeMo object
+		wemoFakes.push({
+			name : key,
+			port : wemoPort,
+			handler: (action) => {
+				toggleLights(action, pin);
+			}
+		});
+  	})(key);
 	wemoPort ++;
 }
 
@@ -107,6 +106,20 @@ for (var key in ioPorts["outletlights"]){
 ioObjects["blinds"] = {};
 ioObjects["blinds"]["open"] = new Gpio(ioPorts["blinds"]["open"], {mode: Gpio.OUTPUT});
 ioObjects["blinds"]["close"] = new Gpio(ioPorts["blinds"]["close"], {mode: Gpio.OUTPUT});
+
+// Create Fake WeMo object for blinds
+wemoFakes.push({
+	name : "blinds",
+	port : wemoPort,
+	handler: (action) => {
+		if (action == "on"){
+			action = "1";
+		}else{
+			action = "0";
+		}
+		toggleBlinds(action)
+	}
+});
 
 // Create the sensor objects
 ioObjects["doorSensor"] = new Gpio(ioPorts["doorSensor"], {
@@ -141,13 +154,13 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   // Also trigger hallway lights 
   ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
 
-  if(Math.abs(level-1) === 1){
+  if(Math.abs(level-1) == 1){
   	status["lights"][1]["status"] = "on";
   }else{
   	status["lights"][1]["status"] = "off";
   }
   
-  if (level === 1){
+  if (level == 1){
   	var timestamp = (new Date).getTime();
   	addLog("door opened", "logs/" + timestamp + ".jpg", {});
   	
@@ -200,25 +213,41 @@ function getHistory(req, res){ // Get the last 10 pictures
 }
 
 // Helper Functions
-function toggleLights(req, res){
+function toggleLightsReciever(req, res){
+	toggleLights(req.query.onoff, req.query.id);
+	addLog("light " + req.query.onoff, req.query.id, {'req':req}); // TODO: Hydrate the id with name
+	res.send("Success\n");
+}
+
+// Blinds function
+function toggleBlindsReciever(req, res){
+	var result = toggleBlinds(req.query.set);
+	if (result == "Success" && req.query.set == "1") {
+		addLog("opening curtains", "", {'req':req});
+	} else if (result == "Success" && req.query.set == "0") {
+		addLog("closing curtains", "", {'req':req});
+	}
+	res.send(result)
+}
+
+// Toggle the lights
+function toggleLights(onoff, id) {
 	var i;
-	if (req.query.onoff === "on"){
-		if(req.query.id in ioObjects["outletlights"]){
-			ioObjects["outletlights"][req.query.id].digitalWrite(0);
+	if (onoff == "on"){
+		if(id in ioObjects["outletlights"]){
+			ioObjects["outletlights"][id].digitalWrite(0);
 			for(i = 0; i < status["lights"].length; i++){
-				if(status["lights"][i]["id"] === req.query.id){
-					addLog("light on", status["lights"][i]["name"], {'req':req});
+				if(status["lights"][i]["id"] == id){
 					status["lights"][i]["status"] = "on";
 					break;
 				}
 			}
 		}
 	}else{
-		if(req.query.id in ioObjects["outletlights"]){
-			ioObjects["outletlights"][req.query.id].digitalWrite(1);
+		if(id in ioObjects["outletlights"]){
+			ioObjects["outletlights"][id].digitalWrite(1);
 			for(i = 0; i < status["lights"].length; i++){
-				if(status["lights"][i]["id"] === req.query.id){
-					addLog("light off", status["lights"][i]["name"], {'req':req});
+				if(status["lights"][i]["id"] == id){
 					status["lights"][i]["status"] = "off";
 					break;
 				}
@@ -226,39 +255,36 @@ function toggleLights(req, res){
 		}
 	}
 	writeStatus();
-	res.send("Success\n");
 }
 
-// Blinds function
-function toggleBlinds(req, res){
+function toggleBlinds(openclose) {
 	// Only change if blinds not currently in motion
-	if (status["blindsMotion"] === 0){
-		if (req.query.set === "1"){
-			if (status["blindsStatus"] === 1){
-				res.send("Blinds already closed!\n");
+	if (status["blindsMotion"] == 0){
+		if (openclose == "1"){
+			if (status["blindsStatus"] == 1){
+				return("Blinds already closed!");
 			}else{
 				ioObjects["blinds"]["open"].digitalWrite(0);
 				status["blindsStatus"] = 1;
 				status["blindsMotion"] = 1;
 				setTimeout(stopBlinds, 9200);
-				res.send("Success\n");
-				addLog("opening curtains", "", {'req':req});
+				writeStatus();
+				return("Success");
 			}	
 		}else{
-			if (status["blindsStatus"] === 0){
-				res.send("Blinds already closed!\n");
+			if (status["blindsStatus"] == 0){
+				return("Blinds already closed!");
 			}else{
 				ioObjects["blinds"]["close"].digitalWrite(0);
 				status["blindsStatus"] = 0;
 				status["blindsMotion"] = 1;
 				setTimeout(stopBlinds, 9200);
-				res.send("Success\n");
-				addLog("closing curtains", "", {'req':req});
+				writeStatus();
+				return("Success");
 			}	
 		}
-		writeStatus();
 	}else{
-		res.send("Blinds already in motion!\n");
+		return("Blinds already in motion!");
 	}
 }
 
@@ -296,7 +322,7 @@ function writeStatus(){
 
 // Update the latest history and write it to file
 function writeHistory(name){
-	if (history.length === 10){
+	if (history.length == 10){
 		history.shift()
 	}
 	history.push(name + ".jpg");
@@ -322,8 +348,8 @@ fs.writeFile('data/configuration.json', JSON.stringify(ioPorts));
 // REST
 app.get('/status', getStatus); 
 app.get('/lights', getLights); 
-app.post('/lights', toggleLights); 
-app.post('/blinds', toggleBlinds);  
+app.post('/lights', toggleLightsReciever); 
+app.post('/blinds', toggleBlindsReciever);  
 app.get('/log', getHistory);  
 
 // Express start listening
@@ -342,10 +368,12 @@ addLog("Server Starting", "", {});
 // Fake WeMo emulation
 var fauxMo = new FauxMo(
     {
-        ipAddress: '192.168.1.230',
+        ipAddress: '192.168.1.142',
         devices: wemoFakes
 });
 
 // Start Aux functions
 updateLastOnline();
 setInterval(updateLastOnline, 60000*5);
+
+console.log("Server startup complete")
