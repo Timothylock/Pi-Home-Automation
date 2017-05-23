@@ -69,3 +69,31 @@ p.small {
 }
 
 /* Individual Module CSS */
+
+
+@media (max-width: 768px) {
+    /* When in portrait mode, user should be on their phone so no need for time */
+    .leftsidebar {
+        display: none;
+    }
+
+    .module_outside {
+        height: 60%;
+    }
+
+    .module_inside {
+        padding-top: 7%;
+    }
+
+    p.big {
+        font-size: 15vmax;
+    }
+
+    p.medium {
+        font-size: 7vmax;
+    }
+
+    p.small {
+        font-size: 4vmax;
+    }
+}

@@ -17,4 +17,22 @@ function updateClock() {
     $('#time').html(strTime);
 }
 
+function getWeather() {
+    $.simpleWeather({
+        location: 'Toronto, ON',
+        unit: 'c',
+        success: function(weather) {
+            $("#weather_degrees").html(weather.temp + '&deg;' + weather.units.temp);
+            $("#weather_condition").html(weather.currently);
+            $("#weather_lowhigh").html('Low: ' + weather.low + ' High: ' + weather.high);
+        },
+        error: function(error) {
+            $("#weather_degrees").html('N/A');
+            $("#weather_condition").html("Weather Unavailable");
+            $("#weather_lowhigh").html('Low: N/A High: N/A');
+        }
+    });
+}
+
 setInterval(updateClock, 1000);
+setInterval(getWeather, 600000);

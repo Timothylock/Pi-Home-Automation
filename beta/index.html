@@ -9,6 +9,7 @@
 <script src="assets/js/jquery.js"></script>
 <script src="assets/js/bootstrap.min.js"></script>
 <script src="assets/js/scripts.js"></script>
+<script src="assets/js/jquery.simpleWeather.min.js"></script>
 
 <link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="/favicon/apple-icon-60x60.png">
@@ -35,7 +36,7 @@
 </head>
 
 <!-- Main Body -->
-<body>
+<body onload="updateClock();getWeather();">
 	<div class="container-fluid topbar">
 		<div class="row">
 			<div class="col-sm-12">System Normal</div>
@@ -46,7 +47,11 @@
 			<div class="col-sm-3 leftsidebar" style="background-color: #3498db;">
 				<!-- Left Sidebar -->
 				<p class="medium" id="time">Loading</p>
-				<p class="medium" id="date"></p>
+				<p class="medium" id="date" style="margin-bottom: 10vh;"></p>
+				<br>
+				<p class="medium" id="weather_degrees">Loading</p>
+				<p class="small" id="weather_condition"></p>
+				<p class="small" id="weather_lowhigh"></p>
 			</div>
 			<div class="col-sm-9" style="height: 100%;">
 				<!-- Main Content Right -->
