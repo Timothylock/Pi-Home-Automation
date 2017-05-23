@@ -3,7 +3,7 @@ html, body {
 }
 
 .topbar {
-    background-color: #ecf0f1;
+    background-color: #f3f3f3;
     height: 10%;
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
@@ -13,24 +13,32 @@ html, body {
 }
 
 .maincontainer {
-    background-color: #34495e;
+    background-color: #ebebeb;
     height: 90%;
-    -webkit-box-shadow: inset -12px 58px 77px -67px rgba(0,0,0,0.75);
-    -moz-box-shadow: inset -12px 58px 77px -67px rgba(0,0,0,0.75);
-    box-shadow: inset -12px 58px 77px -67px rgba(0,0,0,0.75);
+}
+
+.leftsidebar {
+    height: 100%;
+    padding-top: 15%;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    text-decoration: none;
+    text-shadow: 2px 2px black;
+    text-align: center;
+    line-height: 0.85;
 }
 
 .mainrow {
     height: 50%;
-    padding-left: 10px;
     padding-bottom: 10px;
 }
 
 .module_outside {
     padding-top: 10px;
-    padding-right: 10px;
+    padding-right: 5px;
     padding-bottom: 0px;
-    padding-left: 0px;
+    padding-left: 5px;
     background-clip:content-box;
     height: 100%;
 }
