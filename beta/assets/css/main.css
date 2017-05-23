@@ -74,6 +74,14 @@ p.small {
 @media (max-width: 768px) {
     /* When in portrait mode, user should be on their phone so no need for time */
     .leftsidebar {
+        height: 180px;
+        font-weight: 300;
+        text-decoration: none;
+        font-size: 7vh;
+        text-align: center;
+    }
+
+    #date, #weather_degrees, #weather_condition, #weather_lowhigh {
         display: none;
     }
 
