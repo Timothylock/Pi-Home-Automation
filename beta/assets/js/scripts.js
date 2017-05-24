@@ -57,7 +57,7 @@ function togglehistoryview() {
             for(var i = response.length - 1; i >= 0; i--){
                 var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
                 d.setUTCSeconds(response[i].substring(0,response[i].length - 4)/1000);
-                insert += "<li class='list-group-item' onclick='showPicture(response[i])'>" + d + "</li>";
+                insert += "<li class='list-group-item' onclick='showPicture(" + response[i] + ")'>" + d + "</li>";
             }
 
             insert += "</ul>";
