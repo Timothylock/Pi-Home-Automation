@@ -69,19 +69,6 @@ p.small {
 }
 
 /* Modal CSS */
-.pic-modal-dialog {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-.pic-modal-content {
-    height: auto;
-    min-height: 100%;
-    border-radius: 0;
-}
-
 
 @media (max-width: 768px) {
     /* When in portrait mode, user should be on their phone so no need for time */

@@ -61,22 +61,24 @@ function togglehistoryview() {
             }
 
             insert += "</ul>";
-            console.log("Sdsd");
+
             $("#modal_title").text("Last 10 History");
             $("#modal_content").html(insert);
+            $("#modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
         },
         error: function(response) {
             $("#modal_title").text("Error");
             $("#modal_content").html("The server was unable to load the history. Is there a connection to the server?");
+            $("#modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
         }
     });
 }
 
 // Shows the picture in picModal
 function showPicture(filename) {
-    console.log("Sdssadsadsadsd");
     $("#pic_modal_title").text(filename);
-    $("#pic_modal_content").html("<img style='width: 100%' src='logs/" + filename + "'>");
+    $("#pic_modal_content").html("<img style='width: 100%' src='/logs/" + filename + "'>");
+    $("#pic_modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
     $("#picModal").modal('show');
 }
 
