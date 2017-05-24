@@ -10,6 +10,7 @@
 <script src="assets/js/bootstrap.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 <script src="assets/js/jquery.simpleWeather.min.js"></script>
+<script src="assets/js/cookies.js"></script>
 
 <link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="/favicon/apple-icon-60x60.png">
@@ -76,8 +77,8 @@
 							</div>
 						</div>
 						<div class="col-sm-4 module_outside">
-							<div class="module_inside" style="background-color: #e67e22;">
-								<p class="medium">Logs</p>
+							<div class="module_inside" style="background-color: #e67e22;" onclick="togglehistoryview();">
+								<p class="medium">History</p>
 							</div>
 						</div>
 						<div class="col-sm-4 module_outside">
@@ -88,6 +89,25 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+
+	<!-- Modal -->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title" id="modal_title">Modal Header</h4>
+				</div>
+				<div class="modal-body" id="modal_content">
+					<p>Some text in the modal.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
 		</div>
 	</div>
 </body>

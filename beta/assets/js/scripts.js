@@ -34,5 +34,35 @@ function getWeather() {
     });
 }
 
+function togglehistoryview(){
+
+    // Get lights / statuses and update modal
+    $.ajax({
+        url: '/log',
+        type: 'GET',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+        },
+        success: function(response) {
+            var insert = "<ul style='width:90%; list-style-type:none;'>";
+            for(i = response.length - 1; i >= 0; i--){
+                var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                d.setUTCSeconds(response[i].substring(0,response[i].length - 4)/1000);
+                insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='showPic(\"" + response[i] + "\")'>" + d + "</li>";
+            }
+            insert += "</ul>";
+
+            $("#modal_title").text("Last 10 History");
+            $("#modal_content").html(insert);
+
+            $("#myModal").modal('show');
+
+        },
+        error: function(response) {
+            //TODO: Show error
+        }
+    });
+}
+
 setInterval(updateClock, 1000);
 setInterval(getWeather, 600000);
