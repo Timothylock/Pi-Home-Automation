@@ -41,6 +41,7 @@ function loadingModal() {
     $("#myModal").modal('show');
 }
 
+// Modifies the modal for seeing logs
 function togglehistoryview() {
     loadingModal();
 
@@ -56,7 +57,7 @@ function togglehistoryview() {
             for(var i = response.length - 1; i >= 0; i--){
                 var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
                 d.setUTCSeconds(response[i].substring(0,response[i].length - 4)/1000);
-                insert += "<li class='list-group-item'>" + d + "</li>";
+                insert += "<li class='list-group-item' onclick='showPicture(response[i])'>" + d + "</li>";
             }
 
             insert += "</ul>";
@@ -66,9 +67,16 @@ function togglehistoryview() {
         },
         error: function(response) {
             $("#modal_title").text("Error");
-            $("#modal_content").html("The server was unable to load the history. The response was: " + response);
+            $("#modal_content").html("The server was unable to load the history. Is there a connection to the server?");
         }
     });
+}
+
+// Shows the picture in picModal
+function showPicture(filename) {
+    $("#pic_modal_title").text(filename);
+    $("#pic_modal_content").html("<img style='width: 100%' src='logs/" + filename + "'>");
+    $("#picModal").modal('show');
 }
 
 setInterval(updateClock, 1000);
