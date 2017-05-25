@@ -37,9 +37,9 @@
 </head>
 
 <!-- Main Body -->
-<body onload="updateClock();getWeather();">
+<body onload="updateClock();getWeather();updateStatus();">
 	<div class="container-fluid topbar">
-		<div class="row">
+		<div class="row" id="statusbar">
 			<div class="col-sm-12">System Normal</div>
 		</div>
 	</div>
@@ -59,21 +59,21 @@
 				<div class="container-fluid" style="height: 100%;">
 					<div class="row mainrow">
 						<div class="col-sm-4 module_outside">
-							<div class="module_inside module_door" style="background-color: #2ecc71;">
+							<div class="module_inside module_door">
 								<p class="small">The door is</p>
-								<p class="medium">CLOSED</p>
+								<p class="medium" id="doorOpenClose">CLOSED</p>
 							</div>
 						</div>
 						<div class="col-sm-4 module_outside">
-							<div class="module_inside" style="background-color: #f1c40f;">
-								<p class="big">2</p>
+							<div class="module_inside module_lights" onclick="togglelightview();">
+								<p class="big" id="numLightsOn">2</p>
 								<p class="small">lights on</p>
 							</div>
 						</div>
 						<div class="col-sm-4 module_outside">
-							<div class="module_inside module_blinds" style="background-color: #2ecc71;">
+							<div class="module_inside module_blinds">
 								<p class="small">The blinds are</p>
-								<p class="medium">CLOSED</p>
+								<p class="medium" id="blindsOpenClose">CLOSED</p>
 							</div>
 						</div>
 						<div class="col-sm-4 module_outside">
@@ -92,7 +92,7 @@
 		</div>
 	</div>
 
-	<!-- Modal -->
+	<!-- Multipurpose Modal -->
 	<div id="myModal" class="modal fade" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -109,19 +109,22 @@
 		</div>
 	</div>
 
-	<div id="picModal" class="modal fade" role="dialog">
-		<div class="pic-modal-dialog">
-			<div class="pic-modal-content">
+	<!-- Full Screen Picture Modal -->
+	<div class="modal modal-fullscreen fade" id="picModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
-					<h4 class="modal-title" id="pic_modal_title"/>
+					<button type="button" class="close" onclick='$("#picModal").modal("hide");'>&times;</button>
+					<h4 class="modal-title" id="pic_modal_title">Modal title</h4>
 				</div>
-				<div class="modal-body" id="pic_modal_content" />
+				<div class="modal-body" id="pic_modal_content"/>
 				<div class="modal-footer" id="pic_modal_footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-default" onclick='$("#picModal").modal("hide");'>Close</button>
 				</div>
 			</div>
-
 		</div>
 	</div>
+
+
+
 </body>

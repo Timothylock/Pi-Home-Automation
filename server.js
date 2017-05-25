@@ -201,8 +201,8 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 }));
 
 // Handle incoming requests
-function getStatus(req, res){ // Get the current status of the system
-	var statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"]};
+function getStatus(req, res){ // Get the current status of the system    Kept for legacy reasons
+	var statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"], "lightsOn": 3};
 	res.send(statusObj);
 }
 

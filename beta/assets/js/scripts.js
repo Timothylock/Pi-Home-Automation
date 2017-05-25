@@ -1,3 +1,80 @@
+function updateStatus() {
+    $.ajax({
+        url: '/status',
+        type: 'GET',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+        },
+        success: function (response) {
+            var door = response["door"];
+            var motion = response["motion"];
+            var blinds = response["blinds"];
+            var lightson = response["lightsOn"];
+
+            // Status bar should start with green and change if any error
+            $("#statusbar").css("color", 'green');
+            $("#statusbar").html("System Normal");
+            $(".leftsidebar").css("background", "linear-gradient(#0981ba, #0d5586)");
+
+            // Color the labels accordingly
+            if (door == 0) {
+                $(".module_door").css("background-color", '#2ecc71');
+                $("#doorOpenClose").html("CLOSED");
+            } else {
+                $(".module_door").css("background-color", '#f1c40f');
+                $(".statusbar").css("color", '#f1c40f');
+                $("#statusbar").html("Door is OPENED");
+                $(".leftsidebar").css("background", "linear-gradient(#ffa500, #d88c00)");
+                $("#doorOpenClose").html("OPENED");
+            }
+
+            /*if (motion == 0){
+             $("#motion").css("background-color", 'ForestGreen');
+             }else{
+             $("#motion").css("background-color", 'orange');
+             }*/
+
+            $("#numLightsOn").html(lightson);
+            if (parseInt(lightson) == 0) {
+                $(".module_lights").css("background-color", '#2ecc71');
+            } else {
+                $(".module_lights").css("background-color", '#f1c40f');
+            }
+
+            if (blinds == 1) {
+                $(".module_blinds").css("background-color", '#2ecc71');
+                $(".module_blinds").attr('onclick', 'toggleBlinds(0);');
+                $("#blindsOpenClose").html("CLOSED");
+            } else {
+                $(".module_blinds").css("background-color", '#e74c3c');
+                $(".module_blinds").attr('onclick', 'toggleBlinds(1);');
+                $("#blindsOpenClose").html("OPENED");
+            }
+        },
+        error: function (response) {
+            $("#statusbar").css("color", 'red');
+            $("#statusbar").html("Warning - No connection");
+            $(".leftsidebar").css("background", "linear-gradient(#ff4b4b, #ff1c1c)");
+
+            //$("#motion").css("background-color", '#e74c3c');
+            $(".module_door").css("background-color", '#e74c3c');
+            $(".module_blinds").css("background-color", '#e74c3c');
+            $(".module_lights").css("background-color", '#e74c3c');
+
+            $("#numLightsOn").html("N/A");
+            $("#blindsOpenClose").html("N/A");
+            $("#doorOpenClose").html("N/A");
+
+            if (response.status == 401) {
+                $("#statusbar").html("NOT AUTHORIZED");
+                if (!(($("#myModal").data('bs.modal') || {}).isShown)) {
+                    toggleLogin();
+                }
+            }
+        }
+    });
+}
+
 function updateClock() {
     var now = new Date(), // current date
         months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -34,11 +111,98 @@ function getWeather() {
     });
 }
 
-function loadingModal() {
-    $("#modal_title").text("Loading");
-    $("#modal_content").html("Please wait...");
+// Sends a POST request to toggle blinds
+function toggleBlinds(to){
+    console.log("TOGGLE BLINDS");
+    $.ajax({
+        url: '/blinds?set=' + to,
+        type: 'POST',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+        },
+        success: function(response) {
+            // Notify
+        },
+        error: function(response) {
+            // Notify
+        }
+    });
+}
 
-    $("#myModal").modal('show');
+// Sends a POST request to toggle lights
+function toggleLight(id, to, refreshView){
+    $.ajax({
+        url: '/lights?id=' + id + '&onoff=' + to,
+        type: 'POST',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+        },
+        success: function(response) {
+            if(refreshView){
+                togglelightview();
+            }
+        },
+        error: function(response) {
+            if(refreshView){
+                togglelightview();
+            }
+        }
+    });
+}
+
+function loadingModal() {
+    if (!(($("#myModal").data('bs.modal') || {}).isShown)) {
+        $("#modal_title").text("Loading");
+        $("#modal_content").html("Please wait...");
+        $("#myModal").modal('show');
+    }
+}
+
+// Toggles the login modal
+
+function toggleLogin() {
+    loadingModal();
+
+    body = '<div class="form-group"><label class="col-md-4 control-label" for="username">Username</label><div class="col-md-8"><input id="username" name="username" type="text" placeholder="" class="form-control input-md" required=""></div></div>';
+    body += '<div class="form-group"><label class="col-md-4 control-label" for="password">Password</label><div class="col-md-8"><input id="password" name="password" type="password" placeholder="" class="form-control input-md" required=""></div></div>';
+    body += '<button type="button" class="btn btn-default" onclick="storeLogin();">Login</button>';
+
+    $("#modal_title").text("Login");
+    $("#modal_content").html(body);
+}
+
+// Modifies the modal for light control and shows it
+function togglelightview(){
+    loadingModal();
+
+    // Get lights / statuses and update modal
+    $.ajax({
+        url: '/lights',
+        type: 'GET',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+        },
+        success: function(response) {
+            var insert = "<ul style='width:90%; list-style-type:none;'>";
+            for(var i = 0; i < response["lights"].length; i++){
+                if (response["lights"][i]["status"] == "on"){
+                    insert += "<li class='list-group-item' style='background-color:#2ecc71;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"off\", true)'>" + response["lights"][i]["name"] + "</li>";
+                }else{
+                    insert += "<li class='list-group-item' style='background-color:#e74c3c;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"on\", true)'>" + response["lights"][i]["name"] + "</li>";
+                }
+
+            }
+            insert += "</ul>";
+
+            $("#modal_title").text("Light Control");
+            $("#modal_content").html(insert);
+        },
+        error: function(response) {
+            $("#modal_title").text("Error");
+            $("#modal_content").html("The server was unable to load the lights. Is there a connection to the server?");
+            $("#modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
+        }
+    });
 }
 
 // Modifies the modal for seeing logs
@@ -57,7 +221,7 @@ function togglehistoryview() {
             for(var i = response.length - 1; i >= 0; i--){
                 var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
                 d.setUTCSeconds(response[i].substring(0,response[i].length - 4)/1000);
-                insert += "<li class='list-group-item' onclick='showPicture(\"" + response[i] + "\");'>" + d + "</li>";
+                insert += "<li class='list-group-item' onclick='showPicture(\"" + response[i] + "\",\"" + d + "\");'>" + d + "</li>";
             }
 
             insert += "</ul>";
@@ -75,12 +239,21 @@ function togglehistoryview() {
 }
 
 // Shows the picture in picModal
-function showPicture(filename) {
-    $("#pic_modal_title").text(filename);
+function showPicture(filename, date) {
+    $("#pic_modal_title").text(date + "  (" + filename + ")");
     $("#pic_modal_content").html("<img style='width: 100%' src='/logs/" + filename + "'>");
     $("#pic_modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
     $("#picModal").modal('show');
 }
 
+// Stores the login information into cookies
+function storeLogin(){
+    Cookies.set('username', $("#username").val(), { expires: 365 });
+    Cookies.set('password', $("#password").val(), { expires: 365 });
+
+    $("#myModal").modal('hide');
+}
+
 setInterval(updateClock, 1000);
 setInterval(getWeather, 600000);
+setInterval(updateStatus, 750);

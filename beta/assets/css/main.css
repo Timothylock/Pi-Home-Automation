@@ -54,6 +54,7 @@ html, body {
     text-shadow: 1px 1px black;
     text-align: center;
     line-height: 0.85;
+    background-color: #e74c3c;
 }
 
 p.big {
@@ -69,6 +70,12 @@ p.small {
 }
 
 /* Modal CSS */
+.modal-fullscreen .modal-dialog {
+    margin: 0;
+    margin-right: auto;
+    margin-left: auto;
+    width: 100%;
+}
 
 @media (max-width: 768px) {
     /* When in portrait mode, user should be on their phone so no need for time */
