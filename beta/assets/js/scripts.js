@@ -46,7 +46,7 @@ function updateStatus() {
                 $(".module_blinds").attr('onclick', 'toggleBlinds(0);');
                 $("#blindsOpenClose").html("CLOSED");
             } else {
-                $(".module_blinds").css("background-color", '#e74c3c');
+                $(".module_blinds").css("background-color", '#f1c40f');
                 $(".module_blinds").attr('onclick', 'toggleBlinds(1);');
                 $("#blindsOpenClose").html("OPENED");
             }
@@ -56,7 +56,6 @@ function updateStatus() {
             $("#statusbar").html("Warning - No connection");
             $(".leftsidebar").css("background", "linear-gradient(#ff4b4b, #ff1c1c)");
 
-            //$("#motion").css("background-color", '#e74c3c');
             $(".module_door").css("background-color", '#e74c3c');
             $(".module_blinds").css("background-color", '#e74c3c');
             $(".module_lights").css("background-color", '#e74c3c');
@@ -150,6 +149,31 @@ function toggleLight(id, to, refreshView){
     });
 }
 
+// Sends a POST request to shutdown/reboot the system
+function shutdownReboot(op){
+    if (confirm('Do you really want to ' + op + ' the server? This event will be logged!')) {
+        var pw = window.prompt("This is a privileged action. Please enter administrator secret.","");
+
+        $.ajax({
+            url: '/admin/shutdown?op=' + op + '&pw=' + pw,
+            type: 'POST',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+            },
+            success: function (response) {
+                if (op == "reboot") {
+                    alert('The server is now restarting. Please wait a few minutes.');
+                } else if (op == "shutdown") {
+                    alert('The server is shutting down');
+                }
+            },
+            error: function (response) {
+                alert('Operation failed! ' + response.status);
+            }
+        });
+    }
+}
+
 function loadingModal() {
     if (!(($("#myModal").data('bs.modal') || {}).isShown)) {
         $("#modal_title").text("Loading");
@@ -159,7 +183,6 @@ function loadingModal() {
 }
 
 // Toggles the login modal
-
 function toggleLogin() {
     loadingModal();
 
@@ -169,6 +192,20 @@ function toggleLogin() {
 
     $("#modal_title").text("Login");
     $("#modal_content").html(body);
+}
+
+// Toggles the settings modal
+function toggleSettings() {
+    loadingModal();
+
+    var insert = "<ul style='width:90%; list-style-type:none;'>";
+    insert += "<li class='list-group-item' onclick='backToOldUI()'>Change back to old UI</li>";
+    insert += "<li class='list-group-item list-group-item-danger' onclick='shutdownReboot(\"reboot\")'>Reboot the server</li>";
+    insert += "<li class='list-group-item list-group-item-danger' onclick='shutdownReboot(\"shutdown\")'>Shutdown the server</li>";
+    insert += "</ul>";
+
+    $("#modal_title").text("Settings");
+    $("#modal_content").html(insert);
 }
 
 // Modifies the modal for light control and shows it
@@ -254,6 +291,25 @@ function storeLogin(){
     $("#myModal").modal('hide');
 }
 
+// Adds a cookie to switch back to old UI
+function backToOldUI() {
+    if (confirm('Do you want to switch back to the old UI? While it will still work in the future, no new features will be added to it.')) {
+        Cookies.set('beta', "False", {expires: 365});
+        window.location.replace("/");
+    }
+}
+
+/////////////
+// Run these when the script first loads
+/////////////
+
+// Send the user to the old UI
+if (Cookies.get('beta') == 'False') {
+    window.location.replace("/");
+}
+
 setInterval(updateClock, 1000);
 setInterval(getWeather, 600000);
 setInterval(updateStatus, 750);
+
+

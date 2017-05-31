@@ -37,7 +37,7 @@ try {
 }
 
 // Read Previous Data
-	var status = {"blindsMotion" : 0, "blindsStatus" : 0, "door" : 0, "motion" : 0, "lights" : []};
+	var status = {"blindsMotion" : 0, "blindsStatus" : 0, "door" : 0, "motion" : 0, "lights" : [], "numLightsOn" : 0};
 
 
 // Read Previous History Data
@@ -91,7 +91,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 
 // Handle incoming requests
 function getStatus(req, res){ // Get the current status of the system
-	var statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"], "lightsOn": 2};
+	var statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"], "lightsOn": status["numLightsOn"]};
 	res.send(statusObj);
 }
 
@@ -123,6 +123,7 @@ function toggleLights(onoff, id) {
 		for(i = 0; i < status["lights"].length; i++){
 			if(status["lights"][i]["id"] == id){
 				status["lights"][i]["status"] = "on";
+                status["numLightsOn"] ++;
 				return ("Success")
 			}
 		}
@@ -130,6 +131,7 @@ function toggleLights(onoff, id) {
 		for(i = 0; i < status["lights"].length; i++){
 			if(status["lights"][i]["id"] == id){
 				status["lights"][i]["status"] = "off";
+                status["numLightsOn"] --;
 				return ("Success")
 			}
 		}

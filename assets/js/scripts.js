@@ -270,3 +270,15 @@ $(document).on('click','.modal',function(){
     $("#myModal").hide();
     console.log("cls");
 });*/
+
+function promptBeta() {
+	if (Cookies.get("beta") != "False") { // Don't bother them again if they came back from the beta
+        if (confirm('The beta UI is now available! Do you want to switch to the beta ui?')) {
+            Cookies.set('beta', "True", { expires: 365 });
+        }
+	}
+
+	if (Cookies.get("beta") == "True") {
+        window.location.replace("/beta/");
+	}
+}

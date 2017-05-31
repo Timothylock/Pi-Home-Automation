@@ -24,7 +24,6 @@ var Gpio = require('pigpio').Gpio;
 
 
 
-
 //////////////////////
 // Read data files
 //////////////////////
@@ -49,7 +48,7 @@ try {
 	status["blindsMotion"] = 0; // Bug when server shutdown when blinds moving
 } catch (err) {
 	console.log("No previous status file found. Generating new one");
-	var status = {"blindsMotion" : 0, "blindsStatus" : 0, "door" : 0, "motion" : 0, "lights" : []};
+	var status = {"blindsMotion" : 0, "blindsStatus" : 0, "door" : 0, "motion" : 0, "lights" : [], "numLightsOn" : 0};
 }
 
 // Read Previous History Data
@@ -158,7 +157,7 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   // Also trigger hallway lights 
   ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
 
-  if(Math.abs(level-1) == 1){
+  if(Math.abs(level-1) == 1){  // TODO: Figure out why there are more "on"s then off before adding light counter code
   	status["lights"][1]["status"] = "on";
   }else{
   	status["lights"][1]["status"] = "off";
@@ -202,7 +201,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 
 // Handle incoming requests
 function getStatus(req, res){ // Get the current status of the system    Kept for legacy reasons
-	var statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"], "lightsOn": 3};
+	var statusObj = {"door": status["door"], "motion": status["motion"], "power": 0, "ftp": 0, "blinds": status["blindsStatus"], "lightsOn": status["numLightsOn"]};
 	res.send(statusObj);
 }
 
@@ -234,6 +233,19 @@ function toggleBlindsReciever(req, res){
 	res.send(result)
 }
 
+// Shutdown reciever
+function shutdownReciever(req, res){
+	if (res.query.pw == ADMINISTRATOR_SECRET) {
+        res.send("success");
+        addLog(res.query.op + " initiated", "SUCCESS", {'req':req});
+        shutdownHandler(req.query.op);
+	} else {
+        res.status(403);
+        res.send("Incorrect administrator secret");
+        addLog(res.query.op + " attempted", "UNAUTHENTICATED", {'req':req});
+	}
+}
+
 // Toggle the lights
 function toggleLights(onoff, id) {
 	var i;
@@ -243,6 +255,7 @@ function toggleLights(onoff, id) {
 			for(i = 0; i < status["lights"].length; i++){
 				if(status["lights"][i]["id"] == id){
 					status["lights"][i]["status"] = "on";
+					status["numLightsOn"] ++;
 					writeStatus();
 					return ("Success")
 				}
@@ -254,6 +267,7 @@ function toggleLights(onoff, id) {
 			for(i = 0; i < status["lights"].length; i++){
 				if(status["lights"][i]["id"] == id){
 					status["lights"][i]["status"] = "off";
+                    status["numLightsOn"] --;
 					writeStatus();
 					return ("Success")
 				}
@@ -298,6 +312,15 @@ function stopBlinds(){
 	ioObjects["blinds"]["close"].digitalWrite(1);
 	ioObjects["blinds"]["open"].digitalWrite(1);
 	status["blindsMotion"] = 0;
+}
+
+// Handles shutting down system
+function shutdownHandler(op) {
+	if (op == "shutdown") {
+        exec('shutdown now', function(error, stdout, stderr){ callback(stdout); });
+	} else if (op == "reboot") {
+        exec('shutdown -r now', function(error, stdout, stderr){ callback(stdout); });
+	}
 }
 
 // Add a specific data to the log (for remote connections)
@@ -353,9 +376,10 @@ fs.writeFile('data/configuration.json', JSON.stringify(ioPorts));
 // REST
 app.get('/status', getStatus); 
 app.get('/lights', getLights); 
-app.post('/lights', toggleLightsReciever); 
-app.post('/blinds', toggleBlindsReciever);  
-app.get('/log', getHistory);  
+app.post('/lights', toggleLightsReciever);
+app.post('/blinds', toggleBlindsReciever);
+app.get('/log', getHistory);
+app.post('/admin/shutdown', shutdownReciever);
 
 // Express start listening
 app.listen(process.env.PORT || 80);

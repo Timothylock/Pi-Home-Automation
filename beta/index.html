@@ -8,9 +8,9 @@
 
 <script src="assets/js/jquery.js"></script>
 <script src="assets/js/bootstrap.min.js"></script>
-<script src="assets/js/scripts.js"></script>
 <script src="assets/js/jquery.simpleWeather.min.js"></script>
 <script src="assets/js/cookies.js"></script>
+<script src="assets/js/scripts.js"></script>
 
 <link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="/favicon/apple-icon-60x60.png">
@@ -82,7 +82,7 @@
 							</div>
 						</div>
 						<div class="col-sm-4 module_outside">
-							<div class="module_inside" style="background-color: #9b59b6;">
+							<div class="module_inside" style="background-color: #9b59b6;" onclick="toggleSettings()">
 								<p class="medium">Settings</p>
 							</div>
 						</div>
@@ -93,7 +93,7 @@
 	</div>
 
 	<!-- Multipurpose Modal -->
-	<div id="myModal" class="modal fade" role="dialog">
+	<div id="myModal" class="modal modal-myModal fade" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -124,7 +124,4 @@
 			</div>
 		</div>
 	</div>
-
-
-
 </body>
