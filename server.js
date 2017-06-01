@@ -102,6 +102,7 @@ for (var key in ioPorts["outletlights"]){
   	})(key);
 	wemoPort ++;
 }
+status["numLightsOn"] = 0;
 
 // Create the blinds object
 ioObjects["blinds"] = {};
