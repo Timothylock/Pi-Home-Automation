@@ -22,8 +22,6 @@ var Gpio = require('pigpio').Gpio;
 
 
 
-
-
 //////////////////////
 // Read data files
 //////////////////////
@@ -212,8 +210,13 @@ function getLights(req, res){ // Get the current status of the lights
 }
 
 function getHistory(req, res){ // Get the last 10 pictures
-	res.send(history);
-	addLog("history view", "", {'req':req});
+    res.send(history);
+    addLog("history view", "", {'req':req});
+}
+
+function getTimer(req, res){ // Get the timer
+    res.send(history);
+    addLog("history view", "", {'req':req});
 }
 
 // Helper Functions
@@ -380,6 +383,7 @@ app.get('/lights', getLights);
 app.post('/lights', toggleLightsReciever);
 app.post('/blinds', toggleBlindsReciever);
 app.get('/log', getHistory);
+app.get('/admin/timer', getTimer);
 app.post('/admin/shutdown', shutdownReciever);
 
 // Express start listening

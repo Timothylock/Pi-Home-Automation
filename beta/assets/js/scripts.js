@@ -82,7 +82,7 @@ function updateClock() {
     var ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = minutes < 10 ? '0'+minutes : minutes;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
     var strTime = hours + ':' + minutes + ampm;
 
     // a cleaner way than string concatenation
@@ -97,12 +97,12 @@ function getWeather() {
     $.simpleWeather({
         location: 'Toronto, ON',
         unit: 'c',
-        success: function(weather) {
+        success: function (weather) {
             $("#weather_degrees").html(weather.temp + '&deg;' + weather.units.temp);
             $("#weather_condition").html(weather.currently);
             $("#weather_lowhigh").html('Low: ' + weather.low + ' High: ' + weather.high);
         },
-        error: function(error) {
+        error: function (error) {
             $("#weather_degrees").html('N/A');
             $("#weather_condition").html("Weather Unavailable");
             $("#weather_lowhigh").html('Low: N/A High: N/A');
@@ -111,38 +111,38 @@ function getWeather() {
 }
 
 // Sends a POST request to toggle blinds
-function toggleBlinds(to){
+function toggleBlinds(to) {
     console.log("TOGGLE BLINDS");
     $.ajax({
         url: '/blinds?set=' + to,
         type: 'POST',
         beforeSend: function (xhr) {
-            xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
         },
-        success: function(response) {
+        success: function (response) {
             // Notify
         },
-        error: function(response) {
+        error: function (response) {
             // Notify
         }
     });
 }
 
 // Sends a POST request to toggle lights
-function toggleLight(id, to, refreshView){
+function toggleLight(id, to, refreshView) {
     $.ajax({
         url: '/lights?id=' + id + '&onoff=' + to,
         type: 'POST',
         beforeSend: function (xhr) {
-            xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
         },
-        success: function(response) {
-            if(refreshView){
+        success: function (response) {
+            if (refreshView) {
                 togglelightview();
             }
         },
-        error: function(response) {
-            if(refreshView){
+        error: function (response) {
+            if (refreshView) {
                 togglelightview();
             }
         }
@@ -150,9 +150,9 @@ function toggleLight(id, to, refreshView){
 }
 
 // Sends a POST request to shutdown/reboot the system
-function shutdownReboot(op){
+function shutdownReboot(op) {
     if (confirm('Do you really want to ' + op + ' the server? This event will be logged!')) {
-        var pw = window.prompt("This is a privileged action. Please enter administrator secret.","");
+        var pw = window.prompt("This is a privileged action. Please enter administrator secret.", "");
 
         $.ajax({
             url: '/admin/shutdown?op=' + op + '&pw=' + pw,
@@ -175,9 +175,9 @@ function shutdownReboot(op){
 }
 
 function loadingModal() {
+    $("#modal_title").text("Loading");
+    $("#modal_content").html("Please wait...");
     if (!(($("#myModal").data('bs.modal') || {}).isShown)) {
-        $("#modal_title").text("Loading");
-        $("#modal_content").html("Please wait...");
         $("#myModal").modal('show');
     }
 }
@@ -198,18 +198,82 @@ function toggleLogin() {
 function toggleSettings() {
     loadingModal();
 
-    var insert = "<ul style='width:90%; list-style-type:none;'>";
+    var insert = "<h5 class='text-center'>Basic Settings</h5>";
+
+    insert += "<ul style='width:90%; list-style-type:none;'>";
     insert += "<li class='list-group-item' onclick='backToOldUI()'>Change back to old UI</li>";
-    insert += "<li class='list-group-item list-group-item-danger' onclick='shutdownReboot(\"reboot\")'>Reboot the server</li>";
-    insert += "<li class='list-group-item list-group-item-danger' onclick='shutdownReboot(\"shutdown\")'>Shutdown the server</li>";
+    insert += "<li class='list-group-item' onclick='toggleTimer()'>PLACEHOLDER - Set timer for lights/blinds</li>";
+    insert += "</ul>";
+
+    insert += "<h5 class='text-center'>Admin Settings</h5>";
+
+    insert += "<ul style='width:90%; list-style-type:none;'>";
+    insert += "<li class='list-group-item' onclick='shutdownReboot(\"reboot\")'>Reboot the server</li>";
+    insert += "<li class='list-group-item' onclick='shutdownReboot(\"shutdown\")'>Shutdown the server</li>";
+    insert += "</ul>";
+
+    insert += "<h5 class='text-center'>User Account</h5>";
+
+    insert += "<ul style='width:90%; list-style-type:none;'>";
+    insert += "<li class='list-group-item list-group-item-danger' onclick='logout()'>Logout</li>";
     insert += "</ul>";
 
     $("#modal_title").text("Settings");
     $("#modal_content").html(insert);
 }
 
+// Toggles and populates the timer screen
+function toggleTimer() {
+    loadingModal();
+
+    var timer = {"Blinds" : [{"open" : "30 7 * * 1-5"}, {"close" : "0 22 * * 1-5"}, {"open" : "0 9 * * 6,0"}, {"close" : "0 0 * * 6,0"}], "Living Room Lights" : [{"on" : "30 7 * * 1-5"}, {"off" : "0 22 * * 1-5"}, {"on" : "0 9 * * 6,0"}, {"off" : "0 0 * * 6,0"}]};
+
+    var insert = "";
+    insert += "<h6 class='text-center'>Tap on any timer to delete them</h6>";
+
+    for (var obj in timer) {
+        insert += "<h5 class='text-center'>" + obj + "</h5>";
+        insert += "<ul style='width:90%; list-style-type:none;'>";
+        for (var state in timer[obj]) {
+            for (var status in timer[obj][state]) {
+                insert += "<li class='list-group-item'>" + status.toUpperCase() + " at " + prettyCron.toString(timer[obj][state][status]) + "</li>";
+            }
+        }
+        insert += "<li class='list-group-item list-group-item-success' onclick='toggleCreateTimer(\"" + obj + "\"," + 12 + ")'>Add a new timer</li>";
+
+        insert += "</ul>";
+    }
+
+    $("#modal_title").text("Timers");
+    $("#modal_content").html(insert);
+}
+
+// Opens a modal screen to create a new timer
+function toggleCreateTimer(name, pin) {
+    loadingModal();
+
+    body = '<h4>Creating timer event for ' + name + '</h4>';
+    body += '<div class="form-group"><label class="col-md-4 control-label" for="cron">Cron Job</label><div class="col-md-8"><input id="cron" name="cron" type="text" placeholder="30 7 * * 1-5" class="form-control input-md" onkeypress="checkCron()" required=""></div></div>';
+    body += '<label class="col-md-4 control-label">In english: </label><label class="col-md-8 control-label" id="cronOutput">Start typing above</label>'
+    body += '<button type="button" class="btn btn-default" onclick="");">Create new timer (not implemented)</button>';
+
+    $("#modal_title").text("Create new timer");
+    $("#modal_content").html(body);
+
+}
+
+function checkCron(){
+    /*var patt = new RegExp('/^(?:[1-9]?\d|\*)(?:(?:[\/-][1-9]?\d)|(?:,[1-9]?\d)+)?$/');
+    if (!(patt.test($('#cron').val()))) {
+        $("#cronOutput").html("Invalid cron syntax");
+    } else {*/
+        $("#cronOutput").html(prettyCron.toString($('#cron').val()));
+    //}
+}
+
+
 // Modifies the modal for light control and shows it
-function togglelightview(){
+function togglelightview() {
     loadingModal();
 
     // Get lights / statuses and update modal
@@ -217,14 +281,14 @@ function togglelightview(){
         url: '/lights',
         type: 'GET',
         beforeSend: function (xhr) {
-            xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
         },
-        success: function(response) {
+        success: function (response) {
             var insert = "<ul style='width:90%; list-style-type:none;'>";
-            for(var i = 0; i < response["lights"].length; i++){
-                if (response["lights"][i]["status"] == "on"){
+            for (var i = 0; i < response["lights"].length; i++) {
+                if (response["lights"][i]["status"] == "on") {
                     insert += "<li class='list-group-item' style='background-color:#2ecc71;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"off\", true)'>" + response["lights"][i]["name"] + "</li>";
-                }else{
+                } else {
                     insert += "<li class='list-group-item' style='background-color:#e74c3c;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"on\", true)'>" + response["lights"][i]["name"] + "</li>";
                 }
 
@@ -234,7 +298,7 @@ function togglelightview(){
             $("#modal_title").text("Light Control");
             $("#modal_content").html(insert);
         },
-        error: function(response) {
+        error: function (response) {
             $("#modal_title").text("Error");
             $("#modal_content").html("The server was unable to load the lights. Is there a connection to the server?");
             $("#modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
@@ -251,13 +315,13 @@ function togglehistoryview() {
         url: '/log',
         type: 'GET',
         beforeSend: function (xhr) {
-            xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
         },
-        success: function(response) {
+        success: function (response) {
             var insert = "<ul class='list-group'>";
-            for(var i = response.length - 1; i >= 0; i--){
+            for (var i = response.length - 1; i >= 0; i--) {
                 var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
-                d.setUTCSeconds(response[i].substring(0,response[i].length - 4)/1000);
+                d.setUTCSeconds(response[i].substring(0, response[i].length - 4) / 1000);
                 insert += "<li class='list-group-item' onclick='showPicture(\"" + response[i] + "\",\"" + d + "\");'>" + d + "</li>";
             }
 
@@ -267,7 +331,7 @@ function togglehistoryview() {
             $("#modal_content").html(insert);
             $("#modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
         },
-        error: function(response) {
+        error: function (response) {
             $("#modal_title").text("Error");
             $("#modal_content").html("The server was unable to load the history. Is there a connection to the server?");
             $("#modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
@@ -284,11 +348,20 @@ function showPicture(filename, date) {
 }
 
 // Stores the login information into cookies
-function storeLogin(){
-    Cookies.set('username', $("#username").val(), { expires: 365 });
-    Cookies.set('password', $("#password").val(), { expires: 365 });
+function storeLogin() {
+    Cookies.set('username', $("#username").val(), {expires: 365});
+    Cookies.set('password', $("#password").val(), {expires: 365});
 
     $("#myModal").modal('hide');
+}
+
+// Logs the user out
+function logout() {
+    if (confirm('Do you want to log out?')) {
+        Cookies.remove("username");
+        Cookies.remove("password");
+        location.reload();
+    }
 }
 
 // Adds a cookie to switch back to old UI

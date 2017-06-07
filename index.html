@@ -43,7 +43,10 @@ You've been warned
 </head>
 
 <!-- Main Body -->
-<body onload="checkArguments(); updateClock(); updateStatus(); getWeather(); promptBeta();">
+<body onload="checkArguments(); updateClock(); updateStatus(); getWeather();">
+
+<script>promptBeta();</script>
+
 <ul class="topbar" id="mytopbar">
 	<li class="right"><img  id="server" src="assets/img/server.png"></li>
 	<li class="right"><img id="ftp" src="assets/img/internet.png"></li>
@@ -63,7 +66,7 @@ You've been warned
 		  <li class="left"><img id="lights" src="assets/img/light.png" onclick="togglelightview()"><a>Lights</a></li>
 		  <li class="left"><img id="logs" src="assets/img/history.png" onclick="togglehistoryview()"><a>History</a></li>
 		  <li class="left"><img id="motion" src="assets/img/motion.png"><a>Motion</a></li>
-		  <li class="left"><img id="mic" src="assets/img/mic.png" onclick="listen()"><a>Say Command</a></li>
+		  <li class="left"><img id="mic" src="assets/img/new.png" onclick="newui()"><a>New UI</a></li>
 		  <li class="left"><img id="blinds" src="assets/img/blinds.png" onclick=""><a>Blinds</a></li>
 		</ul>
 		<br>

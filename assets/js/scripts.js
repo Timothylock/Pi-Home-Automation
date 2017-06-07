@@ -271,8 +271,15 @@ $(document).on('click','.modal',function(){
     console.log("cls");
 });*/
 
+function newui() {
+	if (confirm('Do you want to switch to the new UI? Many features are avilable there that are not in this old UI.')) {
+		Cookies.set('beta', "True", { expires: 365 });
+		window.location.replace("/beta/");
+	}
+}
+
 function promptBeta() {
-	if (Cookies.get("beta") != "False") { // Don't bother them again if they came back from the beta
+	if (Cookies.get("beta") == "False") { // Don't bother them again if they came back from the beta
         if (confirm('The beta UI is now available! Do you want to switch to the beta ui?')) {
             Cookies.set('beta', "True", { expires: 365 });
         }
