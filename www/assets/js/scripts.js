@@ -2,9 +2,6 @@ function updateStatus() {
     $.ajax({
         url: '/status',
         type: 'GET',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-        },
         success: function (response) {
             var door = response["door"];
             var motion = response["motion"];
@@ -116,9 +113,6 @@ function toggleBlinds(to) {
     $.ajax({
         url: '/blinds?set=' + to,
         type: 'POST',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-        },
         success: function (response) {
             // Notify
         },
@@ -133,9 +127,6 @@ function toggleLight(id, to, refreshView) {
     $.ajax({
         url: '/lights?id=' + id + '&onoff=' + to,
         type: 'POST',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-        },
         success: function (response) {
             if (refreshView) {
                 togglelightview();
@@ -300,9 +291,6 @@ function togglelightview() {
     $.ajax({
         url: '/lights',
         type: 'GET',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-        },
         success: function (response) {
             var insert = "<ul style='width:90%; list-style-type:none;'>";
             for (var i = 0; i < response["lights"].length; i++) {
@@ -334,9 +322,6 @@ function togglehistoryview() {
     $.ajax({
         url: '/log',
         type: 'GET',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-        },
         success: function (response) {
             var insert = "<ul class='list-group'>";
             for (var i = response.length - 1; i >= 0; i--) {
@@ -378,9 +363,22 @@ function storeLogin() {
 // Logs the user out
 function logout() {
     if (confirm('Do you want to log out?')) {
-        Cookies.remove("username");
-        Cookies.remove("password");
-        location.reload();
+        $.ajax({
+            type: "GET",
+            url: "/status",
+            async: false,
+            username: "logout",
+            password: "invalidp@ss",
+            headers: { "Authorization": "Basic xxx" }
+        })
+        .done(function(){
+            alert("Could not log out!");
+        })
+        .fail(function(){
+            // We expect to get an 401 Unauthorized error! In this case we are successfully 
+                // logged out and we redirect the user.
+            location.reload();
+        });
     }
 }
 
@@ -388,7 +386,7 @@ function logout() {
 function backToOldUI() {
     if (confirm('Do you want to switch back to the old UI? While it will still work in the future, no new features will be added to it.')) {
         Cookies.set('beta', "False", {expires: 365});
-        window.location.replace("/");
+        window.location.replace("/legacy");
     }
 }
 
@@ -398,7 +396,7 @@ function backToOldUI() {
 
 // Send the user to the old UI
 if (Cookies.get('beta') == 'False') {
-    window.location.replace("/");
+    window.location.replace("/legacy");
 }
 
 setInterval(updateClock, 1000);

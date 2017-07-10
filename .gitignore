@@ -44,3 +44,5 @@ data
 *.iml
 
 .idea/workspace.xml
+
+*.xml

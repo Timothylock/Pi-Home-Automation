@@ -9,11 +9,13 @@ var bodyParser = require('body-parser');
 var FauxMo = require('fauxmojs');
 var fs = require('fs');
 var app = express();
-app.use(express.static(__dirname + '/'));
 
 // User Authentication
 app.use(basicAuth({
-    users: { 'admin': 'supersecret' }
+    users: { 'admin': 'supersecret' },
+    challenge: true,
+    realm: 'User Level 1 Realm',
+    unauthorizedResponse: 'Unauthorized. Make sure your browser supports BASIC authentication.'
 }));
 
 var Gpio = require('pigpio').Gpio;
@@ -53,11 +55,11 @@ try {
 try {
 	var history = JSON.parse(fs.readFileSync('data/latestHistory.json'));
 } catch (err) {
-	console.log("No history file found. Generating new one. This may take a while depending on the number of files in ./logs");
-	var files = fs.readdirSync("./logs/");
+	console.log("No history file found. Generating new one. This may take a while depending on the number of files in ./www/logs");
+	var files = fs.readdirSync("./www/logs/");
 	files.sort(function(a, b) {
-	               return fs.statSync("./logs/" + a).mtime.getTime() - 
-	                      fs.statSync("./logs/" + b).mtime.getTime();
+	               return fs.statSync("./www/logs/" + a).mtime.getTime() - 
+	                      fs.statSync("./www/logs/" + b).mtime.getTime();
 	           });
 	var history = files.slice(Math.max(files.length - 10, 0));
 	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
@@ -164,10 +166,10 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   
   if (level == 1){
   	var timestamp = (new Date).getTime();
-  	addLog("door opened", "logs/" + timestamp + ".jpg", {});
+  	addLog("door opened", "www/logs/" + timestamp + ".jpg", {});
   	
   	// Take picture if the door is open
-	exec("fswebcam -r 1280x960 logs/" + timestamp + ".jpg", puts);
+	exec("fswebcam -r 1280x960 www/logs/" + timestamp + ".jpg", puts);
 	writeHistory(timestamp)
   }else{
   	addLog("door closed", "", {});
@@ -252,10 +254,10 @@ function shutdownReciever(req, res){
 
 // Clear Cache Reciever
 function clearCacheReciever(req, res){
-	var files = fs.readdirSync("./logs/");
+	var files = fs.readdirSync("./www/logs/");
 	files.sort(function(a, b) {
-	               return fs.statSync("./logs/" + a).mtime.getTime() - 
-	                      fs.statSync("./logs/" + b).mtime.getTime();
+	               return fs.statSync("./www/logs/" + a).mtime.getTime() - 
+	                      fs.statSync("./www/logs/" + b).mtime.getTime();
 	           });
 	history = files.slice(Math.max(files.length - 10, 0));
 	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
@@ -349,7 +351,7 @@ function addLog(action, details, opt){
 		ip = "::ffff:127.0.0.1";
 		ua = "localhost";
 	}
-	fs.appendFile('logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n", function (err) {
+	fs.appendFile('www/logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n", function (err) {
 	  if (err) throw err;
 	});
 }
@@ -390,6 +392,7 @@ console.log("Starting the server");
 fs.writeFile('data/configuration.json', JSON.stringify(ioPorts));
 
 // REST
+app.use(express.static(__dirname + '/www/'));
 app.get('/status', getStatus); 
 app.get('/lights', getLights); 
 app.post('/lights', toggleLightsReciever);

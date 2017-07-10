@@ -43,9 +43,6 @@ function updateStatus() {
 	$.ajax({
 		url: '/status',
 		type: 'GET',
-		beforeSend: function (xhr) {
-		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-		},
 		success: function(response) {
 			door = response["door"];
 			motion = response["motion"];
@@ -126,9 +123,6 @@ function togglelightview(){
 	$.ajax({
 		url: '/lights',
 		type: 'GET',
-		beforeSend: function (xhr) {
-		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-		},
 		success: function(response) {
 			var insert = "<ul style='width:90%; list-style-type:none;'>";
 			for(let i = 0; i < response["lights"].length; i++){
@@ -158,9 +152,6 @@ function togglehistoryview(){
 	$.ajax({
 		url: '/log',
 		type: 'GET',
-		beforeSend: function (xhr) {
-		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-		},
 		success: function(response) {
 			var insert = "<ul style='width:90%; list-style-type:none;'>";
 			for(let i = response.length - 1; i >= 0; i--){
@@ -192,9 +183,6 @@ function toggleLight(id, to, refreshView){
 	$.ajax({
 		url: '/lights?id=' + id + '&onoff=' + to,
 		type: 'POST',
-		beforeSend: function (xhr) {
-		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-		},
 		success: function(response) {
 			toastr["success"]("Success");
 			if(refreshView){
@@ -216,9 +204,6 @@ function toggleBlinds(to){
 	$.ajax({
 		url: '/blinds?set=' + to,
 		type: 'POST',
-		beforeSend: function (xhr) {
-		    xhr.setRequestHeader ("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-		},
 		success: function(response) {
 			toastr["success"](response);
 		},
@@ -274,7 +259,7 @@ $(document).on('click','.modal',function(){
 function newui() {
 	if (confirm('Do you want to switch to the new UI? Many features are avilable there that are not in this old UI.')) {
 		Cookies.set('beta', "True", { expires: 365 });
-		window.location.replace("/beta/");
+		window.location.replace("/");
 	}
 }
 
@@ -286,6 +271,6 @@ function promptBeta() {
 	}
 
 	if (Cookies.get("beta") == "True") {
-        window.location.replace("/beta/");
+        window.location.replace("/");
 	}
 }

@@ -12,11 +12,13 @@ var basicAuth = require('express-basic-auth');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var app = express();
-app.use(express.static(__dirname + '/'));
 
 // User Authentication
 app.use(basicAuth({
-    users: { 'testuser': 'testpassword' }
+    users: { 'testuser': 'testpassword' },
+    challenge: true,
+    realm: 'User Level 2 Realm',
+    unauthorizedResponse: 'Unauthorized. Make sure your browser supports BASIC authentication. \n Mock Server Login \n Username: testuser \n Password: testpassword'
 }));
 
 //////////////////////
@@ -41,10 +43,10 @@ try {
 
 
 // Read Previous History Data
-	var files = fs.readdirSync("./logs/");
+	var files = fs.readdirSync("./www/logs/");
 	files.sort(function(a, b) {
-	               return fs.statSync("./logs/" + a).mtime.getTime() - 
-	                      fs.statSync("./logs/" + b).mtime.getTime();
+	               return fs.statSync("./www/logs/" + a).mtime.getTime() - 
+	                      fs.statSync("./www/logs/" + b).mtime.getTime();
 	           });
 	var history = files.slice(Math.max(files.length - 10, 0));
 	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
@@ -183,6 +185,7 @@ console.log("Starting the server");
 fs.writeFile('data/configuration.json', JSON.stringify(ioPorts));
 
 // REST
+app.use(express.static(__dirname + '/www/'));
 app.get('/status', getStatus); 
 app.get('/lights', getLights); 
 app.post('/lights', toggleLightsReciever); 
