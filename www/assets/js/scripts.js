@@ -60,13 +60,6 @@ function updateStatus() {
             $("#numLightsOn").html("N/A");
             $("#blindsOpenClose").html("N/A");
             $("#doorOpenClose").html("N/A");
-
-            if (response.status == 401) {
-                $("#statusbar").html("NOT AUTHORIZED");
-                if (!(($("#myModal").data('bs.modal') || {}).isShown)) {
-                    toggleLogin();
-                }
-            }
         }
     });
 }
@@ -190,18 +183,6 @@ function loadingModal() {
     if (!(($("#myModal").data('bs.modal') || {}).isShown)) {
         $("#myModal").modal('show');
     }
-}
-
-// Toggles the login modal
-function toggleLogin() {
-    loadingModal();
-
-    body = '<div class="form-group"><label class="col-md-4 control-label" for="username">Username</label><div class="col-md-8"><input id="username" name="username" type="text" placeholder="" class="form-control input-md" required=""></div></div>';
-    body += '<div class="form-group"><label class="col-md-4 control-label" for="password">Password</label><div class="col-md-8"><input id="password" name="password" type="password" placeholder="" class="form-control input-md" required=""></div></div>';
-    body += '<button type="button" class="btn btn-default" onclick="storeLogin();">Login</button>';
-
-    $("#modal_title").text("Login");
-    $("#modal_content").html(body);
 }
 
 // Toggles the settings modal
@@ -350,14 +331,6 @@ function showPicture(filename, date) {
     $("#pic_modal_content").html("<img style='width: 100%' src='/logs/" + filename + "'>");
     $("#pic_modal_footer").html('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
     $("#picModal").modal('show');
-}
-
-// Stores the login information into cookies
-function storeLogin() {
-    Cookies.set('username', $("#username").val(), {expires: 365});
-    Cookies.set('password', $("#password").val(), {expires: 365});
-
-    $("#myModal").modal('hide');
 }
 
 // Logs the user out
