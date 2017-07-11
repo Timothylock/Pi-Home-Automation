@@ -37,7 +37,7 @@ PIGPIO
 .node_repl_history
 
 # Pictures/Logs directory
-logs
+www/logs
 data
 
 .idea
