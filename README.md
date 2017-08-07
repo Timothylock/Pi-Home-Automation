@@ -28,20 +28,22 @@ Setup
 
  7. Make sure nodejs is installed onto the pi and everything is updated. You can find a guide of installing nodejs onto your particular model on the internet.
  
- 8. Follow the guide [here](https://github.com/fivdi/pigpio) to install pigpio module for node
+ 8. Install sqlite `sudo apt-get install sqlite3`
+ 
+ 9. Follow the guide [here](https://github.com/fivdi/pigpio) to install pigpio module for node
 
- 9. install the node modules by running
+ 10. install the node modules by running
  ` npm install `
  
 
- 10. Run the configurator to tell the server which pins what sensors/relays are plugged into
+ 11. Run the configurator to tell the server which pins what sensors/relays are plugged into
  ` python configure.py `
 
- 11. You can now run the server
+ 12. You can now run the server
  ` node server.js `
  
 
- 12. You can connect to the server by entering your Pi's IP address into any web browser
+ 13. You can connect to the server by entering your Pi's IP address into any web browser
 
 **Starting with the Pi**
 You can set the server to start up along with the Pi. This is not a watchdog so if the server crashes, it will not be automatically restarted. Please check how to set up a watch dog on the internet. 
