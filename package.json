@@ -9,6 +9,7 @@
     "express-basic-auth": "^1.0.2",
     "fauxmojs": "^1.0.1",
     "node-schedule": "^1.2.3",
+    "sha1": "^1.1.1",
     "sqlite3": "^3.1.9"
   },
   "devDependencies": {},

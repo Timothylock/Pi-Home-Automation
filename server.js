@@ -10,14 +10,13 @@ var FauxMo = require('fauxmojs');
 var fs = require('fs');
 var app = express();
 var sqlite3 = require('sqlite3').verbose();
+var sha1 = require('sha1');
 
 // User Authentication
-app.use(basicAuth({
-    users: { 'admin': 'supersecret' },
-    challenge: true,
-    realm: 'User Level 1 Realm',
-    unauthorizedResponse: 'Unauthorized. Make sure your browser supports BASIC authentication.'
-}));
+app.use(basicAuth( { authorizer: autenticateUser,
+						authorizeAsync: true,
+					    challenge: true,
+                        realm: 'Level 1+ access required' } ))
 
 var Gpio = require('pigpio').Gpio;
 
@@ -39,7 +38,7 @@ var ioObjects = {};
 try {
   ioPorts = JSON.parse(fs.readFileSync('data/configuration.json'));
 } catch (err) {
-	console.log("\n\n\n\n==================\n=          ERROR          =\n==================\n\n");
+	console.log("\n\n\n\n==================\n=       ERROR       =\n==================\n\n");
 	console.log("Configuration file was NOT found. This must be generated before this server starts.");
 	console.log("Please run \"sudo python configure.py\" to generate the file first!");
 	process.exit(-1);
@@ -374,7 +373,23 @@ function retrieveHistory(callback) {
     });
 }
 
+function autenticateUser(username, password, callback) {
+	db.get("SELECT password FROM Users WHERE username = \"" + username + "\"", function(err, row) {
+		try{
+			if (err || !("password" in row)) {
+				callback(null, false);
+			}
 
+			console.log(row)
+
+			console.log(row.password == sha1(password))
+			callback(null, row.password == sha1(password));
+		} catch(err) {
+			callback(null, false);
+		}
+		
+    });
+}
 
 
 
