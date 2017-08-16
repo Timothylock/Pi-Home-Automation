@@ -238,18 +238,6 @@ function shutdownReciever(req, res){
 	}
 }
 
-// Clear Cache Reciever
-function clearCacheReciever(req, res){
-	var files = fs.readdirSync("./www/logs/");
-	files.sort(function(a, b) {
-	               return fs.statSync("./www/logs/" + a).mtime.getTime() - 
-	                      fs.statSync("./www/logs/" + b).mtime.getTime();
-	           });
-	history = files.slice(Math.max(files.length - 10, 0));
-	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
-	res.send("success");
-}
-
 // Toggle the lights
 function toggleLights(onoff, id) {
 	var i;
@@ -404,7 +392,6 @@ app.post('/blinds', toggleBlindsReciever);
 app.get('/log', getHistory);
 app.get('/admin/timer', getTimer);
 app.post('/admin/shutdown', shutdownReciever);
-app.post('/admin/clear/cache', clearCacheReciever);
 
 // Express start listening
 app.listen(process.env.PORT || 80);
