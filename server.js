@@ -9,20 +9,23 @@ var bodyParser = require('body-parser');
 var FauxMo = require('fauxmojs');
 var fs = require('fs');
 var app = express();
+var sqlite3 = require('sqlite3').verbose();
+var sha1 = require('sha1');
 
 // User Authentication
-app.use(basicAuth({
-    users: { 'admin': 'supersecret' },
-    challenge: true,
-    realm: 'User Level 1 Realm',
-    unauthorizedResponse: 'Unauthorized. Make sure your browser supports BASIC authentication.'
-}));
+app.use(basicAuth( { authorizer: autenticateUser,
+						authorizeAsync: true,
+					    challenge: true,
+                        realm: 'Level 1+ access required',
+					    unauthorizedResponse: 'Unauthorized.' } ))
 
 var Gpio = require('pigpio').Gpio;
 
+//////////////////////
+// DB Connection
+//////////////////////
 
-
-
+var db = new sqlite3.Database('data/home_monitor.db');
 
 //////////////////////
 // Read data files
@@ -36,7 +39,7 @@ var ioObjects = {};
 try {
   ioPorts = JSON.parse(fs.readFileSync('data/configuration.json'));
 } catch (err) {
-	console.log("\n\n\n\n==================\n=          ERROR          =\n==================\n\n");
+	console.log("\n\n\n\n==================\n=       ERROR       =\n==================\n\n");
 	console.log("Configuration file was NOT found. This must be generated before this server starts.");
 	console.log("Please run \"sudo python configure.py\" to generate the file first!");
 	process.exit(-1);
@@ -50,24 +53,6 @@ try {
 	console.log("No previous status file found. Generating new one");
 	var status = {"blindsMotion" : 0, "blindsStatus" : 0, "door" : 0, "motion" : 0, "lights" : [], "numLightsOn" : 0};
 }
-
-// Read Previous History Data
-try {
-	var history = JSON.parse(fs.readFileSync('data/latestHistory.json'));
-} catch (err) {
-	console.log("No history file found. Generating new one. This may take a while depending on the number of files in ./www/logs");
-	var files = fs.readdirSync("./www/logs/");
-	files.sort(function(a, b) {
-	               return fs.statSync("./www/logs/" + a).mtime.getTime() - 
-	                      fs.statSync("./www/logs/" + b).mtime.getTime();
-	           });
-	var history = files.slice(Math.max(files.length - 10, 0));
-	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
-}
-
-
-
-
 
 
 
@@ -95,7 +80,7 @@ for (var key in ioPorts["outletlights"]){
 			port : wemoPort,
 			handler: (action) => {
 				if (toggleLights(action, pin) == "Success") {
-					addLog("light " + action, pin + " triggered from Alexa", {}); // TODO: Hydrate the id with name
+					addLog(2, "light " + action, pin + " triggered from Alexa", {}); // TODO: Hydrate the id with name
 				}
 			}
 		});
@@ -120,7 +105,7 @@ wemoFakes.push({
 			action = "1";
 		}
 		if (toggleBlinds(action) == "Success") {
-			addLog("opening curtains", "triggered from Alexa", {});
+			addLog(2, "opening curtains", "triggered from Alexa", {});
 		}
 	}
 });
@@ -166,13 +151,12 @@ ioObjects["doorSensor"].on('interrupt', function (level) {
   
   if (level == 1){
   	var timestamp = (new Date).getTime();
-  	addLog("door opened", "www/logs/" + timestamp + ".jpg", {});
+  	addLog(1, "door opened", "www/logs/" + timestamp + ".jpg", {});
   	
   	// Take picture if the door is open
 	exec("fswebcam -r 1280x960 www/logs/" + timestamp + ".jpg", puts);
-	writeHistory(timestamp)
   }else{
-  	addLog("door closed", "", {});
+  	addLog(1, "door closed", "", {});
   }
 });
 
@@ -212,19 +196,21 @@ function getLights(req, res){ // Get the current status of the lights
 }
 
 function getHistory(req, res){ // Get the last 10 pictures
-    res.send(history);
-    addLog("history view", "", {'req':req});
+	retrieveHistory(function(history) {
+		res.send(history);
+		addLog(0, "history view", "", {'req':req}); // TODO: Lookup userID
+	});
 }
 
 function getTimer(req, res){ // Get the timer
     res.send(history);
-    addLog("history view", "", {'req':req});
+    addLog("0, history view", "", {'req':req}); // TODO: Lookup userID
 }
 
 // Helper Functions
 function toggleLightsReciever(req, res){
 	toggleLights(req.query.onoff, req.query.id);
-	addLog("light " + req.query.onoff, req.query.id, {'req':req}); // TODO: Hydrate the id with name
+	addLog(0, "light " + req.query.onoff, req.query.id, {'req':req}); // TODO: Hydrate the id with name
 	res.send("Success\n");
 }
 
@@ -232,9 +218,9 @@ function toggleLightsReciever(req, res){
 function toggleBlindsReciever(req, res){
 	var result = toggleBlinds(req.query.set);
 	if (result == "Success" && req.query.set == "1") {
-		addLog("opening curtains", "", {'req':req});
+		addLog(0, "opening curtains", "", {'req':req}); // TODO: Lookup userID
 	} else if (result == "Success" && req.query.set == "0") {
-		addLog("closing curtains", "", {'req':req});
+		addLog(0, "closing curtains", "", {'req':req}); // TODO: Lookup userID
 	}
 	res.send(result)
 }
@@ -243,25 +229,13 @@ function toggleBlindsReciever(req, res){
 function shutdownReciever(req, res){
 	if (res.query.pw == "pass") {
         res.send("success");
-        addLog(res.query.op + " initiated", "SUCCESS", {'req':req});
+        addLog(0, res.query.op + " initiated", "SUCCESS", {'req':req}); // TODO: Lookup userID
         shutdownHandler(req.query.op);
 	} else {
         res.status(403);
         res.send("Incorrect administrator secret");
-        addLog(res.query.op + " attempted", "UNAUTHENTICATED", {'req':req});
+        addLog(0, res.query.op + " attempted", "UNAUTHENTICATED", {'req':req}); // TODO: Lookup userID
 	}
-}
-
-// Clear Cache Reciever
-function clearCacheReciever(req, res){
-	var files = fs.readdirSync("./www/logs/");
-	files.sort(function(a, b) {
-	               return fs.statSync("./www/logs/" + a).mtime.getTime() - 
-	                      fs.statSync("./www/logs/" + b).mtime.getTime();
-	           });
-	history = files.slice(Math.max(files.length - 10, 0));
-	history.splice(history.indexOf("log.csv"), 1); // Ensure the the log csv does not get included in the history
-	res.send("success");
 }
 
 // Toggle the lights
@@ -304,7 +278,7 @@ function toggleBlinds(openclose) {
 				ioObjects["blinds"]["open"].digitalWrite(0);
 				status["blindsStatus"] = 1;
 				status["blindsMotion"] = 1;
-				setTimeout(stopBlinds, 9200);
+				setTimeout(stopBlinds, 9900);
 				writeStatus();
 				return("Success");
 			}	
@@ -315,7 +289,7 @@ function toggleBlinds(openclose) {
 				ioObjects["blinds"]["close"].digitalWrite(0);
 				status["blindsStatus"] = 0;
 				status["blindsMotion"] = 1;
-				setTimeout(stopBlinds, 9200);
+				setTimeout(stopBlinds, 9100);
 				writeStatus();
 				return("Success");
 			}	
@@ -342,17 +316,18 @@ function shutdownHandler(op) {
 }
 
 // Add a specific data to the log (for remote connections)
-function addLog(action, details, opt){
-    var ip, ua;
-    if ('req' in opt){
+function addLog(userid, action, details, opt){
+	var ip, ua;
+	if ('req' in opt){
 		ip = opt['req'].headers['x-forwarded-for'] || opt['req'].connection.remoteAddress;
 		ua = opt['req'].headers['user-agent'];
 	}else{
 		ip = "::ffff:127.0.0.1";
 		ua = "localhost";
 	}
-	fs.appendFile('www/logs/log.csv', new Date() + ',' + action + ',' + details + "," + ip + "," + ua.replace(/,/g , "---") + "\n", function (err) {
-	  if (err) throw err;
+
+	db.serialize(function() {
+		db.run("INSERT INTO Log (userid, type, details, origin) VALUES (" + userid + ",\"" + action + "\",\"" + details + "\",\"" + ip + ua.replace(/,/g , "---") + "\")");
 	});
 }
 
@@ -366,19 +341,36 @@ function writeStatus(){
 	fs.writeFile('data/status.json', JSON.stringify(status), 'utf8', function (err, data){});
 }
 
-// Update the latest history and write it to file
-function writeHistory(name){
-	if (history.length == 10){
-		history.shift()
-	}
-	history.push(name + ".jpg");
-	fs.writeFile('data/latestHistory.json', JSON.stringify(history), 'utf8', function (err, data){});
-}
-
 // Shell Functions
 function puts(error, stdout, stderr) { sys.puts(stdout) }
 
+function retrieveHistory(callback) {
+    db.all("SELECT type, details FROM (SELECT type, details FROM 'Log' ORDER BY timestamp DESC) WHERE type like '%door opened%' AND type != '' LIMIT 10", function(err, rows) {
+		var history = [];
+		var d = [];
 
+		rows.forEach(function (row) {
+			try{
+				d = row.details.split("/");
+				history.push(d[d.length - 1]);
+			} catch(err) {
+				console.log(err);
+			}
+		});
+		callback(history);
+    });
+}
+
+function autenticateUser(username, password, callback) {
+	db.get("SELECT password FROM Users WHERE username = \"" + username + "\"", function(err, row) {
+		try{
+			callback(null, row.password == sha1(password));
+		} catch(err) {
+			callback(null, false);
+		}
+		
+    });
+}
 
 
 
@@ -400,7 +392,6 @@ app.post('/blinds', toggleBlindsReciever);
 app.get('/log', getHistory);
 app.get('/admin/timer', getTimer);
 app.post('/admin/shutdown', shutdownReciever);
-app.post('/admin/clear/cache', clearCacheReciever);
 
 // Express start listening
 app.listen(process.env.PORT || 80);
@@ -409,11 +400,11 @@ console.log('Listening on port 80');
 // Add Logs
 try {
 	var data = JSON.parse(fs.readFileSync('data/lastonline.json'));
-	addLog("Server Unexpected Shutdown Detected", data, {});
+	addLog(1, "Server Unexpected Shutdown Detected", data, {});
 } catch (err) {
 	console.log("No previous online log file found. Ignoring");
 }
-addLog("Server Starting", "", {});
+addLog(1, "Server Starting", "", {});
 
 // Fake WeMo emulation
 var fauxMo = new FauxMo(

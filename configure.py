@@ -21,6 +21,32 @@ def getPin(msg):
             clear()
             print("Cannot understand that input. Enter an integer")
 
+#==============================================
+# Import DB
+import sqlite3
+
+DB_NAME = "data/home_monitor.db"
+SQL_File_Name = "data/tables.sql"
+
+#Read Table Schema into a Variable and remove all New Line Chars
+TableSchema=""
+with open(SQL_File_Name, 'r') as SchemaFile:
+ TableSchema=SchemaFile.read().replace('\n', '')
+
+#Connect or Create DB File
+conn = sqlite3.connect(DB_NAME)
+curs = conn.cursor()
+
+#Create Tables
+sqlite3.complete_statement(TableSchema)
+curs.executescript(TableSchema)
+
+#Close DB
+curs.close()
+conn.close()
+
+#==============================================
+
 conf = {}
 
 # Configure door sensor

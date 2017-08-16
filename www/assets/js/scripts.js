@@ -158,25 +158,6 @@ function shutdownReboot(op) {
     }
 }
 
-// Sends a POST request to regenerate the cache of the server
-function regenerateCache() {
-    if (confirm('Do you really want to regenerate the cache? This is a resource intensive operation and will take a while')) {
-        $.ajax({
-            url: '/admin/clear/cache',
-            type: 'POST',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
-            },
-            success: function (response) {
-                alert("The cache has been regenerated")
-            },
-            error: function (response) {
-                alert('Operation failed!');
-            }
-        });
-    }
-}
-
 function loadingModal() {
     $("#modal_title").text("Loading");
     $("#modal_content").html("Please wait...");
@@ -201,7 +182,6 @@ function toggleSettings() {
     insert += "<ul style='width:90%; list-style-type:none;'>";
     insert += "<li class='list-group-item' onclick='shutdownReboot(\"reboot\")'>Reboot the server</li>";
     insert += "<li class='list-group-item' onclick='shutdownReboot(\"shutdown\")'>Shutdown the server</li>";
-    insert += "<li class='list-group-item' onclick='regenerateCache()'>Regenerate Cache</li>";
     insert += "</ul>";
 
     insert += "<h5 class='text-center'>User Account</h5>";
