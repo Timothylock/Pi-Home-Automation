@@ -16,7 +16,8 @@ var sha1 = require('sha1');
 app.use(basicAuth( { authorizer: autenticateUser,
 						authorizeAsync: true,
 					    challenge: true,
-                        realm: 'Level 1+ access required' } ))
+                        realm: 'Level 1+ access required',
+					    unauthorizedResponse: 'Unauthorized.' } ))
 
 var Gpio = require('pigpio').Gpio;
 
@@ -328,8 +329,7 @@ function shutdownHandler(op) {
 
 // Add a specific data to the log (for remote connections)
 function addLog(userid, action, details, opt){
-	var ip;
-	var ua; 
+	var ip, ua;
 	if ('req' in opt){
 		ip = opt['req'].headers['x-forwarded-for'] || opt['req'].connection.remoteAddress;
 		ua = opt['req'].headers['user-agent'];
@@ -376,13 +376,6 @@ function retrieveHistory(callback) {
 function autenticateUser(username, password, callback) {
 	db.get("SELECT password FROM Users WHERE username = \"" + username + "\"", function(err, row) {
 		try{
-			if (err || !("password" in row)) {
-				callback(null, false);
-			}
-
-			console.log(row)
-
-			console.log(row.password == sha1(password))
 			callback(null, row.password == sha1(password));
 		} catch(err) {
 			callback(null, false);
