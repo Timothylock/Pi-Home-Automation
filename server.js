@@ -19,9 +19,13 @@ app.use(basicAuth( { authorizer: autenticateUser,
                         realm: 'Level 1+ access required',
 					    unauthorizedResponse: 'Unauthorized.' } ))
 
-var Gpio = process.env.NODE_ENV !== "production" ? 
-    require("pigpio-mock").Gpio : 
-    require("pigpio").Gpio;
+if (process.env.NODE_ENV === "production") {
+	var Gpio = require("pigpio").Gpio;
+    process.env.PORT = 80;
+} else {
+	var Gpio = require("pigpio-mock").Gpio;
+    process.env.PORT = 8080;
+}
 
 //////////////////////
 // DB Connection
@@ -43,7 +47,7 @@ try {
 } catch (err) {
 	console.log("\n\n\n\n==================\n=       ERROR       =\n==================\n\n");
 	console.log("Configuration file was NOT found. This must be generated before this server starts.");
-	console.log("Please run \"sudo python configure.py\" to generate the file first!");
+	console.log("Please run \"python configure.py\" to generate the file first!");
 	process.exit(-1);
 }
 
@@ -398,8 +402,8 @@ app.get('/admin/timer', getTimer);
 app.post('/admin/shutdown', shutdownReciever);
 
 // Express start listening
-app.listen(process.env.PORT || 80);
-console.log('Listening on port 80');
+app.listen(process.env.PORT);
+console.log('Listening on port ' + process.env.PORT);
 
 // Add Logs
 try {
