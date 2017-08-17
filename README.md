@@ -39,11 +39,21 @@ Setup
  11. Run the configurator to tell the server which pins what sensors/relays are plugged into
  ` python configure.py `
 
- 12. You can now run the server
- ` node server.js `
- 
+ 12. If you are developing locally, skip this step. If this is running on the Pi, create an environmental variable called NODE_ENV and name it `production`
 
- 13. You can connect to the server by entering your Pi's IP address into any web browser
+ ``` 
+ sudo nano /etc/rc.local 
+ ```
+ ``` 
+ NODE_ENV=production
+export $NODE_ENV 
+```
+into etc/rc.local (refer below)
+
+ 13. You can now run the server
+ ` node server.js `
+
+ 14. You can connect to the server by entering your Pi's IP address into any web browser
 
 **Starting with the Pi**
 You can set the server to start up along with the Pi. This is not a watchdog so if the server crashes, it will not be automatically restarted. Please check how to set up a watch dog on the internet. 

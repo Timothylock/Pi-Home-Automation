@@ -19,7 +19,13 @@ app.use(basicAuth( { authorizer: autenticateUser,
                         realm: 'Level 1+ access required',
 					    unauthorizedResponse: 'Unauthorized.' } ))
 
-var Gpio = require('pigpio').Gpio;
+if (process.env.NODE_ENV === "production") {
+	var Gpio = require("pigpio").Gpio;
+    process.env.PORT = 80;
+} else {
+	var Gpio = require("pigpio-mock").Gpio;
+    process.env.PORT = 8080;
+}
 
 //////////////////////
 // DB Connection
@@ -41,7 +47,7 @@ try {
 } catch (err) {
 	console.log("\n\n\n\n==================\n=       ERROR       =\n==================\n\n");
 	console.log("Configuration file was NOT found. This must be generated before this server starts.");
-	console.log("Please run \"sudo python configure.py\" to generate the file first!");
+	console.log("Please run \"python configure.py\" to generate the file first!");
 	process.exit(-1);
 }
 
@@ -137,32 +143,34 @@ ioObjects["blinds"]["close"].digitalWrite(1);
 //////////////////////
 console.log("Loading server functions");
 
-// Handle any interrupts on the sensors
-ioObjects["doorSensor"].on('interrupt', function (level) {
-  status["door"] = level;
-  // Also trigger hallway lights 
-  ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
+if (process.env.NODE_ENV === "production") {
+	// Handle any interrupts on the sensors
+	ioObjects["doorSensor"].on('interrupt', function (level) {
+	status["door"] = level;
+	// Also trigger hallway lights 
+	ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
 
-  if(Math.abs(level-1) == 1){  // TODO: Figure out why there are more "on"s then off before adding light counter code
-  	status["lights"][1]["status"] = "on";
-  }else{
-  	status["lights"][1]["status"] = "off";
-  }
-  
-  if (level == 1){
-  	var timestamp = (new Date).getTime();
-  	addLog(1, "door opened", "www/logs/" + timestamp + ".jpg", {});
-  	
-  	// Take picture if the door is open
-	exec("fswebcam -r 1280x960 www/logs/" + timestamp + ".jpg", puts);
-  }else{
-  	addLog(1, "door closed", "", {});
-  }
-});
+	if(Math.abs(level-1) == 1){  // TODO: Figure out why there are more "on"s then off before adding light counter code
+		status["lights"][1]["status"] = "on";
+	}else{
+		status["lights"][1]["status"] = "off";
+	}
+	
+	if (level == 1){
+		var timestamp = (new Date).getTime();
+		addLog(1, "door opened", "www/logs/" + timestamp + ".jpg", {});
+		
+		// Take picture if the door is open
+		exec("fswebcam -r 1280x960 www/logs/" + timestamp + ".jpg", puts);
+	}else{
+		addLog(1, "door closed", "", {});
+	}
+	});
 
-ioObjects["pirSensor"].on('interrupt', function (level) {
-	status["motion"] = level;
-});
+	ioObjects["pirSensor"].on('interrupt', function (level) {
+		status["motion"] = level;
+	});
+}
 
 
 
@@ -394,8 +402,8 @@ app.get('/admin/timer', getTimer);
 app.post('/admin/shutdown', shutdownReciever);
 
 // Express start listening
-app.listen(process.env.PORT || 80);
-console.log('Listening on port 80');
+app.listen(process.env.PORT);
+console.log('Listening on port ' + process.env.PORT);
 
 // Add Logs
 try {
