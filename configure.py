@@ -1,4 +1,5 @@
 import json
+import hashlib
 import os
 
 def clear():
@@ -40,6 +41,14 @@ curs = conn.cursor()
 #Create Tables
 sqlite3.complete_statement(TableSchema)
 curs.executescript(TableSchema)
+
+#Add admin user
+print("= Database setup =\nPlease enter the details of the admin account that will be created")
+uname = raw_input('Enter a username: ')")
+pword = raw_input('Enter a password: ')")
+hash_object = hashlib.sha1(pword)
+hex_dig = hash_object.hexdigest()
+c.execute("INSERT INTO Users (userid, username, password, real_name, access_level) VALUES (2, " + uname + ", " + hex_dig + ", "Admin", 99)")
 
 #Close DB
 curs.close()

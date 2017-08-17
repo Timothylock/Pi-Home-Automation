@@ -19,7 +19,9 @@ app.use(basicAuth( { authorizer: autenticateUser,
                         realm: 'Level 1+ access required',
 					    unauthorizedResponse: 'Unauthorized.' } ))
 
-var Gpio = require('pigpio').Gpio;
+var Gpio = process.env.NODE_ENV !== "production" ? 
+    require("pigpio-mock").Gpio : 
+    require("pigpio").Gpio;
 
 //////////////////////
 // DB Connection
@@ -137,32 +139,34 @@ ioObjects["blinds"]["close"].digitalWrite(1);
 //////////////////////
 console.log("Loading server functions");
 
-// Handle any interrupts on the sensors
-ioObjects["doorSensor"].on('interrupt', function (level) {
-  status["door"] = level;
-  // Also trigger hallway lights 
-  ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
+if (process.env.NODE_ENV === "production") {
+	// Handle any interrupts on the sensors
+	ioObjects["doorSensor"].on('interrupt', function (level) {
+	status["door"] = level;
+	// Also trigger hallway lights 
+	ioObjects["outletlights"][ioPorts["outletlights"]["Hallway Floor Lights"]].digitalWrite(Math.abs(level-1));
 
-  if(Math.abs(level-1) == 1){  // TODO: Figure out why there are more "on"s then off before adding light counter code
-  	status["lights"][1]["status"] = "on";
-  }else{
-  	status["lights"][1]["status"] = "off";
-  }
-  
-  if (level == 1){
-  	var timestamp = (new Date).getTime();
-  	addLog(1, "door opened", "www/logs/" + timestamp + ".jpg", {});
-  	
-  	// Take picture if the door is open
-	exec("fswebcam -r 1280x960 www/logs/" + timestamp + ".jpg", puts);
-  }else{
-  	addLog(1, "door closed", "", {});
-  }
-});
+	if(Math.abs(level-1) == 1){  // TODO: Figure out why there are more "on"s then off before adding light counter code
+		status["lights"][1]["status"] = "on";
+	}else{
+		status["lights"][1]["status"] = "off";
+	}
+	
+	if (level == 1){
+		var timestamp = (new Date).getTime();
+		addLog(1, "door opened", "www/logs/" + timestamp + ".jpg", {});
+		
+		// Take picture if the door is open
+		exec("fswebcam -r 1280x960 www/logs/" + timestamp + ".jpg", puts);
+	}else{
+		addLog(1, "door closed", "", {});
+	}
+	});
 
-ioObjects["pirSensor"].on('interrupt', function (level) {
-	status["motion"] = level;
-});
+	ioObjects["pirSensor"].on('interrupt', function (level) {
+		status["motion"] = level;
+	});
+}
 
 
 
