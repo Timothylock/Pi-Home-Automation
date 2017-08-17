@@ -39,16 +39,7 @@ Setup
  11. Run the configurator to tell the server which pins what sensors/relays are plugged into
  ` python configure.py `
 
- 12. If you are developing locally, skip this step. If this is running on the Pi, create an environmental variable called NODE_ENV and name it `production`
-
- ``` 
- sudo nano /etc/rc.local 
- ```
- ``` 
- NODE_ENV=production
-export $NODE_ENV 
-```
-into etc/rc.local (refer below)
+ 12. If you are developing locally, skip this step. If this is running on the Pi, create an environmental variable called NODE_ENV and name it `production` into etc/rc.local (refer below)
 
  13. You can now run the server
  ` node server.js `
@@ -65,7 +56,7 @@ To start up with Pi, type
 and add
 
     cd /home/pi/Tim-Pi-Home-Monitoring/
-    node server.js &
+    NODE_ENV=production node server.js &
 
 replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup.
 
