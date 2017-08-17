@@ -393,6 +393,7 @@ fs.writeFile('data/configuration.json', JSON.stringify(ioPorts));
 
 // REST
 app.use(express.static(__dirname + '/www/'));
+app.use('/admin/db', express.static(__dirname + '/data/'));
 app.get('/status', getStatus); 
 app.get('/lights', getLights); 
 app.post('/lights', toggleLightsReciever);
