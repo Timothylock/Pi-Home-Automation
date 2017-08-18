@@ -1,6 +1,6 @@
 function updateStatus() {
     $.ajax({
-        url: '/status',
+        url: '/api/status',
         type: 'GET',
         success: function (response) {
             var door = response["door"];
@@ -104,7 +104,7 @@ function getWeather() {
 function toggleBlinds(to) {
     console.log("TOGGLE BLINDS");
     $.ajax({
-        url: '/blinds?set=' + to,
+        url: '/api/blinds?set=' + to,
         type: 'POST',
         success: function (response) {
             // Notify
@@ -118,7 +118,7 @@ function toggleBlinds(to) {
 // Sends a POST request to toggle lights
 function toggleLight(id, to, refreshView) {
     $.ajax({
-        url: '/lights?id=' + id + '&onoff=' + to,
+        url: '/api/lights?id=' + id + '&onoff=' + to,
         type: 'POST',
         success: function (response) {
             if (refreshView) {
@@ -139,7 +139,7 @@ function shutdownReboot(op) {
         var pw = window.prompt("This is a privileged action. Please enter administrator secret.", "");
 
         $.ajax({
-            url: '/admin/shutdown?op=' + op + '&pw=' + pw,
+            url: '/api/admin/shutdown?op=' + op + '&pw=' + pw,
             type: 'POST',
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Basic " + btoa(Cookies.get('username') + ":" + Cookies.get('password')));
@@ -250,7 +250,7 @@ function togglelightview() {
 
     // Get lights / statuses and update modal
     $.ajax({
-        url: '/lights',
+        url: '/api/lights',
         type: 'GET',
         success: function (response) {
             var insert = "<ul style='width:90%; list-style-type:none;'>";
@@ -281,7 +281,7 @@ function togglehistoryview() {
 
     // Get lights / statuses and update modal
     $.ajax({
-        url: '/log',
+        url: '/api/log',
         type: 'GET',
         success: function (response) {
             var insert = "<ul class='list-group'>";
@@ -318,7 +318,7 @@ function logout() {
     if (confirm('Do you want to log out?')) {
         $.ajax({
             type: "GET",
-            url: "/status",
+            url: "/api/status",
             async: false,
             username: "logout",
             password: "invalidp@ss",
