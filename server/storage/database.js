@@ -3,6 +3,7 @@
  */
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('data/home_monitor.db');
+var sha1 = require('sha1');
 
 module.exports = {
     // retrieveHistory returns a list of image file names for the last 10 door events
