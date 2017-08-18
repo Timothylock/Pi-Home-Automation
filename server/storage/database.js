@@ -11,7 +11,6 @@ module.exports = {
         db.all("SELECT type, details FROM (SELECT type, details FROM 'Log' ORDER BY timestamp DESC) WHERE type like '%door opened%' AND type != '' LIMIT 10", function (err, rows) {
             var history = [];
             var d = [];
-
             rows.forEach(function (row) {
                 try {
                     d = row.details.split("/");
@@ -43,6 +42,10 @@ module.exports = {
     // authenticateUser retrieves the password of a user
     authenticateUser: function (username, password, callback) {
         db.get("SELECT password FROM Users WHERE username = \"" + username + "\"", function (err, row) {
+            if (err !== null) {
+                callback(err, false);
+            }
+
             try {
                 callback(null, row.password === sha1(password));
             } catch (err) {
