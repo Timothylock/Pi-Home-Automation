@@ -1,4 +1,4 @@
-Tim Pi Home Monitoring ![alt_text](https://travis-ci.org/Timothylock/Tim-Pi-Home-Monitoring.svg?branch=master "Travis")
+Tim Pi Home Monitoring ![alt_text](https://travis-ci.org/Timothylock/Tim-Pi-Home-Monitoring.svg?branch=master "Travis") [![Coverage Status](https://coveralls.io/repos/github/Timothylock/Tim-Pi-Home-Monitoring/badge.svg?branch=master)](https://coveralls.io/github/Timothylock/Tim-Pi-Home-Monitoring?branch=master)
 ===================
 
 A DIY home monitoring system made of the Raspberry Pi. It currently has the ability to control lights, outlets, and blinds. 
