@@ -26,12 +26,10 @@ describe('database', function () {
         database.authenticateUser(uname, password + "wrong", function (err, result) {
             if (err !== null) {
                 done(err);
+            } else if (result === false) {
+                done();
             } else {
-                if (result === false) {
-                    done();
-                } else {
-                    done(new Error("Expected false but got " + result));
-                }
+                done(new Error("Expected false but got " + result));
             }
         });
     });
@@ -40,13 +38,12 @@ describe('database', function () {
             database.authenticateUser(uname, password, function (err, result) {
                 if (err !== null) {
                     done(err);
+                } else if (result === true) {
+                    done();
                 } else {
-                    if (result === true) {
-                        done();
-                    } else {
-                        done(new Error("Expected true but got " + result));
-                    }
+                    done(new Error("Expected true but got " + result));
                 }
+
             });
         });
 
@@ -54,13 +51,11 @@ describe('database', function () {
         db.get("SELECT userid, type, details FROM Log WHERE userid=1 AND type=\"testevent\" AND details=\"testdetails\"", function (err, row) {
             if (err !== null) {
                 done(err);
+            } else if (JSON.stringify(row) === "{\"userid\":1,\"type\":\"testevent\",\"details\":\"testdetails\"}") {
+                done();
             } else {
-                if (JSON.stringify(row) === "{\"userid\":1,\"type\":\"testevent\",\"details\":\"testdetails\"}") {
-                    done();
-                } else {
-                    done(new Error("Expected {\"userid\":1,\"type\":\"testevent\",\"details\":\"testdetails\"} but got " + JSON.stringify(row)))
-                }
-                }
+                done(new Error("Expected {\"userid\":1,\"type\":\"testevent\",\"details\":\"testdetails\"} but got " + JSON.stringify(row)))
+            }
             });
         });
 

@@ -42,7 +42,7 @@ module.exports = {
         for (var key in ioPorts["outletlights"]) {
             (function (key) {
                 var pin = ioPorts["outletlights"][key];
-                ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT})
+                ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT});
                 ioObjects["outletlights"][pin].digitalWrite(1); // Off
                 status["lights"].push({"name": key, "id": pin, "status": "off"});
 
