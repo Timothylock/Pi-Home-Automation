@@ -42,7 +42,7 @@ Setup
  12. If you are developing locally, skip this step. If this is running on the Pi, create an environmental variable called NODE_ENV and name it `production` into etc/rc.local (refer below)
 
  13. You can now run the server
- ` node server.js `
+ ` node server.js ` if you are running on your local dev environment. ` NODE_ENV=production server.js ` if you are running on your pi (as production will have the real pigpio module load while anything else will have the mock one load up). 
 
  14. You can connect to the server by entering your Pi's IP address into any web browser
 
@@ -59,6 +59,14 @@ and add
     NODE_ENV=production node server.js &
 
 replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup.
+
+Testing
+-------------
+To run tests, run
+
+    make test
+
+ It will run all of the mocha tests as well as provide you with code covereage. It will automatically back up your database before replacing it with the test database and restore it after the test. In the future, I hope to replace the hard-coded test db with a dynamically generated one from configure.py.
 
 
 Not-so-frequent FAQ
