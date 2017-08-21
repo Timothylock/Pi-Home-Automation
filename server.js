@@ -13,13 +13,13 @@ var init = require('./server/init/init');
 var interrupts = require('./server/init/sensorInterrupts');
 
 // User Authentication
-/*app.use(basicAuth({
- authorizer: authentication.autenticateUser,
+app.use(basicAuth({
+ authorizer: authentication.authenticateUser,
  authorizeAsync: true,
  challenge: true,
- realm: 'Level 1+ access required',
- unauthorizedResponse: 'Unauthorized.'
- }))*/
+    realm: 'PiHomeMonitoringSystem',
+    unauthorizedResponse: 'Unauthorized. Please ensure your browser supports BASIC authentication and the username/password is correct'
+}));
 
 if (process.env.NODE_ENV === "production") {
     var Gpio = require("pigpio").Gpio;

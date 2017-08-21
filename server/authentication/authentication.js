@@ -4,7 +4,7 @@
 var database = require('../storage/database');
 
 module.exports = {
-    autenticateUser: function (username, password, callback) {
+    authenticateUser: function (username, password, callback) {
         database.authenticateUser(username, password, callback);
     }
 };

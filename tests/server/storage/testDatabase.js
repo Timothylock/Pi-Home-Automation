@@ -10,21 +10,22 @@ var sha1 = require('sha1');
 var uname = "testinguser";
 var password = "testingpassword";
 
-// Setup the db
-database.addLog(1, "testevent", "testdetails", {});
-db.run("INSERT OR IGNORE INTO Users (userid, username, password, real_name, access_level) VALUES (99901, \"" + uname + "\", \"" + sha1(password) + "\", \"Testinguser\", 10)", function () {
-    db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
-        db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
-            db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
-                database.takePicture("somedir");
-                run();
+describe('database', function () {
+    // Set up the db
+    before(function (done) {
+        database.addLog(1, "testevent", "testdetails", {});
+        db.run("INSERT OR IGNORE INTO Users (userid, username, password, real_name, access_level) VALUES (99901, \"" + uname + "\", \"" + sha1(password) + "\", \"Testinguser\", 10)", function () {
+            db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
+                db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
+                    db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
+                        database.takePicture("somedir");
+                        done();
+                    });
+                });
             });
         });
     });
-});
 
-
-describe('database', function () {
     it("failure authentication", function (done) {
         database.authenticateUser(uname, password + "wrong", function (err, result) {
             if (err !== null) {

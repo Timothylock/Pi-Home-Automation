@@ -321,8 +321,8 @@ function logout() {
             url: "/api/status",
             async: false,
             username: "logout",
-            password: "invalidp@ss",
-            headers: { "Authorization": "Basic xxx" }
+            password: "invalidpss",
+            headers: {"Authorization": "Basic"}
         })
         .done(function(){
             alert("Could not log out!");
@@ -337,7 +337,7 @@ function logout() {
 
 // Adds a cookie to switch back to old UI
 function backToOldUI() {
-    if (confirm('Do you want to switch back to the old UI? While it will still work in the future, no new features will be added to it.')) {
+    if (confirm('Do you want to switch back to the old UI? While it will still work in the foreseeable future, no new features will be added to it.')) {
         Cookies.set('beta', "False", {expires: 365});
         window.location.replace("/legacy");
     }
