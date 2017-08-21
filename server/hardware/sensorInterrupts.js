@@ -5,7 +5,9 @@ var database = require('../storage/database');
 
 exports.setupInterrupts = function (app) {
     ioObjects = app.get("ioObjects");
+    ioPorts = app.get("ioPorts");
     status = app.get("status");
+
     if (process.env.NODE_ENV === "production") {
         // Handle any interrupts on the sensors
         ioObjects["doorSensor"].on('interrupt', function (level) {

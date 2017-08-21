@@ -112,6 +112,7 @@ module.exports = {
         ioObjects["blinds"]["close"].digitalWrite(1);
 
         app.set("ioObjects", ioObjects);
+        app.set("ioPorts", ioPorts);
 
         // Add Logs
         try {
