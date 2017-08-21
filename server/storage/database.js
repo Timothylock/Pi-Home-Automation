@@ -3,6 +3,7 @@
  */
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('data/home_monitor.db');
+var exec = require('child_process').exec;
 var sha1 = require('sha1');
 
 module.exports = {
@@ -52,5 +53,17 @@ module.exports = {
                 callback(null, false);
             }
         });
+    },
+
+    // takePicture takes a picture and stores it to the specified folder
+    takePicture: function (location) {
+        exec("fswebcam -r 1280x960 " + location, this.putsPictureError);
+    },
+
+    // putsPictureError adds and entry into the log
+    putsPictureError: function (error, stdout, stderr) {
+        module.exports.addLog(1, "Picture Error", error + " " + stderr, {});
     }
 };
+
+

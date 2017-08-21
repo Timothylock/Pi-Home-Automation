@@ -5,7 +5,7 @@ var chai = require('chai');
 var fileJSON = require('./../../../server/storage/fileJson');
 var fs = require('fs');
 
-describe('database', function () {
+describe('fileJson', function () {
     it("writing status to JSON file", function (done) {
         var testStatus = {
             "blindsMotion": 0,
