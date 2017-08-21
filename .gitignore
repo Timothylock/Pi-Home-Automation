@@ -38,7 +38,6 @@ PIGPIO
 
 # Pictures/Logs directory
 www/logs
-data
 
 .idea
 *.iml
@@ -46,3 +45,11 @@ data
 .idea/workspace.xml
 
 *.xml
+
+data/lastonline.json
+
+data/status.json
+
+data/home_monitor.db
+
+data/configuration.json
