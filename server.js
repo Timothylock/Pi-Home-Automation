@@ -1,19 +1,16 @@
 "use strict";
 console.log("Loading server / modules");
 
-var sys = require('util')
-
 var basicAuth = require('express-basic-auth');
 var express = require('express');
 var bodyParser = require('body-parser');
-var fs = require('fs');
 var app = express();
-var sha1 = require('sha1');
+
 var authentication = require('./server/authentication/authentication');
 var db = require('./server/storage/database');
 var apiroutes = require('./server/apiRoutes');
 var init = require('./server/init/init');
-var interrupts = require('./server/hardware/sensorInterrupts');
+var interrupts = require('./server/init/sensorInterrupts');
 
 // User Authentication
 /*app.use(basicAuth({
@@ -32,15 +29,12 @@ if (process.env.NODE_ENV === "production") {
     process.env.PORT = 8880;
 }
 
-// Read configs and set up gpio
-init.initialize(app, Gpio);
-
 //////////////////////
 // Sensor interrupts
 //////////////////////
 console.log("Loading server functions");
+init.initialize(app, Gpio);
 interrupts.setupInterrupts(app);
-
 
 
 //////////////////////
