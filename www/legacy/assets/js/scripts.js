@@ -41,7 +41,7 @@ function updateStatus() {
 	var blinds = 0;
 
 	$.ajax({
-		url: '/status',
+        url: '/api/status',
 		type: 'GET',
 		success: function(response) {
 			door = response["door"];
@@ -121,11 +121,11 @@ function togglelightview(){
 
 	// Get lights / statuses and update modal
 	$.ajax({
-		url: '/lights',
+        url: '/api/lights',
 		type: 'GET',
 		success: function(response) {
 			var insert = "<ul style='width:90%; list-style-type:none;'>";
-			for(let i = 0; i < response["lights"].length; i++){
+            for (var i = 0; i < response["lights"].length; i++) {
 				if (response["lights"][i]["status"] == "on"){
 					insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='toggleLight(\"" + response["lights"][i]["id"] + "\",\"off\", true)'>" + response["lights"][i]["name"] + "</li>";
 				}else{
@@ -150,11 +150,11 @@ function togglehistoryview(){
 
 	// Get lights / statuses and update modal
 	$.ajax({
-		url: '/log',
+        url: '/api/log',
 		type: 'GET',
 		success: function(response) {
 			var insert = "<ul style='width:90%; list-style-type:none;'>";
-			for(let i = response.length - 1; i >= 0; i--){
+            for (var i = response.length - 1; i >= 0; i--) {
 				var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
 				d.setUTCSeconds(response[i].substring(0,response[i].length - 4)/1000);
 				insert += "<li style='padding:20px; background-color:#2ecc71;' onclick='showPic(\"" + response[i] + "\")'>" + d + "</li>";
@@ -173,7 +173,7 @@ function togglehistoryview(){
 // Shows the picture
 function showPic(name){
 	$("#fname").html("<a>" + name + "</a>");
-	$("#picture").html("<img style=\"width: 100%\" src=\"logs/" + name + "\">");
+	$("#picture").html("<img style=\"width: 100%\" src=\"/logs/" + name + "\">");
 	$("#pic").show();
 }
 
@@ -181,7 +181,7 @@ function showPic(name){
 function toggleLight(id, to, refreshView){
 	console.log("TOGGLE LIGHT");
 	$.ajax({
-		url: '/lights?id=' + id + '&onoff=' + to,
+        url: '/api/lights?id=' + id + '&onoff=' + to,
 		type: 'POST',
 		success: function(response) {
 			toastr["success"]("Success");
@@ -202,7 +202,7 @@ function toggleLight(id, to, refreshView){
 function toggleBlinds(to){
 	console.log("TOGGLE BLINDS");
 	$.ajax({
-		url: '/blinds?set=' + to,
+        url: '/api/blinds?set=' + to,
 		type: 'POST',
 		success: function(response) {
 			toastr["success"](response);
@@ -217,7 +217,7 @@ function toggleBlinds(to){
 function togglelogin(){
 	// Only show if not open already
 	if (!($("#myModal").is(":visible"))){
-		let insert = 'The server reports that this device is unauthorized. Please login.';
+        var insert = 'The server reports that this device is unauthorized. Please login.';
 		insert += '<br><br><b>Username</b><input type="text" placeholder="Enter Username" id="uname" required><br><b>Password</b><input type="password" placeholder="Enter Password" id="psw" required><br><button onclick="storeLogin();">Login</button>';
 		$("#modalTitle").text("Not Authorized");
 		$("#modalContent").html(insert);
