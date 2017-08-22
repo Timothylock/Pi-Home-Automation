@@ -53,3 +53,5 @@ data/status.json
 data/home_monitor.db
 
 data/configuration.json
+
+.idea/workspace.xml
