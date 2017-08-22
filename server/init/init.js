@@ -40,7 +40,7 @@ module.exports = {
         ioObjects["outletlights"] = {};
         status["lights"] = []; // Clear the old light data
 
-        database.getPassword("wemo", function (password) {
+        database.getRealName("wemo", function (password) {
             for (var key in ioPorts["outletlights"]) {
                 console.log("PUSHING wemoport " + wemoPort);
                 console.log("HERE IT IS" + password);

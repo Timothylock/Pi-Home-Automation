@@ -24,7 +24,7 @@ module.exports = {
         });
     },
 
-    // addApiUser modifies the wemo users password
+    // changeWemoPassword changes the wemo user's sha1 password and set the real_name as the password
     changeWemoPassword: function (password, callback) {
         console.log(password);
         db.run("UPDATE Users SET password = \"" + sha1(password) + "\", real_name = \"" + password + "\" WHERE userid = 2;", callback);
@@ -50,8 +50,8 @@ module.exports = {
         });
     },
 
-    // getPassword retrieves the password of a user
-    getPassword: function (username, callback) {
+    // getRealName retrieves the password of an api user or the real name of a normal user
+    getRealName: function (username, callback) {
         db.get("SELECT real_name FROM Users WHERE username = \"" + username + "\"", function (err, row) {
             if (err !== null) {
                 callback("");

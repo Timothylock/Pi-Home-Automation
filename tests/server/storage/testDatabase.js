@@ -18,8 +18,10 @@ describe('database', function () {
             db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
                 db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
                     db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
-                        database.takePicture("somedir");
-                        done();
+                        database.changeWemoPassword(password, function () {
+                            database.takePicture("somedir");
+                            done();
+                        });
                     });
                 });
             });
@@ -40,6 +42,28 @@ describe('database', function () {
 
     it("successful authentication", function (done) {
         database.authenticateUser(uname, password, function (err, result) {
+            if (err !== null) {
+                done(err);
+            } else if (result === true) {
+                done();
+            } else {
+                done(new Error("Expected true but got " + result));
+            }
+        });
+    });
+
+    it("get real_name", function (done) {
+        database.getRealName(uname, function (result) {
+            if (result === "Testinguser") {
+                done();
+            } else {
+                done(new Error("Expected Testinguser but got " + result));
+            }
+        });
+    });
+
+    it("successful after changeWemoPassword authentication", function (done) {
+        database.authenticateUser("wemo", password, function (err, result) {
             if (err !== null) {
                 done(err);
             } else if (result === true) {
