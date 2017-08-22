@@ -5,6 +5,7 @@ var basicAuth = require('express-basic-auth');
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
+var crypto = require('crypto');
 
 var authentication = require('./server/authentication/authentication');
 var db = require('./server/storage/database');
@@ -33,8 +34,10 @@ if (process.env.NODE_ENV === "production") {
 // Sensor interrupts
 //////////////////////
 console.log("Loading server functions");
-init.initialize(app, Gpio);
-interrupts.setupInterrupts(app);
+db.changeWemoPassword(crypto.randomBytes(20).toString('hex'), function () {
+    init.initialize(app, Gpio);
+    interrupts.setupInterrupts(app);
+});
 
 
 //////////////////////

@@ -24,6 +24,12 @@ module.exports = {
         });
     },
 
+    // changeWemoPassword changes the wemo user's sha1 password and set the real_name as the password
+    changeWemoPassword: function (password, callback) {
+        console.log(password);
+        db.run("UPDATE Users SET password = \"" + sha1(password) + "\", real_name = \"" + password + "\" WHERE userid = 2;", callback);
+    },
+
     // addLog adds a specific data to the log (for remote connections)
     addLog: function (userid, action, details, opt) {
         var ip, ua;
@@ -36,11 +42,25 @@ module.exports = {
         }
 
         db.serialize(function () {
-            db.run("INSERT INTO Log (userid, type, details, origin) VALUES (" + userid + ",\"" + action + "\",\"" + details + "\",\"" + ip + ua.replace(/,/g, "---") + "\")");
+            if (ua === undefined) {
+                db.run("INSERT INTO Log (userid, type, details, origin) VALUES (" + userid + ",\"" + action + "\",\"" + details + "\",\"" + ip + "\")");
+            } else {
+                db.run("INSERT INTO Log (userid, type, details, origin) VALUES (" + userid + ",\"" + action + "\",\"" + details + "\",\"" + ip + ua.replace(/,/g, "---") + "\")");
+            }
         });
     },
 
-    // authenticateUser retrieves the password of a user
+    // getRealName retrieves the password of an api user or the real name of a normal user
+    getRealName: function (username, callback) {
+        db.get("SELECT real_name FROM Users WHERE username = \"" + username + "\"", function (err, row) {
+            if (err !== null) {
+                callback("");
+            }
+            callback(row.real_name);
+        });
+    },
+
+    // authenticateUser retrieves the password of a user and checks to see if the sha1 matches
     authenticateUser: function (username, password, callback) {
         db.get("SELECT password FROM Users WHERE username = \"" + username + "\"", function (err, row) {
             if (err !== null) {
