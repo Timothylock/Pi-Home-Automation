@@ -3,16 +3,20 @@
  */
 var fileJson = require('../storage/fileJson');
 var database = require('../storage/database');
+var errors = require('../responses/errors');
+var success = require('../responses/success');
 
 module.exports = {
     toggleBlindsReciever: function (req, res) {
         var result = toggleBlinds(req.query.set, req);
         if (result == "Success" && req.query.set == "1") {
+            success.Success200(res);
             database.addLog(0, "opening curtains", "", {'req': req}); // TODO: Lookup userID
         } else if (result == "Success" && req.query.set == "0") {
+            success.Success200(res);
             database.addLog(0, "closing curtains", "", {'req': req}); // TODO: Lookup userID
         }
-        res.send(result)
+        errors.Error500("1024", result, res);
     }
 };
 
