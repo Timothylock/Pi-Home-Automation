@@ -138,8 +138,8 @@ function togglelightview(){
 			$("#modalTitle").text("Light Control");
 			$("#modalContent").html(insert);
 		},
-		error: function(response) {
-			toastr["error"]("Could not recieve light data from server");
+        error: function () {
+            toastr["error"]("Could not receive light data from server");
 		}
 	});
 }
@@ -164,8 +164,8 @@ function togglehistoryview(){
 			$("#modalTitle").text("Last 10 History");
 			$("#modalContent").html(insert);
 		},
-		error: function(response) {
-			toastr["error"]("Could not recieve logs from server");
+        error: function () {
+            toastr["error"]("Could not receive logs from server");
 		}
 	});
 }
@@ -190,7 +190,7 @@ function toggleLight(id, to, refreshView){
 			}
 		},
 		error: function(response) {
-			toastr["error"]("Could not toggle light. Server error");
+            toastr["error"](JSON.parse(response.responseText).details);
 			if(refreshView){
 				togglelightview();
 			}
@@ -205,10 +205,10 @@ function toggleBlinds(to){
         url: '/api/blinds?set=' + to,
 		type: 'POST',
 		success: function(response) {
-			toastr["success"](response);
+            toastr["success"]("Success");
 		},
 		error: function(response) {
-			toastr["error"]("Could not toggle blinds. Server error");
+            toastr["error"](JSON.parse(response.responseText).details);
 		}
 	});
 }
