@@ -15,8 +15,9 @@ module.exports = {
         } else if (result == "Success" && req.query.set == "0") {
             success.Success200(res);
             database.addLog(0, "closing curtains", "", {'req': req}); // TODO: Lookup userID
+        } else {
+            errors.Error500("1024", result, res);
         }
-        errors.Error500("1024", result, res);
     }
 };
 
