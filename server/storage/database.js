@@ -17,10 +17,10 @@ module.exports = {
                     d = row.details.split("/");
                     history.push(d[d.length - 1]);
                 } catch (err) {
-                    console.log(err);
+                    callback(history, err);
                 }
             });
-            callback(history);
+            callback(history, "");
         });
     },
 

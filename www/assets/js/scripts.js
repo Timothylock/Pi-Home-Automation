@@ -102,15 +102,50 @@ function getWeather() {
 
 // Sends a POST request to toggle blinds
 function toggleBlinds(to) {
-    console.log("TOGGLE BLINDS");
     $.ajax({
         url: '/api/blinds?set=' + to,
         type: 'POST',
         success: function (response) {
-            // Notify
+            $.notify({
+                title: '<strong>Success</strong>',
+                icon: 'glyphicon glyphicon-check',
+                message: ''
+            }, {
+                type: 'success',
+                animate: {
+                    enter: 'animated fadeInDown',
+                    exit: 'animated fadeOutUp'
+                },
+                placement: {
+                    from: "top",
+                    align: "left"
+                },
+                delay: 1500,
+                offset: 20,
+                spacing: 10,
+                z_index: 1031
+            });
         },
         error: function (response) {
-            // Notify
+            $.notify({
+                title: '<strong>Failure </strong>',
+                icon: 'glyphicon glyphicon-warning-sign',
+                message: JSON.parse(response.responseText).details
+            }, {
+                type: 'danger',
+                animate: {
+                    enter: 'animated fadeInDown',
+                    exit: 'animated fadeOutUp'
+                },
+                placement: {
+                    from: "top",
+                    align: "left"
+                },
+                delay: 4000,
+                offset: 20,
+                spacing: 10,
+                z_index: 1031
+            });
         }
     });
 }
@@ -121,11 +156,51 @@ function toggleLight(id, to, refreshView) {
         url: '/api/lights?id=' + id + '&onoff=' + to,
         type: 'POST',
         success: function (response) {
+            $.notify({
+                title: '<strong>Success</strong>',
+                icon: 'glyphicon glyphicon-check',
+                message: ''
+            }, {
+                type: 'success',
+                animate: {
+                    enter: 'animated fadeInDown',
+                    exit: 'animated fadeOutUp'
+                },
+                placement: {
+                    from: "top",
+                    align: "left"
+                },
+                delay: 1500,
+                offset: 20,
+                spacing: 10,
+                z_index: 1031
+            });
+
             if (refreshView) {
                 togglelightview();
             }
         },
         error: function (response) {
+            $.notify({
+                title: '<strong>Failure </strong>',
+                icon: 'glyphicon glyphicon-warning-sign',
+                message: JSON.parse(response.responseText).details
+            }, {
+                type: 'danger',
+                animate: {
+                    enter: 'animated fadeInDown',
+                    exit: 'animated fadeOutUp'
+                },
+                placement: {
+                    from: "top",
+                    align: "left"
+                },
+                delay: 4000,
+                offset: 20,
+                spacing: 10,
+                z_index: 1031
+            });
+
             if (refreshView) {
                 togglelightview();
             }

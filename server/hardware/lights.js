@@ -3,6 +3,8 @@
  */
 var fileJson = require('../storage/fileJson');
 var database = require('../storage/database');
+var errors = require('../responses/errors');
+var success = require('../responses/success');
 
 module.exports = {
     getLights: function (req, res) { // Get the current status of the lights
@@ -12,7 +14,10 @@ module.exports = {
     toggleLightsReciever: function (req, res) {
         var result = module.exports.toggleLights(req.query.onoff, req.query.id, req);
         database.addLog(0, "light " + req.query.onoff, req.query.id, {'req': req}); // TODO: Hydrate the id with name
-        res.send(result);
+        if (result == "success") {
+            success.Success200(res)
+        }
+        errors.Error500(1002, result, res);
     },
 
     // toggleLights toggles the light id on or off and stops after a predefined amount of time
@@ -20,6 +25,15 @@ module.exports = {
         var status = req.app.get("status");
         var ioObjects = req.app.get("ioObjects");
         var i;
+
+        if (id === undefined) {
+            return ("Missing parameter - id");
+        }
+
+        if (onoff !== "on" && onoff !== "off" && onoff !== undefined) {
+            return ("Missing parameter - onoff. Expects an 'on' or 'off'");
+        }
+
         if (onoff == "on") {
             if (id in ioObjects["outletlights"]) {
                 ioObjects["outletlights"][id].digitalWrite(0);
@@ -47,7 +61,9 @@ module.exports = {
                 }
             }
         }
-        return ("Failure");
+
+        return ("Light ID of " + id + " not found");
+
     }
 };
 

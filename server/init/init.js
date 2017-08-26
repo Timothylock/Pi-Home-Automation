@@ -42,9 +42,6 @@ module.exports = {
 
         database.getRealName("wemo", function (password) {
             for (var key in ioPorts["outletlights"]) {
-                console.log("PUSHING wemoport " + wemoPort);
-                console.log("HERE IT IS" + password);
-                console.log(key);
                 (function (key) {
                     var pin = ioPorts["outletlights"][key];
                     ioObjects["outletlights"][pin] = new Gpio(pin, {mode: Gpio.OUTPUT});

@@ -5,6 +5,7 @@
 var database = require('./storage/database');
 var lights = require('./hardware/lights');
 var blinds = require('./hardware/blinds');
+var errors = require('./responses/errors');
 
 module.exports = {
     // Handle incoming requests
@@ -22,8 +23,12 @@ module.exports = {
     },
 
     getHistory: function (req, res) { // Get the last 10 pictures
-        database.retrieveHistory(function (history) {
-            res.send(history);
+        database.retrieveHistory(function (history, err) {
+            if (err === "") {
+                res.send(history);
+            } else {
+                errors.Error500(1003, err, res);
+            }
             database.addLog(0, "history view", "", {'req': req}); // TODO: Lookup userID
         });
     },
