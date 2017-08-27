@@ -18,9 +18,11 @@ describe('database', function () {
             db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
                 db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
                     db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
-                        database.changeWemoPassword(password, function () {
-                            database.takePicture("somedir");
-                            done();
+                        db.run("INSERT INTO Log (timestamp, userid, type, details, origin) VALUES (\"1990-08-25 23:28:56\", 1,\"delete test\",\"details\",\"localhosttest\")", function () {
+                            database.changeWemoPassword(password, function () {
+                                database.takePicture("somedir");
+                                done();
+                            });
                         });
                     });
                 });
@@ -94,6 +96,32 @@ describe('database', function () {
                 done(new Error('Expected ["testdetails.jpg","testdetails2.jpg"] but got ' + JSON.stringify(history)));
             }
         })
+    });
+
+    it("deleting log entry", function (done) {
+        db.get("SELECT count() as count from Log", function (err, row) {
+            if (err !== null) {
+                done(err);
+            }
+
+            var before = row.count;
+
+            database.deleteLog("1990-08-25 23:28:56", function () {
+                db.get("SELECT count() as count from Log", function (err, row) {
+                    if (err !== null) {
+                        done(err);
+                    }
+
+                    var after = row.count;
+
+                    if (before - after === 1) {
+                        done();
+                    } else {
+                        done(new Error("Expected " + before - 1 + "rows, but got " + after + "rows"));
+                    }
+                });
+            })
+        });
     });
 
     it("take picture failure", function (done) {

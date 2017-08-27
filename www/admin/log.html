@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta content='width=device-width, initial-scale=0.65, maximum-scale=0.65, user-scalable=0' name='viewport'/>
-    <title>Admin - Home</title>
+    <title>Admin - Log Correction</title>
 
     <script src="../assets/js/jquery.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
@@ -69,11 +69,32 @@
 <div class="container">
     <div class="mt-1">
         <!-- Main Page -->
-        <h1>Admin Home</h1>
-        <br>
-        <p>Welcome to the admin panel. Here you can perform administrative features such as add new users, run queries
-            on (a local copy) the database, and more!</p>
-        <p>Features are still being implemented at the moment.</p>
+        <h1>Log Correction</h1>
+        <div class="alert alert-danger">
+            <b>WARNING - These operations are not logged and are irreversible. Proceed with caution!</b>
+        </div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User ID</th>
+                <th>Event Type</th>
+                <th>Details</th>
+                <th>Origin</th>
+                <th>Operations</th>
+            </tr>
+            </thead>
+            <tbody id="logbody">
+            <tr>
+                <td>Loading</td>
+                <td>Loading</td>
+                <td>Loading</td>
+                <td>Loading</td>
+                <td>Loading</td>
+                <td>Loading</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 <footer class="footer">
@@ -83,6 +104,11 @@
             href="https://github.com/Timothylock/Pi-Home-Automation">Pi Home Automation</a> made with ♥️ by <a
             href="http://timothylock.ca">Timothy Lock</a></p>
 </footer>
+
+<script type="text/javascript">
+    window.onload = getLogs();
+</script>
+
 </body>
 </html>
     
