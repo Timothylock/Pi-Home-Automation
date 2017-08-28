@@ -67,6 +67,11 @@ module.exports = {
             if (err !== null) {
                 callback("");
             }
+
+            if (row === undefined) {
+                callback("");
+            }
+
             callback(row.real_name);
         });
     },
