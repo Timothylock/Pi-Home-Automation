@@ -11,6 +11,8 @@ var uname = "testinguser";
 var password = "testingpassword";
 
 describe('database', function () {
+    this.timeout(5000);
+
     // Set up the db
     before(function (done) {
         database.addLog(1, "testevent", "testdetails", {});
