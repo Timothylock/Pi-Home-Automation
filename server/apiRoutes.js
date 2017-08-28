@@ -33,8 +33,10 @@ module.exports = (function () {
     router.route('/admin/shutdown')
         .post(adminController.postShutdown);
 
-    router.route('/admin/timer')
-        .get(adminController.temp);
+    router.get('/admin/version', adminController.getVersion);
+    router.route('/admin/logs')
+        .get(adminController.getLogs)
+        .delete(adminController.deleteLog);
 
     return router;
 })();

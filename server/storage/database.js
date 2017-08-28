@@ -24,9 +24,20 @@ module.exports = {
         });
     },
 
+    // retrieveLogs returns the last x number of log entries
+    retrieveLogs: function (max, callback) {
+        db.all("SELECT * FROM 'Log' ORDER BY timestamp DESC LIMIT 0," + max, function (err, rows) {
+            callback(rows, err);
+        });
+    },
+
+    // deleteLog deletes a log entry based on the timestamp.
+    deleteLog: function (timestamp, callback) {
+        db.run("DELETE FROM Log WHERE timestamp=\"" + timestamp + "\"", callback);
+    },
+
     // changeWemoPassword changes the wemo user's sha1 password and set the real_name as the password
     changeWemoPassword: function (password, callback) {
-        console.log(password);
         db.run("UPDATE Users SET password = \"" + sha1(password) + "\", real_name = \"" + password + "\" WHERE userid = 2;", callback);
     },
 
@@ -56,6 +67,11 @@ module.exports = {
             if (err !== null) {
                 callback("");
             }
+
+            if (row === undefined) {
+                callback("");
+            }
+
             callback(row.real_name);
         });
     },

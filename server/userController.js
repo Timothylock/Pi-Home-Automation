@@ -6,6 +6,7 @@ var database = require('./storage/database');
 var lights = require('./hardware/lights');
 var blinds = require('./hardware/blinds');
 var errors = require('./responses/errors');
+var execute = require('./os/execute');
 
 module.exports = {
     // Handle incoming requests
