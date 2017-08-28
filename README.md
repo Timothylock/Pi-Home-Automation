@@ -1,4 +1,4 @@
-Tim Pi Home Monitoring ![alt_text](https://travis-ci.org/Timothylock/Tim-Pi-Home-Monitoring.svg?branch=master "Travis") [![Coverage Status](https://coveralls.io/repos/github/Timothylock/Tim-Pi-Home-Monitoring/badge.svg?branch=master)](https://coveralls.io/github/Timothylock/Tim-Pi-Home-Monitoring?branch=master)
+Tim Pi Home Monitoring ![alt_text](https://travis-ci.org/Timothylock/Pi-Home-Automation.svg?branch=master "Travis") [![Coverage Status](https://coveralls.io/repos/github/Timothylock/Pi-Home-Automation/badge.svg?branch=master)](https://coveralls.io/repos/github/Timothylock/Pi-Home-Automation/badge.svg?branch=master)
 ===================
 
 A DIY home monitoring system made of the Raspberry Pi. It currently has the ability to control lights, outlets, and blinds. 
@@ -24,7 +24,7 @@ Setup
 **Software Setup**
 
  6. Clone this repository into your Pi by using 
-`git clone https://github.com/Timothylock/Tim-Pi-Home-Monitoring.git`
+`git clone https://github.com/Timothylock/Pi-Home-Automation.git`
 
  7. Make sure nodejs is installed onto the pi and everything is updated. You can find a guide of installing nodejs onto your particular model on the internet.
  
@@ -55,7 +55,7 @@ To start up with Pi, type
 
 and add
 
-    cd /home/pi/Tim-Pi-Home-Monitoring/
+    cd /home/pi/Pi-Home-Automation/
     NODE_ENV=production node server.js &
 
 replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup.
