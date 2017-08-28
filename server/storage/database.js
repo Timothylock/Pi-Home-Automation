@@ -84,6 +84,8 @@ module.exports = {
             }
 
             try {
+                console.log("checking " + username + "  |  " + password);
+                console.log(row);
                 callback(null, row.password === sha1(password));
             } catch (err) {
                 callback(null, false);
