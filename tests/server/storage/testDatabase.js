@@ -7,37 +7,34 @@ var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('data/home_monitor.db');
 var sha1 = require('sha1');
 
-var uname = "testinguser";
-var password = "testingpassword";
-
 describe('database', function () {
     this.timeout(5000);
 
     // Set up the db
     before(function (done) {
-        database.addLog(1, "testevent", "testdetails", {});
-        database.addLog(12, "testeventheaders", "testdetailsheaders", {
-            "req": {
-                "headers": {
-                    "x-forwarded-for": "testingforwarded",
-                    "user-agent": "testagent"
-                }
-            }
-        });
-        database.addLog(13, "testeventheaders", "testdetailsheaders", {
-            "req": {
-                "headers": {
-                    "x-forwarded-for": "testingforwarded"
-                }
-            }
-        });
-        db.run("INSERT OR IGNORE INTO Users (userid, username, password, real_name, access_level) VALUES (99901, \"" + uname + "\", \"" + sha1(password) + "\", \"Testinguser\", 10)", function () {
+        db.run("INSERT OR IGNORE INTO Users (userid, username, password, real_name, access_level) VALUES (99901, \"testinguser\", \"" + sha1("testpassword") + "\", \"Testinguser\", 10)", function () {
             db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
                 db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
                     db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
                         db.run("INSERT INTO Log (timestamp, userid, type, details, origin) VALUES (\"1990-08-25 23:28:56\", 1,\"delete test\",\"details\",\"localhosttest\")", function () {
-                            database.changeWemoPassword(password, function () {
+                            database.changeWemoPassword("testpasswordwemo", function () {
                                 database.takePicture("somedir");
+                                database.addLog(1, "testevent", "testdetails", {});
+                                database.addLog(12, "testeventheaders", "testdetailsheaders", {
+                                    "req": {
+                                        "headers": {
+                                            "x-forwarded-for": "testingforwarded",
+                                            "user-agent": "testagent"
+                                        }
+                                    }
+                                });
+                                database.addLog(13, "testeventheaders", "testdetailsheaders", {
+                                    "req": {
+                                        "headers": {
+                                            "x-forwarded-for": "testingforwarded"
+                                        }
+                                    }
+                                });
                                 done();
                             });
                         });
@@ -48,7 +45,7 @@ describe('database', function () {
     });
 
     it("failure authentication", function (done) {
-        database.authenticateUser(uname, password + "wrong", function (err, result) {
+        database.authenticateUser("testinguser", "wrong", function (err, result) {
             if (err !== null) {
                 done(err);
             } else if (result === false) {
@@ -60,7 +57,7 @@ describe('database', function () {
     });
 
     it("successful authentication", function (done) {
-        database.authenticateUser(uname, password, function (err, result) {
+        database.authenticateUser("testinguser", "testpassword", function (err, result) {
             if (err !== null) {
                 done(err);
             } else if (result === true) {
@@ -72,7 +69,7 @@ describe('database', function () {
     });
 
     it("get real_name success", function (done) {
-        database.getRealName(uname, function (result) {
+        database.getRealName("testinguser", function (result) {
             if (result === "Testinguser") {
                 done();
             } else {
@@ -82,7 +79,7 @@ describe('database', function () {
     });
 
     it("get real_name no entry", function (done) {
-        database.getRealName(uname + "does_not_exist", function (result) {
+        database.getRealName("does_not_exist", function (result) {
             if (result === "") {
                 done();
             } else {
@@ -92,7 +89,7 @@ describe('database', function () {
     });
 
     it("successful after changeWemoPassword authentication", function (done) {
-        database.authenticateUser("wemo", password, function (err, result) {
+        database.authenticateUser("wemo", "testpasswordwemo", function (err, result) {
             if (err !== null) {
                 done(err);
             } else if (result === true) {
