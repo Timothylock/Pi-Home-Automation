@@ -38,11 +38,11 @@ module.exports = {
 
     // changeWemoPassword changes the wemo user's sha1 password and set the real_name as the password
     changeWemoPassword: function (password, callback) {
-        db.run("UPDATE Users SET password = \"" + sha1(password) + "\", real_name = \"" + password + "\" WHERE userid = 2;", callback);
+        db.run("UPDATE Users SET password = \"" + sha1(password) + "\", real_name = \"" + password + "\" WHERE username = \"wemo\";", callback);
     },
 
     // addLog adds a specific data to the log (for remote connections)
-    addLog: function (userid, action, details, opt) {
+    addLog: function (username, action, details, opt) {
         var ip, ua;
         if ('req' in opt) {
             ip = opt['req'].headers['x-forwarded-for'] || opt['req'].connection.remoteAddress;
@@ -54,9 +54,9 @@ module.exports = {
 
         db.serialize(function () {
             if (ua === undefined) {
-                db.run("INSERT INTO Log (userid, type, details, origin) VALUES (" + userid + ",\"" + action + "\",\"" + details + "\",\"" + ip + "\")");
+                db.run("INSERT INTO Log (username, type, details, origin) VALUES (" + username + ",\"" + action + "\",\"" + details + "\",\"" + ip + "\")");
             } else {
-                db.run("INSERT INTO Log (userid, type, details, origin) VALUES (" + userid + ",\"" + action + "\",\"" + details + "\",\"" + ip + ua.replace(/,/g, "---") + "\")");
+                db.run("INSERT INTO Log (username, type, details, origin) VALUES (" + username + ",\"" + action + "\",\"" + details + "\",\"" + ip + ua.replace(/,/g, "---") + "\")");
             }
         });
     },
@@ -89,6 +89,23 @@ module.exports = {
                 callback(null, false);
             }
         });
+    },
+
+    // getUsers gets a list of users
+    getUsers: function (callback) {
+        db.all("SELECT username, real_name, access_level FROM 'Users'", function (err, rows) {
+            callback(rows, err);
+        });
+    },
+
+    // AddUser adds a new user
+    addUser: function (username, password, realName, accessLevel, callback) {
+        db.run("REPLACE INTO Users (username, password, real_name, access_level) VALUES (\"" + username + "\", \"" + password + "\", \"" + realName + "\"," + accessLevel + ");", callback);
+    },
+
+    // deleteUser deletes an existing user
+    deleteUser: function (username, callback) {
+        db.run("DELETE FROM Users WHERE username=\"" + username + "\"", callback);
     },
 
     // takePicture takes a picture and stores it to the specified folder

@@ -34,9 +34,15 @@ module.exports = (function () {
         .post(adminController.postShutdown);
 
     router.get('/admin/version', adminController.getVersion);
+
     router.route('/admin/logs')
         .get(adminController.getLogs)
         .delete(adminController.deleteLog);
+
+    router.route('/admin/users')
+        .get(adminController.getUsers)
+        .post(adminController.addUser)
+        .delete(adminController.deleteUser);
 
     return router;
 })();

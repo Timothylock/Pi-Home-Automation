@@ -13,7 +13,7 @@ var password = "testingpassword2";
 describe('authentication', function () {
     // Set up the db
     before(function (done) {
-        db.run("INSERT OR IGNORE INTO Users (userid, username, password, real_name, access_level) VALUES (99902, \"" + uname + "\", \"" + sha1(password) + "\", \"Testinguser\", 10)", function () {
+        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"" + uname + "\", \"" + sha1(password) + "\", \"Testinguser\", 10)", function () {
             done();
         });
     });
