@@ -191,10 +191,10 @@ describe('database', function () {
             db.get("SELECT * FROM Users WHERE username=\"addTestUser\"", function (err, row) {
                 if (err !== null) {
                     done(err);
-                } else if (JSON.stringify(row) === '{"username":"addTestUser","password":"testingpassword","real_name":"Testing User","access_level":12}') {
+                } else if (JSON.stringify(row) === '{"username":"addTestUser","password":"baee6206dfe8af3451bd66f68a7fe76ab4cf1743","real_name":"Testing User","access_level":12}') {
                     done();
                 } else {
-                    done(new Error('Expected {"username":"addTestUser","password":"testingpassword","real_name":"Testing User","access_level":12}, but got ' + JSON.stringify(row)));
+                    done(new Error('Expected {"username":"addTestUser","password":"baee6206dfe8af3451bd66f68a7fe76ab4cf1743","real_name":"Testing User","access_level":12}, but got ' + JSON.stringify(row)));
                 }
             });
         });
