@@ -13,5 +13,5 @@ CREATE TABLE Log (
 	origin text
 );
 
-INSERT INTO Users (username, password, real_name, access_level) VALUES ("system", "67677B42ABD63BB32F96AB6EF190D31423B491CD", "System user", 0);
-INSERT INTO Users (username, password, real_name, access_level) VALUES ("wemo", "67677B42ABD63BB32F96AB6EF190D31423B491CD", "Wemo Emulation", 0);
+INSERT INTO Users (username, password, real_name, access_level) VALUES ("system", "67677B42ABD63BB32F96AB6EF190D31423B491CD", "System user", 1);
+INSERT INTO Users (username, password, real_name, access_level) VALUES ("wemo", "67677B42ABD63BB32F96AB6EF190D31423B491CD", "Wemo Emulation", 1);

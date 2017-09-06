@@ -100,7 +100,7 @@ module.exports = {
 
     // AddUser adds a new user
     addUser: function (username, password, realName, accessLevel, callback) {
-        db.run("REPLACE INTO Users (username, password, real_name, access_level) VALUES (\"" + username + "\", \"" + password + "\", \"" + realName + "\"," + accessLevel + ");", callback);
+        db.run("REPLACE INTO Users (username, password, real_name, access_level) VALUES (\"" + username + "\", \"" + sha1(password) + "\", \"" + realName + "\"," + accessLevel + ");", callback);
     },
 
     // deleteUser deletes an existing user

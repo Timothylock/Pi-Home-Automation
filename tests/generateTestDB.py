@@ -29,7 +29,7 @@ uname = 'testuser'
 pword = 'testpassword'
 hash_object = hashlib.sha1(pword)
 hex_dig = hash_object.hexdigest()
-conn.execute("INSERT INTO Users (username, password, real_name, access_level) VALUES (\"" + uname + "\", \"" + hex_dig + "\", \"Admin\", 99)")
+conn.execute("INSERT INTO Users (username, password, real_name, access_level) VALUES (\"" + uname + "\", \"" + hex_dig + "\", \"Admin\", 3)")
 conn.commit()
 
 #Close DB
