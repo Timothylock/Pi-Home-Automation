@@ -53,7 +53,7 @@ if not os.path.isfile(DB_NAME):
     pword = raw_input('Enter a password: ')
     hash_object = hashlib.sha1(pword)
     hex_dig = hash_object.hexdigest()
-    conn.execute("INSERT INTO Users (userid, username, password, real_name, access_level) VALUES (3, \"" + uname + "\", \"" + hex_dig + "\", \"Admin\", 99)")
+    conn.execute("INSERT INTO Users (username, password, real_name, access_level) VALUES (\"" + uname + "\", \"" + hex_dig + "\", \"Admin\", 3)")
     conn.commit()
 
     #Close DB

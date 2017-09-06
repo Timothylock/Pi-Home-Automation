@@ -12,11 +12,12 @@ describe('database', function () {
 
     // Set up the db
     before(function (done) {
-        db.run("INSERT OR IGNORE INTO Users (userid, username, password, real_name, access_level) VALUES (99901, \"testinguser\", \"" + sha1("testpassword") + "\", \"Testinguser\", 10)", function () {
-            db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
-                db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
-                    db.run("INSERT INTO Log (userid, type, details, origin) VALUES (1,\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
-                        db.run("INSERT INTO Log (timestamp, userid, type, details, origin) VALUES (\"1990-08-25 23:28:56\", 1,\"delete test\",\"details\",\"localhosttest\")", function () {
+        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testinguser\", \"" + sha1("testpassword") + "\", \"Testinguser\", 10)", function () {
+            db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testUserDelete\", \"" + sha1("testpassword") + "\", \"Testinguser\", 10)", function () {
+                db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
+                    db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
+                        db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
+                            db.run("INSERT INTO Log (timestamp, username, type, details, origin) VALUES (\"1990-08-25 23:28:56\", 1,\"delete test\",\"details\",\"localhosttest\")", function () {
                             database.changeWemoPassword("testpasswordwemo", function () {
                                 database.takePicture("somedir");
                                 database.addLog(1, "testevent", "testdetails", {});
@@ -39,6 +40,7 @@ describe('database', function () {
                             });
                         });
                     });
+                });
                 });
             });
         });
@@ -101,37 +103,37 @@ describe('database', function () {
     });
 
     it("verify log entry added when no headers sent in", function (done) {
-        db.get("SELECT userid, type, details, origin FROM Log WHERE userid=1 AND type=\"testevent\" AND details=\"testdetails\" AND origin=\"::ffff:127.0.0.1localhost\"", function (err, row) {
+        db.get("SELECT username, type, details, origin FROM Log WHERE username=\"1\" AND type=\"testevent\" AND details=\"testdetails\" AND origin=\"::ffff:127.0.0.1localhost\"", function (err, row) {
             if (err !== null) {
                 done(err);
-            } else if (JSON.stringify(row) === "{\"userid\":1,\"type\":\"testevent\",\"details\":\"testdetails\",\"origin\":\"::ffff:127.0.0.1localhost\"}") {
+            } else if (JSON.stringify(row) === "{\"username\":\"1\",\"type\":\"testevent\",\"details\":\"testdetails\",\"origin\":\"::ffff:127.0.0.1localhost\"}") {
                 done();
             } else {
-                done(new Error("Expected {\"userid\":1,\"type\":\"testevent\",\"details\":\"testdetails\",\"origin\":\"::ffff:127.0.0.1localhost\"} but got " + JSON.stringify(row)));
+                done(new Error("Expected {\"username\":\"1\",\"type\":\"testevent\",\"details\":\"testdetails\",\"origin\":\"::ffff:127.0.0.1localhost\"} but got " + JSON.stringify(row)));
             }
         });
     });
 
     it("verify log entry added when headers sent in", function (done) {
-        db.get("SELECT userid, type, details, origin FROM Log WHERE userid=12 AND type=\"testeventheaders\" AND details=\"testdetailsheaders\"", function (err, row) {
+        db.get("SELECT username, type, details, origin FROM Log WHERE username=\"12\" AND type=\"testeventheaders\" AND details=\"testdetailsheaders\"", function (err, row) {
             if (err !== null) {
                 done(err);
-            } else if (JSON.stringify(row) === "{\"userid\":12,\"type\":\"testeventheaders\",\"details\":\"testdetailsheaders\",\"origin\":\"testingforwardedtestagent\"}") {
+            } else if (JSON.stringify(row) === "{\"username\":\"12\",\"type\":\"testeventheaders\",\"details\":\"testdetailsheaders\",\"origin\":\"testingforwardedtestagent\"}") {
                 done();
             } else {
-                done(new Error("Expected {\"userid\":12,\"type\":\"testeventheaders\",\"details\":\"testdetailsheaders\",\"origin\":\"testingforwardedtestagent\"} but got " + JSON.stringify(row)));
+                done(new Error("Expected {\"username\":\"12\",\"type\":\"testeventheaders\",\"details\":\"testdetailsheaders\",\"origin\":\"testingforwardedtestagent\"} but got " + JSON.stringify(row)));
             }
         });
     });
 
     it("verify log entry added when headers sent in but no user agent", function (done) {
-        db.get("SELECT userid, type, details, origin FROM Log WHERE userid=13 AND type=\"testeventheaders\" AND details=\"testdetailsheaders\"", function (err, row) {
+        db.get("SELECT username, type, details, origin FROM Log WHERE username=\"13\" AND type=\"testeventheaders\" AND details=\"testdetailsheaders\"", function (err, row) {
             if (err !== null) {
                 done(err);
-            } else if (JSON.stringify(row) === "{\"userid\":13,\"type\":\"testeventheaders\",\"details\":\"testdetailsheaders\",\"origin\":\"testingforwarded\"}") {
+            } else if (JSON.stringify(row) === "{\"username\":\"13\",\"type\":\"testeventheaders\",\"details\":\"testdetailsheaders\",\"origin\":\"testingforwarded\"}") {
                 done();
             } else {
-                done(new Error("Expected {\"userid\":13,\"type\":\"testeventheaders\",\"details\":\"testdetailsheaders\",\"origin\":\"testingforwarded\"} but got " + JSON.stringify(row)));
+                done(new Error("Expected {\"username\":\"13\",\"type\":\"testeventheaders\",\"details\":\"testdetailsheaders\",\"origin\":\"testingforwarded\"} but got " + JSON.stringify(row)));
             }
         });
     });
@@ -184,14 +186,74 @@ describe('database', function () {
         });
     });
 
-    it("take picture failure", function (done) {
-        db.get("SELECT userid, type FROM Log WHERE userid=1 AND type=\"Picture Error\"", function (err, row) {
+    it("Adding new user", function (done) {
+        database.addUser("addTestUser", "testingpassword", "Testing User", 12, function () {
+            db.get("SELECT * FROM Users WHERE username=\"addTestUser\"", function (err, row) {
+                if (err !== null) {
+                    done(err);
+                } else if (JSON.stringify(row) === '{"username":"addTestUser","password":"testingpassword","real_name":"Testing User","access_level":12}') {
+                    done();
+                } else {
+                    done(new Error('Expected {"username":"addTestUser","password":"testingpassword","real_name":"Testing User","access_level":12}, but got ' + JSON.stringify(row)));
+                }
+            });
+        });
+    });
+
+    it("Deleting a user", function (done) {
+        db.get("SELECT count() as count from Users", function (err, row) {
             if (err !== null) {
                 done(err);
-            } else if (JSON.stringify(row) === "{\"userid\":1,\"type\":\"Picture Error\"}") {
+            }
+
+            var before = row.count;
+
+            database.deleteUser("testUserDelete", function () {
+                db.get("SELECT count() as count from Users", function (err, row) {
+                    if (err !== null) {
+                        done(err);
+                    }
+
+                    var after = row.count;
+
+                    if (before - after === 1) {
+                        done();
+                    } else {
+                        done(new Error("Expected " + before - 1 + "rows, but got " + after + "rows"));
+                    }
+                });
+            })
+        });
+    });
+
+    it("Getting a list of users", function (done) {
+        database.getUsers(function (rows, err) {
+            if (err !== null) {
+                done(err);
+            }
+
+            var usernames = [];
+
+            for (var i = 0; i < rows.length; i++) {
+                usernames.push(rows[i].username);
+            }
+
+            if (usernames.includes("wemo") && usernames.includes("testuser") && usernames.includes("system")) {
                 done();
             } else {
-                done(new Error("Expected {\"userid\":1,\"type\":\"Picture Error\"} but got " + JSON.stringify(row)));
+                done(new Error("Expected wemo, testuser, system to be in the list of users, but instead got " + usernames));
+            }
+        })
+    });
+
+    it("take picture failure", function (done) {
+        db.get("SELECT username, type FROM Log WHERE username=\"1\" AND type=\"Picture Error\"", function (err, row) {
+            if (err !== null) {
+                done(err);
+            } else if (JSON.stringify(row) === "{\"username\":\"1\",\"type\":\"Picture Error\"}") {
+                done();
+            } else {
+                done(new Error("Expected {\"username\":\"1\",\"type\":\"Picture Error\"} but got " + JSON.stringify(row)));
             }
         });
     });
