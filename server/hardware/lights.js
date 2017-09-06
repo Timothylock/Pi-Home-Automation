@@ -8,7 +8,7 @@ var success = require('../responses/success');
 
 module.exports = {
     // getLights gets the status of the lights
-    getLights: function () {
+    getLights: function (res) {
         return ({"lights": res.app.get("status")["lights"]});
     },
 

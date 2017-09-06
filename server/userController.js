@@ -38,7 +38,7 @@ module.exports = {
     },
 
     getHistory: function (req, res) { // Get the last 10 pictures
-        authentication.requiredLevel(req, 0, function (allow, err) {
+        authentication.requiredLevel(req, -1, function (allow, err) {
             if (err !== null) {
                 errors.Error500(1003, err, res);
                 return;
@@ -72,7 +72,7 @@ module.exports = {
                 return;
             }
 
-            res.send(lights.getLights());
+            res.send(lights.getLights(res));
         });
     },
 

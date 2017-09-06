@@ -60,6 +60,20 @@ function updateStatus() {
             $("#numLightsOn").html("N/A");
             $("#blindsOpenClose").html("N/A");
             $("#doorOpenClose").html("N/A");
+
+            if (JSON.parse(response.responseText).code === 1007) {
+                clearInterval(statusInterval);
+                $("#statusbar").html("NOTICE - Account Disabled");
+                $(".module_door").css("background-color", '#7f8c8d');
+                $(".module_blinds").css("background-color", '#7f8c8d');
+                $(".module_lights").css("background-color", '#7f8c8d');
+                //$(".module_history").css("background-color", '#7f8c8d');
+                $(".module_settings").css("background-color", '#7f8c8d');
+                $(".module_admin").css("background-color", '#7f8c8d');
+                $("#statusbar").css("color", '#7f8c8d');
+                $(".leftsidebar").css("background", "#7f8c8d");
+                alert(JSON.parse(response.responseText).details);
+            }
         }
     });
 }
@@ -377,4 +391,4 @@ if (Cookies.get('beta') == 'False') {
 
 setInterval(updateClock, 1000);
 setInterval(getWeather, 600000);
-setInterval(updateStatus, 750);
+var statusInterval = setInterval(updateStatus, 750);
