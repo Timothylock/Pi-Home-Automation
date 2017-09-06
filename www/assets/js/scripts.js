@@ -249,14 +249,12 @@ function toggleSettings() {
 
     insert += "<ul style='width:90%; list-style-type:none;'>";
     insert += "<li class='list-group-item' onclick='backToOldUI()'>Change back to old UI</li>";
-    insert += "<li class='list-group-item' onclick='toggleTimer()'>PLACEHOLDER - Set timer for lights/blinds</li>";
     insert += "</ul>";
 
     insert += "<h5 class='text-center'>Admin Settings</h5>";
 
     insert += "<ul style='width:90%; list-style-type:none;'>";
-    insert += "<li class='list-group-item' onclick='shutdownReboot(\"reboot\")'>Reboot the server</li>";
-    insert += "<li class='list-group-item' onclick='shutdownReboot(\"shutdown\")'>Shutdown the server</li>";
+    insert += "<li class='list-group-item' onclick='window.location.href = \"/admin\";'>Admin Panel</li>";
     insert += "</ul>";
 
     insert += "<h5 class='text-center'>User Account</h5>";
@@ -268,56 +266,6 @@ function toggleSettings() {
     $("#modal_title").text("Settings");
     $("#modal_content").html(insert);
 }
-
-// Toggles and populates the timer screen
-function toggleTimer() {
-    loadingModal();
-
-    var timer = {"Blinds" : [{"open" : "30 7 * * 1-5"}, {"close" : "0 22 * * 1-5"}, {"open" : "0 9 * * 6,0"}, {"close" : "0 0 * * 6,0"}], "Living Room Lights" : [{"on" : "30 7 * * 1-5"}, {"off" : "0 22 * * 1-5"}, {"on" : "0 9 * * 6,0"}, {"off" : "0 0 * * 6,0"}]};
-
-    var insert = "";
-    insert += "<h6 class='text-center'>Tap on any timer to delete them</h6>";
-
-    for (var obj in timer) {
-        insert += "<h5 class='text-center'>" + obj + "</h5>";
-        insert += "<ul style='width:90%; list-style-type:none;'>";
-        for (var state in timer[obj]) {
-            for (var status in timer[obj][state]) {
-                insert += "<li class='list-group-item'>" + status.toUpperCase() + " at " + prettyCron.toString(timer[obj][state][status]) + "</li>";
-            }
-        }
-        insert += "<li class='list-group-item list-group-item-success' onclick='toggleCreateTimer(\"" + obj + "\"," + 12 + ")'>Add a new timer</li>";
-
-        insert += "</ul>";
-    }
-
-    $("#modal_title").text("Timers");
-    $("#modal_content").html(insert);
-}
-
-// Opens a modal screen to create a new timer
-function toggleCreateTimer(name, pin) {
-    loadingModal();
-
-    body = '<h4>Creating timer event for ' + name + '</h4>';
-    body += '<div class="form-group"><label class="col-md-4 control-label" for="cron">Cron Job</label><div class="col-md-8"><input id="cron" name="cron" type="text" placeholder="30 7 * * 1-5" class="form-control input-md" onkeypress="checkCron()" required=""></div></div>';
-    body += '<label class="col-md-4 control-label">In english: </label><label class="col-md-8 control-label" id="cronOutput">Start typing above</label>'
-    body += '<button type="button" class="btn btn-default" onclick="");">Create new timer (not implemented)</button>';
-
-    $("#modal_title").text("Create new timer");
-    $("#modal_content").html(body);
-
-}
-
-function checkCron(){
-    /*var patt = new RegExp('/^(?:[1-9]?\d|\*)(?:(?:[\/-][1-9]?\d)|(?:,[1-9]?\d)+)?$/');
-    if (!(patt.test($('#cron').val()))) {
-        $("#cronOutput").html("Invalid cron syntax");
-    } else {*/
-        $("#cronOutput").html(prettyCron.toString($('#cron').val()));
-    //}
-}
-
 
 // Modifies the modal for light control and shows it
 function togglelightview() {
