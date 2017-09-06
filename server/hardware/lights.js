@@ -7,18 +7,9 @@ var errors = require('../responses/errors');
 var success = require('../responses/success');
 
 module.exports = {
-    getLights: function (req, res) { // Get the current status of the lights
-        res.send({"lights": res.app.get("status")["lights"]});
-    },
-
-    toggleLightsReciever: function (req, res) {
-        var result = module.exports.toggleLights(req.query.onoff, req.query.id, req);
-        database.addLog(0, "light " + req.query.onoff, req.query.id, {'req': req}); // TODO: Hydrate the id with name
-        if (result == "Success") {
-            success.Success200(res)
-        } else {
-            errors.Error500(1002, result, res);
-        }
+    // getLights gets the status of the lights
+    getLights: function () {
+        return ({"lights": res.app.get("status")["lights"]});
     },
 
     // toggleLights toggles the light id on or off and stops after a predefined amount of time

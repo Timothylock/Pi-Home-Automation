@@ -14,7 +14,6 @@ module.exports = {
         var credentials = new Buffer(req.get("authorization").split(" ").pop(), "base64").toString("ascii").split(":");
 
         database.getAccessLevel(credentials[0], function (lvl, err) {
-            console.log(lvl);
             if (err !== null) {
                 callback(false, err)
             }

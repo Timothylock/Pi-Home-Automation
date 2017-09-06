@@ -9,6 +9,8 @@ var errors = require('./responses/errors');
 var success = require('./responses/success');
 var authentication = require('./authentication/authentication');
 
+const forbidden = "Access to this resource is forbidden for your current account";
+
 module.exports = {
     postShutdown: admin.shutdownReciever,
     postUpdate: execute.gitPull,
@@ -23,7 +25,7 @@ module.exports = {
             }
 
             if (!allow) {
-                errors.Error403(1007, "Access to this resource is forbidden for your current account", res)
+                errors.Error403(1007, forbidden, res);
                 return;
             }
 
@@ -50,7 +52,7 @@ module.exports = {
             }
 
             if (!allow) {
-                errors.Error403(1007, "Access to this resource is forbidden for your current account", res)
+                errors.Error403(1007, forbidden, res);
                 return;
             }
             if (req.query.timestamp === undefined) {
@@ -72,7 +74,7 @@ module.exports = {
             }
 
             if (!allow) {
-                errors.Error403(1007, "Access to this resource is forbidden for your current account", res)
+                errors.Error403(1007, forbidden, res);
                 return;
             }
             database.getUsers(function (rows, err) {
@@ -93,7 +95,7 @@ module.exports = {
             }
 
             if (!allow) {
-                errors.Error403(1007, "Access to this resource is forbidden for your current account", res)
+                errors.Error403(1007, forbidden, res);
                 return;
             }
 
@@ -136,7 +138,7 @@ module.exports = {
             }
 
             if (!allow) {
-                errors.Error403(1007, "Access to this resource is forbidden for your current account", res)
+                errors.Error403(1007, forbidden, res);
                 return;
             }
 
