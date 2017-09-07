@@ -76,6 +76,21 @@ module.exports = {
         });
     },
 
+    // getAccessLevel gets the access level of a particular user
+    getAccessLevel: function (username, callback) {
+        db.get("SELECT access_level FROM Users WHERE username = \"" + username + "\"", function (err, row) {
+            if (err !== null) {
+                callback(null, err);
+            }
+
+            if (row === undefined) {
+                callback(null, new Error("user does not exist"));
+            }
+
+            callback(row.access_level, null);
+        });
+    },
+
     // authenticateUser retrieves the password of a user and checks to see if the sha1 matches
     authenticateUser: function (username, password, callback) {
         db.get("SELECT password FROM Users WHERE username = \"" + username + "\"", function (err, row) {

@@ -109,9 +109,10 @@
                     <label class="col-md-4 control-label" for="accesslevel">Access Level</label>
                     <div class="col-md-5">
                         <select id="accesslevel" name="accesslevel" class="form-control">
-                            <option value="1">Normal User</option>
-                            <option value="2">Advanced User</option>
-                            <option value="3">System Administrator</option>
+                            <option value="0">Limited User (Read-only normal user)</option>
+                            <option value="1">Normal User (Everything but no access to admin panel)</option>
+                            <option value="2">Advanced User (Normal user + read-only access to admin panel)</option>
+                            <option value="3">System Administrator (Access to everything)</option>
                         </select>
                     </div>
                 </div>

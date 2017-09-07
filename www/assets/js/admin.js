@@ -27,7 +27,7 @@ function getLogs() {
         },
         error: function (response) {
             $("#logbody").html("<tr><td>Error</td><td>Error</td><td>Error</td><td>Error</td><td>Error</td><td>Error</td></tr>");
-            console.log("Cannot retrieve logs - " + JSON.parse(response.responseText).details)
+            alert("Cannot retrieve logs - " + JSON.parse(response.responseText).details);
         }
     });
 }
@@ -67,7 +67,7 @@ function getUsers() {
         },
         error: function (response) {
             $("#logbody").html("<tr><td>Error</td><td>Error</td><td>Error</td><td>Error</td></tr>");
-            console.log("Cannot retrieve logs - " + JSON.parse(response.responseText).details)
+            alert("Cannot retrieve users - " + JSON.parse(response.responseText).details);
         }
     });
 }

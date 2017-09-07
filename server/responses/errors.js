@@ -16,5 +16,13 @@ module.exports = {
         result["code"] = code;
         result["details"] = details;
         res.status(400).send(result)
+    },
+
+    Error403: function (code, details, res) {
+        var result = {};
+        result["status"] = "Forbidden";
+        result["code"] = code;
+        result["details"] = details;
+        res.status(403).send(result)
     }
 };
