@@ -80,11 +80,11 @@ module.exports = {
     getAccessLevel: function (username, callback) {
         db.get("SELECT access_level FROM Users WHERE username = \"" + username + "\"", function (err, row) {
             if (err !== null) {
-                callback("", err);
+                callback(null, err);
             }
 
             if (row === undefined) {
-                callback("", err);
+                callback(null, new Error("user does not exist"));
             }
 
             callback(row.access_level, null);

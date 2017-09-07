@@ -13,34 +13,30 @@ describe('database', function () {
     // Set up the db
     before(function (done) {
         db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testinguser\", \"" + sha1("testpassword") + "\", \"Testinguser\", 10)", function () {
-            db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testUserDelete\", \"" + sha1("testpassword") + "\", \"Testinguser\", 10)", function () {
-                db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
-                    db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
-                        db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
-                            db.run("INSERT INTO Log (timestamp, username, type, details, origin) VALUES (\"1990-08-25 23:28:56\", 1,\"delete test\",\"details\",\"localhosttest\")", function () {
-                            database.changeWemoPassword("testpasswordwemo", function () {
-                                database.takePicture("somedir");
-                                database.addLog(1, "testevent", "testdetails", {});
-                                database.addLog(12, "testeventheaders", "testdetailsheaders", {
-                                    "req": {
-                                        "headers": {
-                                            "x-forwarded-for": "testingforwarded",
-                                            "user-agent": "testagent"
-                                        }
+            db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door opened test\",\"testdetails.jpg\",\"localhosttest\")", function () {
+                db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door closed test\",\"testdetails.jpg\",\"localhosttest\")", function () {
+                    db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"1\",\"door opened test\",\"testdetails2.jpg\",\"localhosttest\")", function () {
+                        database.changeWemoPassword("testpasswordwemo", function () {
+                            database.takePicture("somedir");
+                            database.addLog(1, "testevent", "testdetails", {});
+                            database.addLog(12, "testeventheaders", "testdetailsheaders", {
+                                "req": {
+                                    "headers": {
+                                        "x-forwarded-for": "testingforwarded",
+                                        "user-agent": "testagent"
                                     }
-                                });
-                                database.addLog(13, "testeventheaders", "testdetailsheaders", {
-                                    "req": {
-                                        "headers": {
-                                            "x-forwarded-for": "testingforwarded"
-                                        }
-                                    }
-                                });
-                                done();
+                                }
                             });
+                            database.addLog(13, "testeventheaders", "testdetailsheaders", {
+                                "req": {
+                                    "headers": {
+                                        "x-forwarded-for": "testingforwarded"
+                                    }
+                                }
+                            });
+                            done();
                         });
                     });
-                });
                 });
             });
         });
@@ -161,28 +157,30 @@ describe('database', function () {
     });
 
     it("deleting log entry", function (done) {
-        db.get("SELECT count() as count from Log", function (err, row) {
-            if (err !== null) {
-                done(err);
-            }
+        db.run("INSERT INTO Log (timestamp, username, type, details, origin) VALUES (\"1990-08-25 23:28:56\", 1,\"delete test\",\"details\",\"localhosttest\")", function () {
+            db.get("SELECT count() as count from Log", function (err, row) {
+                if (err !== null) {
+                    done(err);
+                }
 
-            var before = row.count;
+                var before = row.count;
 
-            database.deleteLog("1990-08-25 23:28:56", function () {
-                db.get("SELECT count() as count from Log", function (err, row) {
-                    if (err !== null) {
-                        done(err);
-                    }
+                database.deleteLog("1990-08-25 23:28:56", function () {
+                    db.get("SELECT count() as count from Log", function (err, row) {
+                        if (err !== null) {
+                            done(err);
+                        }
 
-                    var after = row.count;
+                        var after = row.count;
 
-                    if (before - after === 1) {
-                        done();
-                    } else {
-                        done(new Error("Expected " + before - 1 + "rows, but got " + after + "rows"));
-                    }
-                });
-            })
+                        if (before - after === 1) {
+                            done();
+                        } else {
+                            done(new Error("Expected " + before - 1 + "rows, but got " + after + "rows"));
+                        }
+                    });
+                })
+            });
         });
     });
 
@@ -201,6 +199,7 @@ describe('database', function () {
     });
 
     it("Deleting a user", function (done) {
+        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testUserDelete\", \"" + sha1("testpassword") + "\", \"Testinguser\", 10)", function () {
         db.get("SELECT count() as count from Users", function (err, row) {
             if (err !== null) {
                 done(err);
@@ -224,6 +223,7 @@ describe('database', function () {
                 });
             })
         });
+        });
     });
 
     it("Getting a list of users", function (done) {
@@ -244,6 +244,32 @@ describe('database', function () {
                 done(new Error("Expected wemo, testuser, system to be in the list of users, but instead got " + usernames));
             }
         })
+    });
+
+    it("Getting the access level of an unknown user", function (done) {
+        database.getAccessLevel("doesnotexist", function (lvl, err) {
+            if (lvl !== null) {
+                done(new Error("Expected a null level but got " + lvl));
+            } else if (err === null) {
+                done(new Error("Expected a non-null error but got a null error"));
+            } else {
+                done()
+            }
+        })
+    });
+
+    it("Getting the access level of a known user", function (done) {
+        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testGetAccessLevel\", \"" + "doesntmatter" + "\", \"Test getAccessLevel\", 2)", function () {
+            database.getAccessLevel("testGetAccessLevel", function (lvl, err) {
+                if (lvl !== 2) {
+                    done(new Error("Expected level to be 2 but got " + lvl));
+                } else if (err !== null) {
+                    done(new Error("Expected a null error but got " + err));
+                } else {
+                    done()
+                }
+            })
+        });
     });
 
     it("take picture failure", function (done) {

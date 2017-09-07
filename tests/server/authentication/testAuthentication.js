@@ -6,6 +6,7 @@ var auth = require('./../../../server/authentication/authentication');
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('data/home_monitor.db');
 var sha1 = require('sha1');
+var httpMocks = require('node-mocks-http');
 
 var uname = "testinguser2";
 var password = "testingpassword2";
@@ -40,6 +41,56 @@ describe('authentication', function () {
                 done(new Error("Expected true but got " + result));
             }
         });
+    });
+
+    it("requiredLevel passed required level", function (done) {
+        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testAuthRequiredLevel\", \"" + "doesntmatter" + "\", \"Test getAccessLevel\", 2)", function () {
+            var req = httpMocks.createRequest({
+                method: 'GET',
+                url: '/api/status',
+                headers: {
+                    authorization: "Basic dGVzdEF1dGhSZXF1aXJlZExldmVsOmRvZXNudG1hdHRlcg=="
+                }
+            });
+
+            auth.requiredLevel(req, 2, function (good, err) {
+                if (err !== null) {
+                    done(err);
+                }
+
+                if (!good) {
+                    done("Expected true, but got " + good);
+                } else {
+                    done();
+                }
+            })
+        });
+
+    });
+
+    it("requiredLevel fail required level", function (done) {
+        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testAuthRequiredLevel\", \"" + "doesntmatter" + "\", \"Test getAccessLevel\", 1)", function () {
+            var req = httpMocks.createRequest({
+                method: 'GET',
+                url: '/api/status',
+                headers: {
+                    authorization: "Basic dGVzdEF1dGhSZXF1aXJlZExldmVsOmRvZXNudG1hdHRlcg=="
+                }
+            });
+
+            auth.requiredLevel(req, 2, function (good, err) {
+                if (err !== null) {
+                    done(err);
+                }
+
+                if (!good) {
+                    done("Expected true, but got " + good);
+                } else {
+                    done();
+                }
+            })
+        });
+
     });
 });
 
