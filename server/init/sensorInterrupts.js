@@ -23,12 +23,12 @@ exports.setupInterrupts = function (app) {
 
             if (level == 1) {
                 var timestamp = (new Date).getTime();
-                database.addLog(1, "door opened", "www/logs/" + timestamp + ".jpg", {});
+                database.addLog("system", "door opened", "www/logs/" + timestamp + ".jpg", {});
 
                 // Take picture if the door is open
                 database.takePicture("www/logs/" + timestamp + ".jpg");
             } else {
-                database.addLog(1, "door closed", "", {});
+                database.addLog("system", "door closed", "", {});
             }
         });
 

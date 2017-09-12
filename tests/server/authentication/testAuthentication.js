@@ -14,7 +14,7 @@ var password = "testingpassword2";
 describe('authentication', function () {
     // Set up the db
     before(function (done) {
-        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"" + uname + "\", \"" + sha1(password) + "\", \"Testinguser\", 10)", function () {
+        db.run("INSERT OR REPLACE INTO Users (username, password, real_name, access_level) VALUES (\"" + uname + "\", \"" + sha1(password) + "\", \"Testinguser\", 10)", function () {
             done();
         });
     });
@@ -44,7 +44,7 @@ describe('authentication', function () {
     });
 
     it("requiredLevel passed required level", function (done) {
-        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testAuthRequiredLevel\", \"" + "doesntmatter" + "\", \"Test getAccessLevel\", 2)", function () {
+        db.run("INSERT OR REPLACE INTO Users (username, password, real_name, access_level) VALUES (\"testAuthRequiredLevel\", \"" + "doesntmatter" + "\", \"Test getAccessLevel\", 2)", function () {
             var req = httpMocks.createRequest({
                 method: 'GET',
                 url: '/api/status',
@@ -56,41 +56,63 @@ describe('authentication', function () {
             auth.requiredLevel(req, 2, function (good, err) {
                 if (err !== null) {
                     done(err);
-                }
-
-                if (!good) {
+                } else if (!good) {
                     done("Expected true, but got " + good);
                 } else {
                     done();
                 }
             })
         });
-
     });
 
     it("requiredLevel fail required level", function (done) {
-        db.run("INSERT OR IGNORE INTO Users (username, password, real_name, access_level) VALUES (\"testAuthRequiredLevel\", \"" + "doesntmatter" + "\", \"Test getAccessLevel\", 1)", function () {
+        db.run("INSERT OR REPLACE INTO Users (username, password, real_name, access_level) VALUES (\"testAuthRequiredLevelfail\", \"" + "doesntmatter" + "\", \"Test getAccessLevel\", 1)", function () {
             var req = httpMocks.createRequest({
                 method: 'GET',
                 url: '/api/status',
                 headers: {
-                    authorization: "Basic dGVzdEF1dGhSZXF1aXJlZExldmVsOmRvZXNudG1hdHRlcg=="
+                    authorization: "Basic dGVzdEF1dGhSZXF1aXJlZExldmVsZmFpbDpkb2VzbnRtYXR0ZXI="
                 }
             });
 
             auth.requiredLevel(req, 2, function (good, err) {
                 if (err !== null) {
                     done(err);
-                }
-
-                if (!good) {
-                    done("Expected true, but got " + good);
+                } else if (good) {
+                    done("Expected false, but got " + good);
                 } else {
                     done();
                 }
             })
         });
+    });
 
+    it("requiredLevel correct user info", function (done) {
+        db.run("INSERT OR REPLACE INTO Users (username, password, real_name, access_level) VALUES (\"testAuthRequiredLevelCorrectInfo\", \"" + sha1("doesntmatter") + "\", \"Test getAccessLevel\", 2)", function () {
+            var req = httpMocks.createRequest({
+                method: 'GET',
+                url: '/api/status',
+                headers: {
+                    authorization: "Basic dGVzdEF1dGhSZXF1aXJlZExldmVsQ29ycmVjdEluZm86ZG9lc250bWF0dGVy"
+                }
+            });
+
+            auth.requiredLevel(req, 2, function (good, err, user) {
+                if (err !== null) {
+                    done(err);
+                } else if (!good) {
+                    done("Expected true, but got " + good);
+                } else if (user["username"] !== "testAuthRequiredLevelCorrectInfo") {
+                    done("expected the username to be testAuthRequiredLevelCorrectInfo, but got " + user["username"])
+                } else if (user["level"] !== 2) {
+                    done("expected the level to be 2, but got " + user["level"])
+                } else if (user["password"] !== "doesntmatter") {
+                    done("expected the password to be doesntmatter, but got " + user["password"])
+                } else {
+                    done()
+                }
+            })
+        });
     });
 });
 

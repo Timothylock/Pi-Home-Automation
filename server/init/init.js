@@ -68,7 +68,7 @@ module.exports = {
                                 if (error) throw new Error(error);
 
                                 if (body == "Success") {
-                                    database.addLog(2, "light " + action, pin + " triggered from Alexa", {}); // TODO: Hydrate the id with name
+                                    database.addLog("wemo", "light " + action, pin + " triggered from Alexa", {});
                                 }
                             });
                         }
@@ -104,7 +104,7 @@ module.exports = {
                         if (error) throw new Error(error);
 
                         if (body == "Success") {
-                            database.addLog(2, "opening curtains", "triggered from Alexa", {});
+                            database.addLog("wemo", "opening curtains", "triggered from Alexa", {});
                         }
                     });
                 }
@@ -148,7 +148,7 @@ module.exports = {
         // Add Logs
         try {
             var data = JSON.parse(fs.readFileSync('data/lastonline.json'));
-            database.addLog(1, "Server Unexpected Shutdown Detected", data, {});
+            database.addLog("system", "Server Unexpected Shutdown Detected", data, {});
         } catch (err) {
             console.log("No previous online log file found. Ignoring");
         }

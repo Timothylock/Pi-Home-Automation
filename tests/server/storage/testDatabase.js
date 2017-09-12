@@ -273,13 +273,13 @@ describe('database', function () {
     });
 
     it("take picture failure", function (done) {
-        db.get("SELECT username, type FROM Log WHERE username=\"1\" AND type=\"Picture Error\"", function (err, row) {
+        db.get("SELECT username, type FROM Log WHERE username=\"system\" AND type=\"Picture Error\"", function (err, row) {
             if (err !== null) {
                 done(err);
-            } else if (JSON.stringify(row) === "{\"username\":\"1\",\"type\":\"Picture Error\"}") {
+            } else if (JSON.stringify(row) === "{\"username\":\"system\",\"type\":\"Picture Error\"}") {
                 done();
             } else {
-                done(new Error("Expected {\"username\":\"1\",\"type\":\"Picture Error\"} but got " + JSON.stringify(row)));
+                done(new Error("Expected {\"username\":\"system\",\"type\":\"Picture Error\"} but got " + JSON.stringify(row)));
             }
         });
     });

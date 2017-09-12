@@ -9,7 +9,7 @@ module.exports = {
     writeStatus: function (status) {
         fs.writeFile('data/status.json', JSON.stringify(status), 'utf8', function (err, data) {
             if (err === null) {
-                db.addLog(1, "writeStatus error", err, {});
+                db.addLog("system", "writeStatus error", err, {});
             }
         });
     }
