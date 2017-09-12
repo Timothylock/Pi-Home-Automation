@@ -20,7 +20,7 @@ function getLogs() {
             var result = "";
             for (var i = 0; i < response.length; i++) {
                 (function (i) {
-                    result += "<tr><td>" + response[i].timestamp + "</td><td>" + response[i].userid + "</td><td>" + response[i].type + "</td><td>" + response[i].details + "</td><td>" + response[i].origin + "</td><td><button onclick='deleteLog(\"" + response[i].timestamp + "\")' type='button' class='btn btn-danger'>Delete</button></td></tr>"
+                    result += "<tr><td>" + response[i].timestamp + "</td><td>" + response[i].username + "</td><td>" + response[i].type + "</td><td>" + response[i].details + "</td><td>" + response[i].origin + "</td><td><button onclick='deleteLog(\"" + response[i].timestamp + "\")' type='button' class='btn btn-danger'>Delete</button></td></tr>"
                 })(i);
             }
             $("#logbody").html(result);
