@@ -9,7 +9,6 @@ A DIY home monitoring system made of the Raspberry Pi. It currently has the abil
 
 ----------
 
-
 Setup
 -------------
 
