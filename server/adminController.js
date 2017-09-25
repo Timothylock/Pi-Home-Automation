@@ -166,5 +166,21 @@ module.exports = {
                 success.Success200(res);
             });
         });
+    },
+
+    pullLatest: function (req, res) {
+        authentication.requiredLevel(req, 3, function (allow, err) {
+            if (err !== null) {
+                errors.Error500(1003, err, res);
+                return;
+            }
+
+            if (!allow) {
+                errors.Error403(1007, forbidden, res);
+                return;
+            }
+
+            execute.gitPull(req, res);
+        });
     }
 };

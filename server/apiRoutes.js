@@ -44,5 +44,7 @@ module.exports = (function () {
         .post(adminController.addUser)
         .delete(adminController.deleteUser);
 
+    router.get('/admin/update', adminController.pullLatest);
+
     return router;
 })();

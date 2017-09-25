@@ -18,11 +18,7 @@ module.exports = {
 
     gitPull: function (req, res) {
         pullLatestServer(function (out, err) {
-            if (err !== "") {
-                errors.Error500(1004, err, res);
-            } else {
-                res.send({"log": out});
-            }
+            res.send({"log": out + " " + err});
         })
     }
 };
