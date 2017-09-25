@@ -100,4 +100,4 @@ if not os.path.isfile(CONFIG_LOC):
 else:
     print("Config file already exists. Skipping config creation as a precaution. Delete " + CONFIG_LOC + " if you want me to recreate it.\n\n")
 
-print("Finished!")
+print("Completed!")
