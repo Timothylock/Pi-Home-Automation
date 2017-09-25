@@ -1,6 +1,6 @@
 Tim Pi Home Monitoring 
 [![Travis build](https://travis-ci.org/Timothylock/Pi-Home-Automation.svg?branch=master)](https://travis-ci.org/Timothylock/Pi-Home-Automation)
-[![Coverage Status](https://coveralls.io/repos/github/Timothylock/Pi-Home-Automation/badge.svg?branch=master)](https://coveralls.io/github/Timothylock/Pi-Home-Automation)
+[![Coverage Status](https://coveralls.io/repos/github/Timothylock/Pi-Home-Automation/badge.svg?branch=master)](https://coveralls.io/github/Timothylock/Pi-Home-Automation) 
 ===================
 
 A DIY home monitoring system made of the Raspberry Pi. It currently has the ability to control lights, outlets, and blinds. 
