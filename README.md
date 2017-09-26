@@ -8,7 +8,6 @@ A DIY home monitoring system made of the Raspberry Pi. It currently has the abil
 ![alt text](www/assets/img/screenshot.jpg "Screenshot of main screen")
 
 ----------
-
 Setup
 -------------
 
