@@ -50,7 +50,6 @@ module.exports = {
                 errors.Error500(1003, err, res);
                 return;
             }
-
             if (!allow) {
                 errors.Error403(1007, forbidden, res);
                 return;
