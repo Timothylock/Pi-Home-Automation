@@ -39,7 +39,6 @@ db.changeWemoPassword(crypto.randomBytes(20).toString('hex'), function () {
     interrupts.setupInterrupts(app);
 });
 
-
 //////////////////////
 // Express Server
 //////////////////////
