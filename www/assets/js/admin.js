@@ -154,13 +154,14 @@ function submitUser() {
 
 function pullLatestVersion() {
     $('#gitpull').prop('disabled', true);
-    if (confirm("About to download latest server. This may take a while. Do you want to proceed?")) {
+    if (confirm("About to download latest server. This may take a while. The server will reboot afterwards. Do you want to proceed?")) {
         $.ajax({
             url: '/api/admin/update',
             type: 'GET',
             success: function (response) {
                 $('#gitpull').prop('disabled', false);
                 alert(response.log);
+                alert("System is restarting. This will take several minutes");
             },
             error: function (response) {
                 $('#gitpull').prop('disabled', false);

@@ -46,6 +46,8 @@ Setup
  ` node server.js ` if you are running on your local dev environment. ` NODE_ENV=production server.js ` if you are running on your pi (as production will have the real pigpio module load while anything else will have the mock one load up). 
 
  14. You can connect to the server by entering your Pi's IP address into any web browser
+ 
+ 15. Install nodemon if you want it to monitor the folder and if you want the update feature to work ` sudo apt-get install nodemon `
 
 **Starting with the Pi**
 You can set the server to start up along with the Pi. This is not a watchdog so if the server crashes, it will not be automatically restarted. Please check how to set up a watch dog on the internet. 
@@ -57,7 +59,7 @@ To start up with Pi, type
 and add
 
     cd /home/pi/Pi-Home-Automation/
-    NODE_ENV=production node server.js &
+    NODE_ENV=production nodemon &
 
 replacing the directory with your own of course. Don't forget the '&'! It makes the script run in the background rather than hanging the startup.
 

@@ -1,0 +1,10 @@
+{
+  "restartable": "rs",
+  "ignore": [
+    "data/*.*"
+  ],
+  "verbose": true,
+  "events": {
+    "restart": "echo 'restarted server'"
+  }
+}
