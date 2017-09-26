@@ -12,6 +12,43 @@ $.ajax({
     }
 });
 
+function loadServerUpdateInfo() {
+    var text = "";
+    var curr = "";
+    var latest = "";
+    $.ajax({
+        url: '/api/admin/version',
+        type: 'GET',
+        success: function (response) {
+            curr = response.version;
+            text += '<p>Server running version: <a href=\"https://github.com/Timothylock/Pi-Home-Automation/tree/' + response.version + "\">" + response.version + "</a></p>";
+            $.ajax({
+                url: 'https://api.github.com/repos/timothylock/Pi-Home-Automation/commits/master',
+                type: 'GET',
+                success: function (response) {
+                    latest = response.sha;
+                    text += '<p>Latest version: <a href=\"https://github.com/Timothylock/Pi-Home-Automation/tree/' + response.sha + "\">" + response.sha + "</a></p>";
+                    if (latest != curr) {
+                        text = '<p style="color:limegreen">A new version is available!</p>' + text;
+                    } else {
+                        text = '<p>Currently running the latest version</p>' + text;
+                    }
+
+                    $("#updateInfo").html(text);
+                },
+                error: function (response) {
+                    $("#updateInfo").html("Error retrieving data");
+                    console.log("Cannot retrieve latest revision - " + response.responseText)
+                }
+            });
+        },
+        error: function (response) {
+            $("#updateInfo").html("Error retrieving data");
+            console.log("Cannot retrieve current revision - " + response.responseText)
+        }
+    });
+}
+
 function getLogs() {
     $.ajax({
         url: '/api/admin/logs',
@@ -113,4 +150,23 @@ function submitUser() {
             alert("Could not add " + username + ". " + response.responseText);
         }
     });
+}
+
+function pullLatestVersion() {
+    $('#gitpull').prop('disabled', true);
+    if (confirm("About to download latest server. This may take a while. The server will reboot afterwards. Do you want to proceed?")) {
+        $.ajax({
+            url: '/api/admin/update',
+            type: 'GET',
+            success: function (response) {
+                $('#gitpull').prop('disabled', false);
+                alert(response.log);
+                alert("System is restarting. This will take several minutes");
+            },
+            error: function (response) {
+                $('#gitpull').prop('disabled', false);
+                alert("error" + response.responseText);
+            }
+        });
+    }
 }
