@@ -59,5 +59,5 @@ console.log('Listening on port ' + process.env.PORT);
 // Start Aux functions
 require('./server/scheduled/scheduled');
 
-db.addLog(1, "Server Starting", "", {});
+db.addLog("system", "Server Starting", "", {});
 console.log("Server startup complete");
