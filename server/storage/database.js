@@ -54,9 +54,9 @@ module.exports = {
 
         db.serialize(function () {
             if (ua === undefined) {
-                db.run("INSERT INTO Log (username, type, details, origin) VALUES (" + username + ",\"" + action + "\",\"" + details + "\",\"" + ip + "\")");
+                db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"" + username + "\",\"" + action + "\",\"" + details + "\",\"" + ip + "\")");
             } else {
-                db.run("INSERT INTO Log (username, type, details, origin) VALUES (" + username + ",\"" + action + "\",\"" + details + "\",\"" + ip + ua.replace(/,/g, "---") + "\")");
+                db.run("INSERT INTO Log (username, type, details, origin) VALUES (\"" + username + "\",\"" + action + "\",\"" + details + "\",\"" + ip + ua.replace(/,/g, "---") + "\")");
             }
         });
     },
@@ -130,7 +130,7 @@ module.exports = {
 
     // putsPictureError adds and entry into the log
     putsPictureError: function (error, stdout, stderr) {
-        module.exports.addLog(1, "Picture Error", error + " " + stderr, {});
+        module.exports.addLog("system", "Picture Error", error + " " + stderr, {});
     }
 };
 

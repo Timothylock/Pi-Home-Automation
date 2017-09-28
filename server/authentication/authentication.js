@@ -15,10 +15,14 @@ module.exports = {
 
         database.getAccessLevel(credentials[0], function (lvl, err) {
             if (err !== null) {
-                callback(false, err)
+                callback(false, err, null)
             }
 
-            callback(lvl >= requireLevel, null)
+            callback(lvl >= requireLevel, null, {
+                "username": credentials[0],
+                "password": credentials[1],
+                "level": lvl
+            })
         })
     }
 };

@@ -87,7 +87,7 @@ module.exports = {
     },
 
     addUser: function (req, res) {
-        authentication.requiredLevel(req, 3, function (allow, err) {
+        authentication.requiredLevel(req, 3, function (allow, err, user) {
             if (err !== null) {
                 errors.Error500(1003, err, res);
                 return;
@@ -122,7 +122,7 @@ module.exports = {
                 return;
             }
 
-            database.addLog(0, "add user", username, {'req': req}); // TODO: Lookup userID
+            database.addLog(user["username"], "add user", username, {'req': req});
             database.addUser(username, password, realname, accesslevel, function () {
                 success.Success200(res);
             });
@@ -130,7 +130,7 @@ module.exports = {
     },
 
     deleteUser: function (req, res) {
-        authentication.requiredLevel(req, 3, function (allow, err) {
+        authentication.requiredLevel(req, 3, function (allow, err, user) {
             if (err !== null) {
                 errors.Error500(1003, err, res);
                 return;
@@ -160,7 +160,7 @@ module.exports = {
                 return;
             }
 
-            database.addLog(0, "delete user", username, {'req': req}); // TODO: Lookup userID
+            database.addLog(user["username"], "delete user", username, {'req': req});
             database.deleteUser(username, function () {
                 success.Success200(res);
             });

@@ -38,7 +38,7 @@ module.exports = {
     },
 
     getHistory: function (req, res) { // Get the last 10 pictures
-        authentication.requiredLevel(req, -1, function (allow, err) {
+        authentication.requiredLevel(req, -1, function (allow, err, user) {
             if (err !== null) {
                 errors.Error500(1003, err, res);
                 return;
@@ -55,7 +55,7 @@ module.exports = {
                 } else {
                     errors.Error500(1003, err, res);
                 }
-                database.addLog(0, "history view", "", {'req': req}); // TODO: Lookup userID
+                database.addLog(user["username"], "history view", "", {'req': req});
             });
         });
     },
@@ -77,7 +77,7 @@ module.exports = {
     },
 
     postLights: function (req, res) {
-        authentication.requiredLevel(req, 1, function (allow, err) {
+        authentication.requiredLevel(req, 1, function (allow, err, user) {
             if (err !== null) {
                 errors.Error500(1003, err, res);
                 return;
@@ -90,7 +90,7 @@ module.exports = {
 
             var result = lights.toggleLights(req.query.onoff, req.query.id, req);
 
-            database.addLog(0, "light " + req.query.onoff, req.query.id, {'req': req}); // TODO: Hydrate the id with name
+            database.addLog(user["username"], "light " + req.query.onoff, req.query.id, {'req': req}); // TODO: Hydrate the id with name
 
             if (result === "Success") {
                 success.Success200(res)
@@ -101,7 +101,7 @@ module.exports = {
     },
 
     postBlinds: function (req, res) {
-        authentication.requiredLevel(req, 1, function (allow, err) {
+        authentication.requiredLevel(req, 1, function (allow, err, user) {
             if (err !== null) {
                 errors.Error500(1003, err, res);
                 return;
@@ -116,10 +116,10 @@ module.exports = {
 
             if (result === "Success" && req.query.set === "1") {
                 success.Success200(res);
-                database.addLog(0, "opening curtains", "", {'req': req}); // TODO: Lookup userID
+                database.addLog(user["username"], "opening curtains", "", {'req': req});
             } else if (result === "Success" && req.query.set === "0") {
                 success.Success200(res);
-                database.addLog(0, "closing curtains", "", {'req': req}); // TODO: Lookup userID
+                database.addLog(user["username"], "closing curtains", "", {'req': req});
             } else {
                 errors.Error500("1024", result, res);
             }
