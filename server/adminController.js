@@ -168,7 +168,7 @@ module.exports = {
     },
 
     pullLatest: function (req, res) {
-        authentication.requiredLevel(req, 3, function (allow, err) {
+        authentication.requiredLevel(req, 3, function (allow, err, user) {
             if (err !== null) {
                 errors.Error500(1003, err, res);
                 return;
@@ -179,6 +179,7 @@ module.exports = {
                 return;
             }
 
+            database.addLog(user["username"], "update server", null, {'req': req});
             execute.gitPull(req, res);
         });
     }

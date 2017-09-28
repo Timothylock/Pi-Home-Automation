@@ -17,6 +17,13 @@ module.exports = {
             res.send("Incorrect administrator secret");
             database.addLog(0, res.query.op + " attempted", "UNAUTHENTICATED", {'req': req}); // TODO: Lookup userID
         }
+    },
+
+    shutdownRecieverInternal: function (op) {
+        database.addLog(0, "Shutdown/Reboot Initiated", "", {'req': req});
+        shutdownHandler(req.query.op, function (msg) {
+
+        });
     }
 };
 
