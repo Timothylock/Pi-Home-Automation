@@ -113,7 +113,7 @@ module.exports = {
             // Fake WeMo emulation
             var fauxMo = new FauxMo(
                 {
-                    ipAddress: '10.88.111.4',
+                    ipAddress: '10.88.111.2',
                     devices: wemoFakes
                 });
         });
