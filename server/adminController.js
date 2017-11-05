@@ -168,6 +168,10 @@ module.exports = {
     },
 
     pullLatest: function (req, res) {
+        if (process.env.NODE_ENV !== "production") {
+            errors.Error403(1007, "Cannot update the server on a non-production environment", res);
+            return;
+        }
         authentication.requiredLevel(req, 3, function (allow, err, user) {
             if (err !== null) {
                 errors.Error500(1003, err, res);
